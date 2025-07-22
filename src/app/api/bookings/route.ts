@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { BookingStatus, UserRole } from '@prisma/client';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { BookingStatus, UserRole } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!serviceId || !date || !time || !customerName || !customerEmail) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -30,10 +30,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!service) {
-      return NextResponse.json(
-        { error: 'Service not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Service not found" }, { status: 404 });
     }
 
     // Create or find user
@@ -53,33 +50,53 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate start and end times
-    const [hours, minutes] = time.split(':').map(Number);
-    const startDateTime = new Date(date);
-    startDateTime.setHours(hours, minutes, 0, 0);
-    
-    const endDateTime = new Date(startDateTime);
-    endDateTime.setMinutes(endDateTime.getMinutes() + service.duration);
+    let startDateTime: Date;
+    let endDateTime: Date;
+
+    // Check if time is a range (e.g., "09:00 - 12:00") or single time (e.g., "09:00")
+    if (time.includes(" - ")) {
+      // Handle time range
+      const [startTime, endTime] = time.split(" - ");
+      const [startHours, startMinutes] = startTime.split(":").map(Number);
+      const [endHours, endMinutes] = endTime.split(":").map(Number);
+
+      startDateTime = new Date(date);
+      startDateTime.setHours(startHours, startMinutes, 0, 0);
+
+      endDateTime = new Date(date);
+      endDateTime.setHours(endHours, endMinutes, 0, 0);
+    } else {
+      // Handle single time (legacy support)
+      const [hours, minutes] = time.split(":").map(Number);
+      startDateTime = new Date(date);
+      startDateTime.setHours(hours, minutes, 0, 0);
+
+      endDateTime = new Date(startDateTime);
+      endDateTime.setMinutes(endDateTime.getMinutes() + service.duration);
+    }
 
     // Check if the time slot is available
-    const existingBooking = await prisma.booking.findFirst({
-      where: {
-        serviceId,
-        professionalId: professionalId || undefined,
-        startDateTime: {
-          lte: endDateTime,
-        },
-        endDateTime: {
-          gte: startDateTime,
-        },
-        status: {
-          in: [BookingStatus.PENDING, BookingStatus.CONFIRMED],
-        },
+    const whereCondition = {
+      serviceId,
+      startDateTime: {
+        lt: endDateTime,
       },
+      endDateTime: {
+        gt: startDateTime,
+      },
+      status: {
+        in: [BookingStatus.PENDING, BookingStatus.CONFIRMED],
+      },
+      ...(professionalId && professionalId !== "any" && { professionalId }),
+    };
+
+    const existingBooking = await prisma.booking.findFirst({
+      where: whereCondition,
     });
 
     if (existingBooking) {
       return NextResponse.json(
-        { error: 'Time slot not available' },
+        { error: "Time slot not available" },
         { status: 409 }
       );
     }
@@ -88,7 +105,8 @@ export async function POST(request: NextRequest) {
     const booking = await prisma.booking.create({
       data: {
         clientId: user.id,
-        professionalId: professionalId || null,
+        professionalId:
+          professionalId && professionalId !== "any" ? professionalId : null,
         serviceId,
         startDateTime,
         endDateTime,
@@ -121,9 +139,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(booking, { status: 201 });
   } catch (error) {
-    console.error('Error creating booking:', error);
+    console.error("Error creating booking:", error);
     return NextResponse.json(
-      { error: 'Failed to create booking' },
+      { error: "Failed to create booking" },
       { status: 500 }
     );
   }
@@ -154,15 +172,15 @@ export async function GET() {
         service: true,
       },
       orderBy: {
-        startDateTime: 'desc',
+        startDateTime: "desc",
       },
     });
 
     return NextResponse.json(bookings);
   } catch (error) {
-    console.error('Error fetching bookings:', error);
+    console.error("Error fetching bookings:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch bookings' },
+      { error: "Failed to fetch bookings" },
       { status: 500 }
     );
   }

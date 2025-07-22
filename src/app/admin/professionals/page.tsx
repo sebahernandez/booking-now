@@ -4,8 +4,10 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2, User, Mail, Calendar } from "lucide-react"
+import { Plus, Edit, Trash2, User, Mail, Calendar, Clock } from "lucide-react"
 import ProfessionalModal from "@/components/admin/professional-modal"
+import { AvailabilityManager } from "@/components/admin/availability-manager"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 interface Professional {
   id: string
@@ -35,6 +37,7 @@ export default function ProfessionalsPage() {
   const [professionals, setProfessionals] = useState<Professional[]>([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
+  const [availabilityModalOpen, setAvailabilityModalOpen] = useState(false)
   const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null)
 
   useEffect(() => {
@@ -90,6 +93,11 @@ export default function ProfessionalsPage() {
   const handleProfessionalSaved = () => {
     fetchProfessionals()
     setModalOpen(false)
+  }
+
+  const handleManageAvailability = (professional: Professional) => {
+    setSelectedProfessional(professional)
+    setAvailabilityModalOpen(true)
   }
 
   if (loading) {
@@ -188,6 +196,15 @@ export default function ProfessionalsPage() {
                   Editar
                 </Button>
                 <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => handleManageAvailability(professional)}
+                  className="flex-1"
+                >
+                  <Clock className="w-4 h-4 mr-1" />
+                  Horarios
+                </Button>
+                <Button 
                   variant="destructive" 
                   size="sm" 
                   onClick={() => handleDeleteProfessional(professional.id)}
@@ -216,6 +233,20 @@ export default function ProfessionalsPage() {
         professional={selectedProfessional}
         onSaved={handleProfessionalSaved}
       />
+
+      <Dialog open={availabilityModalOpen} onOpenChange={setAvailabilityModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Gestión de Disponibilidad</DialogTitle>
+          </DialogHeader>
+          {selectedProfessional && (
+            <AvailabilityManager
+              professionalId={selectedProfessional.id}
+              professionalName={selectedProfessional.user.name || selectedProfessional.user.email}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -210,8 +210,8 @@ export function ServiceSelectionStep() {
                 <SelectValue
                   placeholder={
                     isLoadingProfessionals
-                      ? "Loading professionals..."
-                      : "Any available professional"
+                      ? "Cargando profesionales..."
+                      : "Profesional disponible"
                   }
                 />
               </SelectTrigger>
