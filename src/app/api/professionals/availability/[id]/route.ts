@@ -96,23 +96,97 @@ export async function PUT(
     const { id: professionalId } = await params;
     const availabilityData = await request.json();
 
-    // In a real app, this would update the database
-    console.log(
-      "Updating availability for professional:",
-      professionalId,
-      availabilityData
-    );
+    // Validate that the professional exists
+    const professional = await prisma.professional.findUnique({
+      where: { id: professionalId },
+    });
 
-    // Return updated data
+    if (!professional) {
+      return NextResponse.json(
+        { error: "Professional not found" },
+        { status: 404 }
+      );
+    }
+
+    // Update availability in database using a transaction
+    await prisma.$transaction(async (tx) => {
+      // First, delete all existing availability slots for this professional
+      await tx.availabilitySlot.deleteMany({
+        where: {
+          professionalId: professionalId,
+          specificDate: null, // Only delete regular weekly schedule, not date-specific overrides
+        },
+      });
+
+      // Then, create new availability slots based on the provided data
+      const newSlots: Array<{
+        professionalId: string;
+        dayOfWeek: number;
+        startTime: string;
+        endTime: string;
+        isAvailable: boolean;
+        specificDate: null;
+      }> = [];
+
+      // Convert the weeklySchedule format to database records
+      for (const [dayName, dayData] of Object.entries(
+        availabilityData.weeklySchedule
+      )) {
+        const typedDayData = dayData as {
+          isWorking: boolean;
+          timeSlots: Array<{ startTime: string; endTime: string }>;
+        };
+
+        if (
+          typedDayData.isWorking &&
+          typedDayData.timeSlots &&
+          typedDayData.timeSlots.length > 0
+        ) {
+          const dayOfWeekMap: { [key: string]: number } = {
+            sunday: 0,
+            monday: 1,
+            tuesday: 2,
+            wednesday: 3,
+            thursday: 4,
+            friday: 5,
+            saturday: 6,
+          };
+
+          const dayOfWeek = dayOfWeekMap[dayName];
+
+          if (dayOfWeek !== undefined) {
+            for (const timeSlot of typedDayData.timeSlots) {
+              newSlots.push({
+                professionalId: professionalId,
+                dayOfWeek: dayOfWeek,
+                startTime: timeSlot.startTime,
+                endTime: timeSlot.endTime,
+                isAvailable: true,
+                specificDate: null,
+              });
+            }
+          }
+        }
+      }
+
+      // Create all new slots
+      if (newSlots.length > 0) {
+        await tx.availabilitySlot.createMany({
+          data: newSlots,
+        });
+      }
+    });
+
+    // Return success response with updated data
     return NextResponse.json({
-      ...availabilityData,
-      id: `availability_${professionalId}`,
+      message: "Horarios actualizados exitosamente",
       professionalId,
+      weeklySchedule: availabilityData.weeklySchedule,
     });
   } catch (error) {
     console.error("Error updating professional availability:", error);
     return NextResponse.json(
-      { error: "Failed to update availability" },
+      { error: "Error al actualizar horarios" },
       { status: 500 }
     );
   }
