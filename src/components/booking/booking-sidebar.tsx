@@ -182,7 +182,7 @@ export function BookingSidebar() {
           <Button
             variant="outline"
             size="sm"
-            className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
+            className="w-full border-slate-600 text-black bg-white hover:bg-blue-600 hover:text-white cursor-pointer"
           >
             Contactar Soporte
           </Button>

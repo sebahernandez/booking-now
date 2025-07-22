@@ -180,9 +180,9 @@ export function BookingSidebar() {
             contactarnos.
           </p>
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
-            className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
+            className="w-full border-black text-black hover:bg-white"
           >
             Contactar Soporte
           </Button>
