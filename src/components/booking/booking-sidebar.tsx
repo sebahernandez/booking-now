@@ -64,7 +64,9 @@ export function BookingSidebar() {
     <div className="w-96 bg-gradient-to-br from-slate-900 to-slate-800 text-white">
       <div className="p-8">
         <div className="mb-10">
-          <h1 className="text-3xl font-bold text-white mb-2">Reservar Cita</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Booking Now <span className="text-sm text-cursive">Datapro</span>
+          </h1>
           <p className="text-slate-300 text-lg">
             Complete los pasos para programar su cita
           </p>
