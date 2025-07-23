@@ -5,9 +5,25 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token
     const isAdminRoute = req.nextUrl.pathname.startsWith("/admin")
+    const isTenantRoute = req.nextUrl.pathname.startsWith("/tenant")
 
-    // Protect admin routes
+    // Redirect tenants trying to access admin routes to their tenant dashboard
+    if (isAdminRoute && token?.isTenant) {
+      return NextResponse.redirect(new URL("/tenant", req.url))
+    }
+
+    // Redirect non-tenant users trying to access tenant routes to admin
+    if (isTenantRoute && !token?.isTenant) {
+      return NextResponse.redirect(new URL("/admin", req.url))
+    }
+
+    // Protect admin routes - only allow ADMIN users (not tenants)
     if (isAdminRoute && token?.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/login", req.url))
+    }
+
+    // Protect tenant routes - only allow tenant users
+    if (isTenantRoute && !token?.isTenant) {
       return NextResponse.redirect(new URL("/login", req.url))
     }
 
@@ -23,8 +39,9 @@ export default withAuth(
           return true
         }
         
-        // Require authentication for admin routes
-        if (req.nextUrl.pathname.startsWith("/admin")) {
+        // Require authentication for admin and tenant routes
+        if (req.nextUrl.pathname.startsWith("/admin") || 
+            req.nextUrl.pathname.startsWith("/tenant")) {
           return !!token
         }
         
@@ -35,5 +52,5 @@ export default withAuth(
 )
 
 export const config = {
-  matcher: ["/admin/:path*", "/login"]
+  matcher: ["/admin/:path*", "/tenant/:path*", "/login"]
 }

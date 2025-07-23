@@ -1,7 +1,7 @@
 import { NextAuthOptions } from "next-auth"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
+import { UserRole } from "@prisma/client"
 import { prisma } from "./prisma"
 
 export const authOptions: NextAuthOptions = {
@@ -21,43 +21,71 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
+          // First try to find a regular user
           const user = await prisma.user.findUnique({
             where: {
               email: credentials.email.toLowerCase().trim()
             }
           })
 
-          console.log("👤 User found:", { 
-            exists: !!user, 
-            email: user?.email, 
-            hasPassword: !!user?.password,
-            role: user?.role 
+          if (user && user.password) {
+            const isPasswordValid = await bcrypt.compare(
+              credentials.password,
+              user.password
+            )
+
+            if (isPasswordValid) {
+              console.log("✅ User login successful for:", user.email)
+              return {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+                tenantId: user.tenantId,
+                isTenant: false,
+              }
+            }
+          }
+
+          // If no user found or password invalid, try tenant login
+          const tenant = await prisma.tenant.findUnique({
+            where: {
+              email: credentials.email.toLowerCase().trim()
+            }
           })
 
-          if (!user || !user.password) {
-            console.log("❌ User not found or no password")
+          console.log("🏢 Tenant found:", { 
+            exists: !!tenant, 
+            email: tenant?.email, 
+            isActive: tenant?.isActive
+          })
+
+          if (!tenant || !tenant.isActive) {
+            console.log("❌ Tenant not found or inactive")
             return null
           }
 
-          const isPasswordValid = await bcrypt.compare(
+          const isTenantPasswordValid = await bcrypt.compare(
             credentials.password,
-            user.password
+            tenant.password
           )
 
-          console.log("🔒 Password valid:", isPasswordValid)
+          console.log("🔒 Tenant password valid:", isTenantPasswordValid)
 
-          if (!isPasswordValid) {
-            console.log("❌ Invalid password")
+          if (!isTenantPasswordValid) {
+            console.log("❌ Invalid tenant password")
             return null
           }
 
-          console.log("✅ Login successful for:", user.email)
+          console.log("✅ Tenant login successful for:", tenant.email)
           
           return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
+            id: tenant.id,
+            email: tenant.email,
+            name: tenant.name,
+            role: "CLIENT" as UserRole, // Tenants are treated as clients
+            tenantId: tenant.id,
+            isTenant: true,
           }
         } catch (error) {
           console.error("❌ Auth error:", error)
@@ -73,6 +101,8 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role
+        token.tenantId = user.tenantId
+        token.isTenant = user.isTenant
       }
       return token
     },
@@ -80,6 +110,8 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user.id = token.sub!
         session.user.role = token.role
+        session.user.tenantId = token.tenantId
+        session.user.isTenant = token.isTenant
       }
       return session
     }

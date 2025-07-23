@@ -1,13 +1,52 @@
 import { PrismaClient, UserRole } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("Starting database seeding...");
 
+  // Create admin user first
+  let adminUser = await prisma.user.findFirst({
+    where: { email: "admin@bookingsystem.com" },
+  });
+  if (!adminUser) {
+    const hashedPassword = await bcrypt.hash("admin123", 12);
+    adminUser = await prisma.user.create({
+      data: {
+        name: "Sistema Admin",
+        email: "admin@bookingsystem.com",
+        password: hashedPassword,
+        role: UserRole.ADMIN,
+      },
+    });
+    console.log("✅ Created admin user");
+  } else {
+    console.log("ℹ️ Admin user already exists");
+  }
+
+  // Create default tenant for demo data
+  let defaultTenant = await prisma.tenant.findFirst({
+    where: { email: "demo@bookingnowtenant.com" },
+  });
+  if (!defaultTenant) {
+    const hashedPassword = await bcrypt.hash("demo123", 12);
+    defaultTenant = await prisma.tenant.create({
+      data: {
+        name: "Demo Photography Studio",
+        email: "demo@bookingnowtenant.com",
+        password: hashedPassword,
+        phone: "+1234567890",
+      },
+    });
+    console.log("✅ Created default tenant");
+  } else {
+    console.log("ℹ️ Default tenant already exists");
+  }
+
   // Create services (check if they exist first)
   let photoSession = await prisma.service.findFirst({
-    where: { name: "Photography Session" },
+    where: { name: "Photography Session", tenantId: defaultTenant.id },
   });
   if (!photoSession) {
     photoSession = await prisma.service.create({
@@ -17,6 +56,7 @@ async function main() {
           "Professional photography for portraits, events, or commercial use",
         duration: 60,
         price: 150,
+        tenantId: defaultTenant.id,
       },
     });
     console.log("✅ Created Photography Session service");
@@ -25,7 +65,7 @@ async function main() {
   }
 
   let weddingPhoto = await prisma.service.findFirst({
-    where: { name: "Wedding Photography" },
+    where: { name: "Wedding Photography", tenantId: defaultTenant.id },
   });
   if (!weddingPhoto) {
     weddingPhoto = await prisma.service.create({
@@ -34,6 +74,7 @@ async function main() {
         description: "Complete wedding day photography coverage",
         duration: 480,
         price: 1200,
+        tenantId: defaultTenant.id,
       },
     });
     console.log("✅ Created Wedding Photography service");
@@ -42,7 +83,7 @@ async function main() {
   }
 
   let productPhoto = await prisma.service.findFirst({
-    where: { name: "Product Photography" },
+    where: { name: "Product Photography", tenantId: defaultTenant.id },
   });
   if (!productPhoto) {
     productPhoto = await prisma.service.create({
@@ -51,6 +92,7 @@ async function main() {
         description: "Professional product shots for e-commerce or marketing",
         duration: 120,
         price: 200,
+        tenantId: defaultTenant.id,
       },
     });
     console.log("✅ Created Product Photography service");
@@ -69,6 +111,7 @@ async function main() {
         name: "John Smith",
         phone: "+1234567890",
         role: UserRole.PROFESSIONAL,
+        tenantId: defaultTenant.id,
       },
     });
     console.log("✅ Created John Smith user");
@@ -86,6 +129,7 @@ async function main() {
         name: "Sarah Johnson",
         phone: "+1234567891",
         role: UserRole.PROFESSIONAL,
+        tenantId: defaultTenant.id,
       },
     });
     console.log("✅ Created Sarah Johnson user");
@@ -103,6 +147,7 @@ async function main() {
         name: "Mike Wilson",
         phone: "+1234567892",
         role: UserRole.PROFESSIONAL,
+        tenantId: defaultTenant.id,
       },
     });
     console.log("✅ Created Mike Wilson user");
@@ -118,6 +163,7 @@ async function main() {
     john = await prisma.professional.create({
       data: {
         userId: johnUser.id,
+        tenantId: defaultTenant.id,
         bio: "Experienced photographer specializing in portraits and events",
         hourlyRate: 150,
       },
@@ -134,6 +180,7 @@ async function main() {
     sarah = await prisma.professional.create({
       data: {
         userId: sarahUser.id,
+        tenantId: defaultTenant.id,
         bio: "Creative photographer focused on commercial and product photography",
         hourlyRate: 175,
       },
@@ -150,6 +197,7 @@ async function main() {
     mike = await prisma.professional.create({
       data: {
         userId: mikeUser.id,
+        tenantId: defaultTenant.id,
         bio: "Wedding photography specialist with 10+ years experience",
         hourlyRate: 200,
       },

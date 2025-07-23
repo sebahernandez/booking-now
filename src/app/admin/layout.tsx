@@ -1,119 +1,184 @@
-"use client"
+"use client";
 
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { signOut } from "next-auth/react"
-import Link from "next/link"
-import { 
-  Calendar, 
-  Users, 
-  Settings, 
+import { useSession } from "next-auth/react";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { signOut } from "next-auth/react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import {
   Home,
   LogOut,
-  Briefcase
-} from "lucide-react"
+  Building2,
+  Menu,
+} from "lucide-react";
 
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (status === "loading") return
-    
+    if (status === "loading") return;
+
     if (!session) {
-      router.push("/login")
-      return
+      router.push("/login");
+      return;
     }
-    
+
     if (session.user?.role !== "ADMIN") {
-      router.push("/")
-      return
+      router.push("/");
+      return;
     }
-  }, [session, status, router])
+  }, [session, status, router]);
 
   if (status === "loading") {
-    return <div>Cargando...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-pulse flex space-x-4">
+          <div className="rounded-full bg-gray-200 h-12 w-12"></div>
+          <div className="flex-1 space-y-2 py-1">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!session || session.user?.role !== "ADMIN") {
-    return null
+    return null;
   }
 
+  const navItems = [
+    { href: "/admin", label: "Dashboard", icon: Home },
+    { href: "/admin/tenants", label: "Clientes", icon: Building2 },
+    { href: "/admin/widget", label: "Widget", icon: Menu },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-sm border-r">
-        <div className="p-6">
-          <h1 className="text-xl font-bold text-gray-900">Panel Admin</h1>
-          <p className="text-sm text-gray-500">Booking Now</p>
-        </div>
-        
-        <nav className="mt-6">
-          <Link 
-            href="/admin" 
-            className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50"
-          >
-            <Home className="w-5 h-5 mr-3" />
-            Dashboard
-          </Link>
-          
-          <Link 
-            href="/admin/services" 
-            className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50"
-          >
-            <Briefcase className="w-5 h-5 mr-3" />
-            Servicios
-          </Link>
-          
-          <Link 
-            href="/admin/professionals" 
-            className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50"
-          >
-            <Users className="w-5 h-5 mr-3" />
-            Profesionales
-          </Link>
-          
-          <Link 
-            href="/admin/bookings" 
-            className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50"
-          >
-            <Calendar className="w-5 h-5 mr-3" />
-            Reservas
-          </Link>
-        </nav>
-        
-        <div className="absolute bottom-0 w-64 p-6 border-t">
-          <div className="mb-4">
-            <p className="text-sm font-medium text-gray-900">
-              {session.user?.name || session.user?.email}
-            </p>
-            <p className="text-xs text-gray-500">Administrador</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Top Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="container-fluid mx-auto px-4 sm:px-6">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">B</span>
+                </div>
+                <div>
+                  <h1 className="text-lg font-semibold text-gray-900">
+                    BookingNow
+                  </h1>
+                  <p className="text-xs text-gray-500">
+                    Panel de Administración
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <div className="hidden sm:flex items-center space-x-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-rose-100 text-rose-700 text-sm">
+                    {session.user?.name?.charAt(0) ||
+                      session.user?.email?.charAt(0) ||
+                      "A"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden lg:block">
+                  <p className="text-sm font-medium text-gray-900">
+                    {session.user?.name || session.user?.email}
+                  </p>
+                  <p className="text-xs text-gray-500">Administrador</p>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                variant="ghost"
+                size="sm"
+                className="text-gray-700 hover:text-gray-900"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
-          
-          <Button
-            onClick={() => signOut({ callbackUrl: "/" })}
-            variant="outline"
-            size="sm"
-            className="w-full"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Cerrar Sesión
-          </Button>
         </div>
-      </div>
-      
-      {/* Main content */}
-      <div className="flex-1 overflow-auto">
-        <main className="p-8">
-          {children}
+      </header>
+
+      <div className="flex">
+        {/* Sidebar Navigation */}
+        <nav className="w-64 bg-white min-h-screen border-r border-gray-200 hidden lg:block">
+          <div className="p-6">
+            <div className="space-y-2">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                      isActive
+                        ? "bg-rose-50 text-rose-700 border border-rose-100"
+                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                    )}
+                  >
+                    <Icon
+                      className={cn(
+                        "w-5 h-5",
+                        isActive ? "text-rose-600" : "text-gray-400"
+                      )}
+                    />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </nav>
+
+        {/* Main Content */}
+        <main className="flex-1 lg:ml-0">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {children}
+          </div>
         </main>
       </div>
+
+      {/* Mobile Navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+        <div className="flex justify-around">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex flex-col items-center space-y-1 px-3 py-2 rounded-lg",
+                  isActive ? "text-rose-600" : "text-gray-400"
+                )}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="text-xs font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
     </div>
-  )
+  );
 }

@@ -8,19 +8,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Calendar, Users, Briefcase, DollarSign } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Building2, Users, Globe, TrendingUp, Activity } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DashboardStats {
-  totalServices: number;
-  totalProfessionals: number;
-  totalBookings: number;
-  totalRevenue: number;
-  recentBookings: Array<{
+  totalTenants: number;
+  activeTenants: number;
+  totalUsers: number;
+  recentTenants: Array<{
     id: string;
-    clientName: string;
-    serviceName: string;
-    startDateTime: string;
-    status: string;
+    name: string;
+    email: string;
+    isActive: boolean;
+    createdAt: string;
   }>;
 }
 
@@ -46,141 +48,185 @@ export default function AdminDashboard() {
     }
   };
 
+  const getStatusBadge = (isActive: boolean) => {
+    return isActive 
+      ? { label: "Activo", className: "bg-emerald-100 text-emerald-700 border-emerald-200" }
+      : { label: "Inactivo", className: "bg-gray-100 text-gray-700 border-gray-200" };
+  };
+
   if (loading) {
-    return <div>Cargando estadísticas...</div>;
+    return (
+      <div className="space-y-8">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="border-0 shadow-sm">
+              <CardContent className="p-6">
+                <Skeleton className="h-4 w-24 mb-4" />
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-3 w-32" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
   }
 
+  const statsCards = [
+    {
+      title: "Total Clientes",
+      value: stats?.totalTenants || 0,
+      description: "Clientes registrados",
+      icon: Building2,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50"
+    },
+    {
+      title: "Clientes Activos",
+      value: stats?.activeTenants || 0,
+      description: "Clientes con acceso",
+      icon: Globe,
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50"
+    },
+    {
+      title: "Total Usuarios",
+      value: stats?.totalUsers || 0,
+      description: "Usuarios en el sistema",
+      icon: Users,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50"
+    }
+  ];
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Resumen general del sistema de reservas</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
+          Dashboard
+        </h1>
+        <p className="text-gray-600 text-lg">
+          Gestión de clientes y usuarios del sistema
+        </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Servicios
-            </CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.totalServices || 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Servicios disponibles
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Profesionales</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.totalProfessionals || 0}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Profesionales activos
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Reservas
-            </CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.totalBookings || 0}
-            </div>
-            <p className="text-xs text-muted-foreground">Reservas realizadas</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ingresos</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${stats?.totalRevenue || 0}
-            </div>
-            <p className="text-xs text-muted-foreground">Ingresos totales</p>
-          </CardContent>
-        </Card>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {statsCards.map((card, index) => {
+          const Icon = card.icon;
+          return (
+            <Card 
+              key={index} 
+              className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer group"
+            >
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={cn(
+                    "p-3 rounded-xl",
+                    card.bgColor
+                  )}>
+                    <Icon className={cn("h-5 w-5", card.color)} />
+                  </div>
+                  <TrendingUp className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                </div>
+                
+                <div className="space-y-1">
+                  <h3 className="text-sm font-medium text-gray-600">
+                    {card.title}
+                  </h3>
+                  <p className="text-2xl font-semibold text-gray-900">
+                    {card.value}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {card.description}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
-      {/* Recent Bookings */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Reservas Recientes</CardTitle>
-          <CardDescription>
-            Últimas reservas realizadas en el sistema
+      {/* Recent Activity */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-4">
+          <div className="flex items-center space-x-2">
+            <Activity className="h-5 w-5 text-gray-600" />
+            <CardTitle className="text-xl font-semibold text-gray-900">
+              Clientes Recientes
+            </CardTitle>
+          </div>
+          <CardDescription className="text-gray-600">
+            Últimos clientes registrados en el sistema
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {stats?.recentBookings?.length ? (
+          {stats?.recentTenants?.length ? (
             <div className="space-y-4">
-              {stats.recentBookings.map((booking) => (
-                <div
-                  key={booking.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium">{booking.clientName}</p>
-                    <p className="text-sm text-gray-600">
-                      {booking.serviceName}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(booking.startDateTime).toLocaleDateString(
-                        "es-ES",
-                        {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )}
-                    </p>
-                  </div>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs ${
-                      booking.status === "CONFIRMED" ||
-                      booking.status === "COMPLETED"
-                        ? "bg-green-100 text-green-800"
-                        : booking.status === "PENDING"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
+              {stats.recentTenants.map((tenant, index) => {
+                const statusBadge = getStatusBadge(tenant.isActive);
+                return (
+                  <div
+                    key={tenant.id}
+                    className={cn(
+                      "flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors duration-200",
+                      index % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                    )}
                   >
-                    {booking.status === "CONFIRMED"
-                      ? "Confirmada"
-                      : booking.status === "COMPLETED"
-                      ? "Completada"
-                      : booking.status === "PENDING"
-                      ? "Pendiente"
-                      : booking.status === "CANCELLED"
-                      ? "Cancelada"
-                      : booking.status}
-                  </span>
-                </div>
-              ))}
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-sm font-semibold">
+                          {tenant.name.charAt(0)}
+                        </span>
+                      </div>
+                      
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {tenant.name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {tenant.email}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Registrado: {new Date(tenant.createdAt).toLocaleDateString(
+                            "es-ES",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            }
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <Badge 
+                      variant="secondary"
+                      className={cn("text-xs font-medium border", statusBadge.className)}
+                    >
+                      {statusBadge.label}
+                    </Badge>
+                  </div>
+                );
+              })}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">
-              No hay reservas recientes
-            </p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <Building2 className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No hay clientes registrados
+              </h3>
+              <p className="text-gray-500 text-center max-w-sm">
+                Cuando se registren clientes en el sistema, aparecerán aquí
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>

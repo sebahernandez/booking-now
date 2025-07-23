@@ -1,11 +1,13 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { BookingFormData, BookingStep } from '@/types/booking';
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { BookingFormData, BookingStep } from "@/types/booking";
 
 interface BookingContextType {
   currentStep: BookingStep;
   formData: Partial<BookingFormData>;
+  tenantId?: string;
+  isWidget?: boolean;
   setCurrentStep: (step: BookingStep) => void;
   updateFormData: (data: Partial<BookingFormData>) => void;
   nextStep: () => void;
@@ -15,14 +17,22 @@ interface BookingContextType {
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
 
-const steps: BookingStep[] = ['service', 'datetime', 'information'];
+const steps: BookingStep[] = ["service", "datetime", "information"];
 
-export function BookingProvider({ children }: { children: ReactNode }) {
-  const [currentStep, setCurrentStep] = useState<BookingStep>('service');
+export function BookingProvider({
+  children,
+  tenantId,
+  isWidget = false,
+}: {
+  children: ReactNode;
+  tenantId?: string;
+  isWidget?: boolean;
+}) {
+  const [currentStep, setCurrentStep] = useState<BookingStep>("service");
   const [formData, setFormData] = useState<Partial<BookingFormData>>({});
 
   const updateFormData = (data: Partial<BookingFormData>) => {
-    setFormData(prev => ({ ...prev, ...data }));
+    setFormData((prev) => ({ ...prev, ...data }));
   };
 
   const nextStep = () => {
@@ -41,11 +51,11 @@ export function BookingProvider({ children }: { children: ReactNode }) {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 'service':
+      case "service":
         return !!formData.serviceId;
-      case 'datetime':
+      case "datetime":
         return !!(formData.date && formData.time);
-      case 'information':
+      case "information":
         return !!(formData.customerName && formData.customerEmail);
       default:
         return false;
@@ -57,6 +67,8 @@ export function BookingProvider({ children }: { children: ReactNode }) {
       value={{
         currentStep,
         formData,
+        tenantId,
+        isWidget,
         setCurrentStep,
         updateFormData,
         nextStep,
@@ -72,7 +84,7 @@ export function BookingProvider({ children }: { children: ReactNode }) {
 export function useBooking() {
   const context = useContext(BookingContext);
   if (context === undefined) {
-    throw new Error('useBooking must be used within a BookingProvider');
+    throw new Error("useBooking must be used within a BookingProvider");
   }
   return context;
 }

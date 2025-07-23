@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useBooking } from "@/providers/booking-provider";
 import {
   Card,
@@ -42,7 +42,21 @@ function CustomCalendar({
   onSelect: (date?: Date) => void;
   disabled: (date: Date) => boolean;
 }) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState<Date | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    setCurrentMonth(new Date());
+  }, []);
+
+  if (!isClient || !currentMonth) {
+    return (
+      <div className="p-4 h-80 flex items-center justify-center">
+        Cargando calendario...
+      </div>
+    );
+  }
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -146,7 +160,7 @@ interface ProfessionalSchedule {
   };
 }
 
-export function DateTimeStep() {
+function DateTimeStepContent() {
   const { formData, updateFormData } = useBooking();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     formData.date || undefined
@@ -562,4 +576,30 @@ export function DateTimeStep() {
       )}
     </div>
   );
+}
+
+export function DateTimeStep() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            Seleccionar Fecha y Hora
+          </h2>
+          <p className="text-xl text-gray-600">Cargando calendario...</p>
+        </div>
+        <div className="flex items-center justify-center h-96">
+          <div className="animate-pulse bg-gray-200 rounded-lg w-full h-full"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return <DateTimeStepContent />;
 }

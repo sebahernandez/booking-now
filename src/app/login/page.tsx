@@ -45,6 +45,8 @@ export default function LoginPage() {
         
         if (session?.user?.role === "ADMIN") {
           router.push("/admin")
+        } else if (session?.user?.isTenant) {
+          router.push("/tenant")
         } else {
           router.push("/")
         }

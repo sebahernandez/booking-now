@@ -27,6 +27,14 @@ interface Service {
   price: number;
 }
 
+interface TenantService {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  duration: number;
+}
+
 interface Professional {
   id: string;
   user: {
@@ -36,16 +44,33 @@ interface Professional {
   };
 }
 
-export function ServiceSelectionStep() {
-  const { formData, updateFormData } = useBooking();
+interface ServiceSelectionStepProps {
+  tenantServices?: TenantService[];
+}
+
+export function ServiceSelectionStep({
+  tenantServices,
+}: ServiceSelectionStepProps) {
+  const { formData, updateFormData, tenantId } = useBooking();
   const [services, setServices] = useState<Service[]>([]);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [isLoadingProfessionals, setIsLoadingProfessionals] = useState(false);
 
   useEffect(() => {
-    fetchServices();
-  }, []);
+    if (tenantServices) {
+      // Si tenemos servicios del tenant, usarlos directamente
+      const formattedServices = tenantServices.map((service) => ({
+        ...service,
+        description: service.description || null,
+      }));
+      setServices(formattedServices);
+      setIsLoadingServices(false);
+    } else {
+      // Si no, cargar desde la API (modo admin)
+      fetchServices();
+    }
+  }, [tenantServices]);
 
   useEffect(() => {
     if (formData.serviceId) {

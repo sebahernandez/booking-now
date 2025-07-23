@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useBooking } from "@/providers/booking-provider";
 import { ServiceSelectionStep } from "./steps/service-selection-step";
 import { DateTimeStep } from "./steps/datetime-step";
@@ -9,18 +9,83 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
 
-export function BookingContent() {
-  const { currentStep, nextStep, previousStep, canProceed, formData } =
-    useBooking();
+interface TenantService {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  duration: number;
+}
+
+interface TenantProfessional {
+  id: string;
+  user: {
+    name: string;
+    email: string;
+  };
+  bio?: string;
+}
+
+interface TenantInfo {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+}
+
+interface BookingContentProps {
+  tenantServices?: TenantService[];
+  tenantProfessionals?: TenantProfessional[];
+  tenantInfo?: TenantInfo;
+}
+
+export function BookingContent({ tenantServices }: BookingContentProps) {
+  const {
+    currentStep,
+    nextStep,
+    previousStep,
+    canProceed,
+    formData,
+    tenantId,
+    isWidget,
+  } = useBooking();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Evitar problemas de hidratación esperando a que el componente se monte
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Mostrar un loading state hasta que el componente esté completamente hidratado
+  if (!isMounted) {
+    return (
+      <div className="flex-1 flex flex-col bg-gray-50">
+        <div className="flex-1 p-8">
+          <div className="max-w-3xl mx-auto flex items-center justify-center h-96">
+            <div className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+              <p className="text-gray-600">Cargando sistema de reservas...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmitBooking = async () => {
     if (!formData.date || !formData.time) return;
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/bookings", {
+      // Usar API específica para widgets si estamos en modo widget
+      const apiUrl =
+        isWidget && tenantId
+          ? `/api/widget/tenant/${tenantId}/bookings`
+          : "/api/bookings";
+
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,7 +146,7 @@ export function BookingContent() {
 
     switch (currentStep) {
       case "service":
-        return <ServiceSelectionStep />;
+        return <ServiceSelectionStep tenantServices={tenantServices} />;
       case "datetime":
         return <DateTimeStep />;
       case "information":

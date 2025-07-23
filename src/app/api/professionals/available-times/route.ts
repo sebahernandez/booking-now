@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
             professionalSchedule = availabilityData.weeklySchedule;
           }
         }
-      } catch (error) {
+      } catch {
         console.log('Could not fetch professional schedule, using mock data');
         // Fall back to mock data
       }
@@ -109,7 +109,7 @@ async function fetchExistingBookings(date: Date, professionalId?: string | null,
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const whereClause: any = {
+    const whereClause: Record<string, unknown> = {
       startDateTime: {
         gte: startOfDay,
         lte: endOfDay,

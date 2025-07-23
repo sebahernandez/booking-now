@@ -83,7 +83,7 @@ export default function ServiceModal({ open, onClose, service, onSaved }: Servic
         const error = await response.json()
         if (error.details) {
           const fieldErrors: Record<string, string> = {}
-          error.details.forEach((detail: any) => {
+          error.details.forEach((detail: { path?: string[]; message: string }) => {
             if (detail.path) {
               fieldErrors[detail.path[0]] = detail.message
             }
