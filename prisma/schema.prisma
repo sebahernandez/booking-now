@@ -100,20 +100,36 @@ model Professional {
 }
 
 model Service {
-  id            String                @id @default(cuid())
-  name          String
-  description   String?
-  duration      Int
-  price         Float
-  tenantId      String
-  isActive      Boolean               @default(true)
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-  bookings      Booking[]
-  professionals ProfessionalService[]
-  tenant        Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id                   String                @id @default(cuid())
+  name                 String
+  description          String?
+  duration             Int
+  price                Float
+  tenantId             String
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  bookings             Booking[]
+  professionals        ProfessionalService[]
+  availabilitySchedule ServiceAvailability[]
+  tenant               Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("services")
+}
+
+model ServiceAvailability {
+  id          String   @id @default(cuid())
+  serviceId   String
+  dayOfWeek   Int      // 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+  startTime   String   // Formato "HH:MM" (ej: "09:00")
+  endTime     String   // Formato "HH:MM" (ej: "17:00")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, dayOfWeek, startTime, endTime])
+  @@map("service_availability")
 }
 
 model ProfessionalService {

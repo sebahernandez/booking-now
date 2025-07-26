@@ -24,6 +24,12 @@ export async function GET() {
             bookings: true,
           },
         },
+        availabilitySchedule: {
+          where: {
+            isActive: true,
+          },
+          orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+        },
       },
       orderBy: {
         name: "asc",

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Widget en iframe</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+
+      .widget-section {
+        margin-bottom: 40px;
+        padding: 20px;
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        background: #f8fafc;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-title::before {
+        content: "🎯";
+        font-size: 1.2em;
+      }
+
+      iframe {
+        width: 100%;
+        border: 1px solid #cbd5e0;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: box-shadow 0.3s ease;
+      }
+
+      iframe:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      }
+
+      .debug-info {
+        margin-top: 20px;
+        padding: 15px;
+        background: #2d3748;
+        color: #e2e8f0;
+        border-radius: 8px;
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 0.9rem;
+      }
+
+      .debug-title {
+        color: #68d391;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .test-buttons {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .test-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      .test-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      }
+
+      .status {
+        padding: 10px 15px;
+        border-radius: 6px;
+        margin: 10px 0;
+        font-weight: 500;
+      }
+
+      .status.success {
+        background: #c6f6d5;
+        color: #22543d;
+        border: 1px solid #9ae6b4;
+      }
+
+      .status.error {
+        background: #fed7d7;
+        color: #742a2a;
+        border: 1px solid #fc8181;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚀 Booking Widget Test - iframe Integration</h1>
+
+      <!-- Widget en iframe estándar -->
+      <div class="widget-section">
+        <div class="section-title">Widget Estándar (800x600)</div>
+        <div class="test-buttons">
+          <button class="test-btn" onclick="reloadIframe('widget1')">
+            🔄 Recargar
+          </button>
+          <button class="test-btn" onclick="testHydration('widget1')">
+            🧪 Test Hidratación
+          </button>
+          <button class="test-btn" onclick="checkConsole('widget1')">
+            📋 Console Log
+          </button>
+        </div>
+        <iframe
+          id="widget1"
+          src="http://localhost:3000/widget/cmdg3oknq0001cdo993ubgjt8"
+          height="600"
+          title="Booking Widget - Estándar"
+        >
+        </iframe>
+        <div id="status1" class="status" style="display: none"></div>
+        <div class="debug-info">
+          <div class="debug-title">📊 Debug Info:</div>
+          <div id="debug1">Cargando widget...</div>
+        </div>
+      </div>
+
+      <!-- Widget en iframe compacto -->
+      <div class="widget-section">
+        <div class="section-title">Widget Compacto (400x500)</div>
+        <div class="test-buttons">
+          <button class="test-btn" onclick="reloadIframe('widget2')">
+            🔄 Recargar
+          </button>
+          <button class="test-btn" onclick="testHydration('widget2')">
+            🧪 Test Hidratación
+          </button>
+          <button class="test-btn" onclick="checkConsole('widget2')">
+            📋 Console Log
+          </button>
+        </div>
+        <iframe
+          id="widget2"
+          src="http://localhost:3000/widget/cmdg3oknq0001cdo993ubgjt8"
+          height="500"
+          style="max-width: 400px; margin: 0 auto; display: block"
+          title="Booking Widget - Compacto"
+        >
+        </iframe>
+        <div id="status2" class="status" style="display: none"></div>
+        <div class="debug-info">
+          <div class="debug-title">📊 Debug Info:</div>
+          <div id="debug2">Cargando widget...</div>
+        </div>
+      </div>
+
+      <!-- Widget con parámetros adicionales -->
+      <div class="widget-section">
+        <div class="section-title">Widget con Theme Dark (800x600)</div>
+        <div class="test-buttons">
+          <button class="test-btn" onclick="reloadIframe('widget3')">
+            🔄 Recargar
+          </button>
+          <button class="test-btn" onclick="testHydration('widget3')">
+            🧪 Test Hidratación
+          </button>
+          <button class="test-btn" onclick="checkConsole('widget3')">
+            📋 Console Log
+          </button>
+        </div>
+        <iframe
+          id="widget3"
+          src="http://localhost:3000/widget/cmdg3oknq0001cdo993ubgjt8?theme=dark&debug=true"
+          height="600"
+          title="Booking Widget - Dark Theme"
+        >
+        </iframe>
+        <div id="status3" class="status" style="display: none"></div>
+        <div class="debug-info">
+          <div class="debug-title">📊 Debug Info:</div>
+          <div id="debug3">Cargando widget...</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Configuración global para debugging
+      window.__WIDGET_TEST_DEBUG = true;
+
+      // Función para recargar iframe
+      function reloadIframe(id) {
+        const iframe = document.getElementById(id);
+        const currentSrc = iframe.src;
+        iframe.src = "about:blank";
+        setTimeout(() => {
+          iframe.src =
+            currentSrc +
+            (currentSrc.includes("?") ? "&" : "?") +
+            "reload=" +
+            Date.now();
+          updateStatus(id, "success", "✅ Widget recargado exitosamente");
+          updateDebugInfo(
+            id,
+            "Recargando... timestamp: " + new Date().toLocaleTimeString()
+          );
+        }, 100);
+      }
+
+      // Test de hidratación
+      function testHydration(id) {
+        const iframe = document.getElementById(id);
+        updateStatus(
+          id,
+          "success",
+          "🧪 Testing hidratación - ver console del browser"
+        );
+        updateDebugInfo(
+          id,
+          "Test de hidratación iniciado - " + new Date().toLocaleTimeString()
+        );
+
+        // Simular múltiples recargas rápidas para probar hidratación
+        let reloadCount = 0;
+        const maxReloads = 3;
+
+        const testReload = () => {
+          if (reloadCount < maxReloads) {
+            reloadCount++;
+            const currentSrc = iframe.src.split("?")[0];
+            iframe.src =
+              currentSrc + "?hydration_test=" + Date.now() + "_" + reloadCount;
+            updateDebugInfo(
+              id,
+              `Test ${reloadCount}/${maxReloads} - ${new Date().toLocaleTimeString()}`
+            );
+            setTimeout(testReload, 2000);
+          } else {
+            updateStatus(id, "success", "✅ Test de hidratación completado");
+            updateDebugInfo(
+              id,
+              "Test completado - verificar que no hay errores de hidratación"
+            );
+          }
+        };
+
+        setTimeout(testReload, 1000);
+      }
+
+      // Función para checkear console
+      function checkConsole(id) {
+        updateStatus(
+          id,
+          "success",
+          "📋 Abre DevTools > Console para ver logs del widget"
+        );
+        updateDebugInfo(
+          id,
+          'Busca logs que empiecen con "BOOKING_WIDGET_DEBUG" - ' +
+            new Date().toLocaleTimeString()
+        );
+      }
+
+      // Actualizar status
+      function updateStatus(id, type, message) {
+        const statusEl = document.getElementById(
+          "status" + id.replace("widget", "")
+        );
+        statusEl.className = `status ${type}`;
+        statusEl.textContent = message;
+        statusEl.style.display = "block";
+
+        setTimeout(() => {
+          statusEl.style.display = "none";
+        }, 5000);
+      }
+
+      // Actualizar debug info
+      function updateDebugInfo(id, message) {
+        const debugEl = document.getElementById(
+          "debug" + id.replace("widget", "")
+        );
+        debugEl.textContent = message;
+      }
+
+      // Listener para mensajes del iframe
+      window.addEventListener("message", function (event) {
+        if (event.origin !== "http://localhost:3000") return;
+
+        console.log("📨 Mensaje del widget:", event.data);
+
+        // Actualizar debug info basado en mensajes del widget
+        if (event.data.type === "widget_loaded") {
+          updateDebugInfo(
+            "widget1",
+            "✅ Widget cargado - Session: " +
+              (event.data.sessionId || "unknown")
+          );
+        }
+
+        if (event.data.type === "widget_error") {
+          console.error("❌ Error del widget:", event.data.error);
+          updateStatus("widget1", "error", "❌ Error: " + event.data.error);
+        }
+      });
+
+      // Auto-refresh de debug info cada 10 segundos
+      setInterval(() => {
+        const now = new Date().toLocaleTimeString();
+        document.querySelectorAll('[id^="debug"]').forEach((el) => {
+          if (el.textContent === "Cargando widget...") {
+            el.textContent = `⏱️ Esperando carga... ${now}`;
+          }
+        });
+      }, 10000);
+
+      // Mensaje inicial
+      console.log("🚀 Test de Widget iniciado");
+      console.log(
+        '📋 Busca logs que empiecen con "BOOKING_WIDGET_DEBUG" para debugging'
+      );
+    </script>
+  </body>
+</html>

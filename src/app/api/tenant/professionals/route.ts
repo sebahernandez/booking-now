@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
           email,
           phone: phone || "",
           role: "PROFESSIONAL",
-          tenantId: session.user.tenantId,
+          tenantId: session.user.tenantId!,
         },
       });
 
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
       const professional = await tx.professional.create({
         data: {
           userId: user.id,
-          tenantId: session.user.tenantId,
+          tenantId: session.user.tenantId!,
           bio: bio || "",
           hourlyRate: hourlyRate ? parseFloat(hourlyRate) : 0,
           isAvailable: true,

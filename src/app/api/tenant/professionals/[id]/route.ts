@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export async function PUT(
   request: NextRequest,
@@ -19,7 +20,7 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { name, email, phone, bio, hourlyRate, isAvailable, services } = body;
+    const { name, email, phone, password, bio, hourlyRate, isAvailable, services } = body;
 
     // Verify professional exists and belongs to the tenant
     const existingProfessional = await prisma.professional.findFirst({
@@ -46,6 +47,9 @@ export async function PUT(
       if (name !== undefined) userUpdateData.name = name;
       if (email !== undefined) userUpdateData.email = email;
       if (phone !== undefined) userUpdateData.phone = phone;
+      if (password !== undefined && password) {
+        userUpdateData.password = await bcrypt.hash(password, 10);
+      }
 
       if (Object.keys(userUpdateData).length > 0) {
         await tx.user.update({

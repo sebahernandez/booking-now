@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   request: NextRequest,
@@ -9,10 +9,13 @@ export async function PUT(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
-    if (!session || !(session.user?.role === "ADMIN" || session.user?.isTenant)) {
+
+    if (
+      !session ||
+      !(session.user?.role === "ADMIN" || session.user?.isTenant)
+    ) {
       return NextResponse.json(
-        { error: 'No tienes permisos para realizar esta acción' },
+        { error: "No tienes permisos para realizar esta acción" },
         { status: 403 }
       );
     }
@@ -23,24 +26,26 @@ export async function PUT(
 
     if (!status) {
       return NextResponse.json(
-        { error: 'El estado es requerido' },
+        { error: "El estado es requerido" },
         { status: 400 }
       );
     }
 
     // Verify booking exists and belongs to the tenant (if tenant user)
-    const whereClause: Record<string, unknown> = { id };
-    if (session.user?.isTenant && session.user?.tenantId) {
-      whereClause.tenantId = session.user.tenantId;
-    }
+    const whereClause = { id };
 
     const existingBooking = await prisma.booking.findUnique({
       where: whereClause,
     });
 
-    if (!existingBooking) {
+    if (
+      !existingBooking ||
+      (session.user?.isTenant &&
+        session.user?.tenantId &&
+        existingBooking.tenantId !== session.user.tenantId)
+    ) {
       return NextResponse.json(
-        { error: 'Reserva no encontrada' },
+        { error: "Reserva no encontrada" },
         { status: 404 }
       );
     }
@@ -67,9 +72,9 @@ export async function PUT(
 
     return NextResponse.json(booking);
   } catch (error) {
-    console.error('Error updating booking:', error);
+    console.error("Error updating booking:", error);
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { error: "Error interno del servidor" },
       { status: 500 }
     );
   }

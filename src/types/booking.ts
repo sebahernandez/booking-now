@@ -39,13 +39,13 @@ export interface DaySchedule {
 
 export interface TimeSlot {
   startTime: string; // HH:MM format
-  endTime: string;   // HH:MM format
+  endTime: string; // HH:MM format
 }
 
 export interface AvailabilityException {
   id: string;
   date: string; // YYYY-MM-DD format
-  type: 'unavailable' | 'custom_schedule';
+  type: "unavailable" | "custom_schedule";
   customSchedule?: TimeSlot[];
   reason?: string;
 }
@@ -53,6 +53,7 @@ export interface AvailabilityException {
 export interface BookingFormData {
   serviceId: string;
   professionalId?: string;
+  selectedTimeSlot?: string;
   date: Date | null;
   time: string;
   customerName: string;
@@ -69,10 +70,12 @@ export interface Step {
   isActive: boolean;
 }
 
-export type BookingStep = 'service' | 'datetime' | 'information';
+export type BookingStep = "service" | "datetime" | "information";
 
 export interface TimeSlotAvailability {
   time: string;
   isAvailable: boolean;
+  startTime?: string;
+  endTime?: string;
   reason?: string; // e.g., "Reservado", "Fuera de horario"
 }

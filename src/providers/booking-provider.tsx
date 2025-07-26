@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { BookingFormData, BookingStep } from "@/types/booking";
 
 interface BookingContextType {
@@ -8,6 +14,7 @@ interface BookingContextType {
   formData: Partial<BookingFormData>;
   tenantId?: string;
   isWidget?: boolean;
+  isClient: boolean;
   setCurrentStep: (step: BookingStep) => void;
   updateFormData: (data: Partial<BookingFormData>) => void;
   nextStep: () => void;
@@ -30,6 +37,42 @@ export function BookingProvider({
 }) {
   const [currentStep, setCurrentStep] = useState<BookingStep>("service");
   const [formData, setFormData] = useState<Partial<BookingFormData>>({});
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // Asegurar que el provider esté completamente inicializado del lado del cliente
+    // especialmente importante para widgets en iframe
+    setIsClient(true);
+
+    // Para widgets, añadir metadata adicional para debugging solo del lado del cliente
+    if (isWidget) {
+      // Usar setTimeout para asegurar que window esté disponible después de hidratación
+      const timer = setTimeout(() => {
+        if (typeof window !== "undefined") {
+          interface DebugInfo {
+            tenantId?: string;
+            initialized: number;
+            userAgent: string;
+            isIframe: boolean;
+          }
+
+          // Use current timestamp for debug info only on client
+          const timestamp = Date.now();
+          
+          (
+            window as unknown as Record<string, unknown>
+          ).__BOOKING_WIDGET_DEBUG = {
+            tenantId,
+            initialized: timestamp,
+            userAgent: navigator.userAgent,
+            isIframe: window !== window.top,
+          } as DebugInfo;
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isWidget, tenantId]);
 
   const updateFormData = (data: Partial<BookingFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
@@ -52,6 +95,8 @@ export function BookingProvider({
   const canProceed = () => {
     switch (currentStep) {
       case "service":
+        // Para servicios sin horarios configurados, solo necesitamos el serviceId
+        // Para servicios con horarios, necesitamos serviceId y selectedTimeSlot
         return !!formData.serviceId;
       case "datetime":
         return !!(formData.date && formData.time);
@@ -69,6 +114,7 @@ export function BookingProvider({
         formData,
         tenantId,
         isWidget,
+        isClient,
         setCurrentStep,
         updateFormData,
         nextStep,

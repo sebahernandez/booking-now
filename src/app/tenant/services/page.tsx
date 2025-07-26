@@ -9,8 +9,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Clock, DollarSign, Edit, Trash2 } from "lucide-react";
+import { Plus, Clock, DollarSign, Edit, Trash2, Calendar } from "lucide-react";
 import { TenantServiceModal } from "@/components/tenant/service-modal";
+import { ServiceAvailabilityModal } from "@/components/tenant/service-availability-modal";
+
+interface ServiceAvailability {
+  id: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  isActive: boolean;
+}
 
 interface Service {
   id: string;
@@ -21,13 +30,45 @@ interface Service {
   _count?: {
     bookings: number;
   };
+  availabilitySchedule?: ServiceAvailability[];
 }
+
+const DAYS_OF_WEEK = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+const getScheduleSummary = (availabilitySchedule?: ServiceAvailability[]) => {
+  if (!availabilitySchedule || availabilitySchedule.length === 0) {
+    return "Disponible 24/7";
+  }
+
+  const groupedByDay = availabilitySchedule.reduce((acc, schedule) => {
+    if (!acc[schedule.dayOfWeek]) acc[schedule.dayOfWeek] = [];
+    acc[schedule.dayOfWeek].push(`${schedule.startTime}-${schedule.endTime}`);
+    return acc;
+  }, {} as Record<number, string[]>);
+
+  const daysSummary = Object.keys(groupedByDay)
+    .sort((a, b) => parseInt(a) - parseInt(b))
+    .map(
+      (day) =>
+        `${DAYS_OF_WEEK[parseInt(day)]}: ${groupedByDay[parseInt(day)].join(
+          ", "
+        )}`
+    )
+    .join(" • ");
+
+  return daysSummary || "Sin horarios configurados";
+};
 
 export default function TenantServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [isAvailabilityModalOpen, setIsAvailabilityModalOpen] = useState(false);
+  const [selectedServiceForSchedule, setSelectedServiceForSchedule] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchServices();
@@ -88,6 +129,24 @@ export default function TenantServicesPage() {
     }
   };
 
+  const handleOpenScheduleModal = (service: Service) => {
+    setSelectedServiceForSchedule({
+      id: service.id,
+      name: service.name,
+    });
+    setIsAvailabilityModalOpen(true);
+  };
+
+  const handleCloseScheduleModal = () => {
+    setIsAvailabilityModalOpen(false);
+    setSelectedServiceForSchedule(null);
+  };
+
+  const handleSaveSchedule = () => {
+    // Los horarios se guardan automáticamente en el modal
+    handleCloseScheduleModal();
+  };
+
   if (loading) {
     return <div>Cargando servicios...</div>;
   }
@@ -136,13 +195,22 @@ export default function TenantServicesPage() {
                   <div className="flex items-center font-semibold">
                     <DollarSign className="w-4 h-4 mr-1 text-green-600" />
                     <span className="text-gray-900">
-                      ${service.price.toLocaleString("es-CL")}
+                      {service.price.toLocaleString("es-CL")}
                     </span>
                   </div>
                 </div>
 
                 <div className="text-sm text-gray-600">
                   {service._count?.bookings || 0} reservas realizadas
+                </div>
+
+                <div className="text-sm text-gray-500 border-t pt-2">
+                  <div className="flex items-start gap-1">
+                    <Clock className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-xs leading-tight">
+                      {getScheduleSummary(service.availabilitySchedule)}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex gap-2 pt-2">
@@ -158,8 +226,18 @@ export default function TenantServicesPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    className="text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-blue-200 hover:border-blue-300"
+                    onClick={() => handleOpenScheduleModal(service)}
+                    title="Configurar horarios"
+                  >
+                    <Calendar className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 hover:border-red-300"
                     onClick={() => handleDeleteService(service.id)}
+                    title="Eliminar servicio"
                   >
                     <Trash2 className="w-3 h-3" />
                   </Button>
@@ -196,6 +274,14 @@ export default function TenantServicesPage() {
         onClose={handleCloseModal}
         onSave={handleSaveService}
         service={selectedService}
+      />
+
+      <ServiceAvailabilityModal
+        isOpen={isAvailabilityModalOpen}
+        onClose={handleCloseScheduleModal}
+        onSave={handleSaveSchedule}
+        serviceId={selectedServiceForSchedule?.id || null}
+        serviceName={selectedServiceForSchedule?.name || ""}
       />
     </div>
   );

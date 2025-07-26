@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -19,6 +20,9 @@ import {
   Activity,
   Code,
   ExternalLink,
+  Plus,
+  CalendarPlus,
+  Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -160,6 +164,69 @@ export default function TenantDashboard() {
         <p className="text-gray-600 text-lg">
           Bienvenido a tu panel de control
         </p>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Link href="/tenant/book">
+          <Card className="border-0 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-blue-100 rounded-xl group-hover:bg-blue-200 transition-colors">
+                  <CalendarPlus className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-900 transition-colors">
+                    Agendar Nueva Cita
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Crear una nueva reserva para un cliente
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/tenant/bookings">
+          <Card className="border-0 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-green-100 rounded-xl group-hover:bg-green-200 transition-colors">
+                  <Eye className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-900 transition-colors">
+                    Ver Reservas
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Gestionar todas las citas programadas
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/tenant/services">
+          <Card className="border-0 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-purple-100 rounded-xl group-hover:bg-purple-200 transition-colors">
+                  <Plus className="h-6 w-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 group-hover:text-purple-900 transition-colors">
+                    Gestionar Servicios
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Configurar servicios y disponibilidad
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Stats Grid */}

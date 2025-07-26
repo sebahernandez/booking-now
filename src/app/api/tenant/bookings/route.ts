@@ -75,6 +75,58 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check service availability for the requested time slot
+    const requestedDate = new Date(startDateTime);
+    const dayOfWeek = requestedDate.getDay();
+    const requestedTime = requestedDate.toTimeString().slice(0, 5); // HH:MM format
+    const endTime = new Date(endDateTime).toTimeString().slice(0, 5); // HH:MM format
+
+    // Get service availability for this day and time
+    const serviceAvailability = await prisma.serviceAvailability.findFirst({
+      where: {
+        serviceId: serviceId,
+        dayOfWeek: dayOfWeek,
+        isActive: true,
+        startTime: {
+          lte: requestedTime,
+        },
+        endTime: {
+          gte: endTime,
+        },
+      },
+    });
+
+    if (!serviceAvailability) {
+      return NextResponse.json(
+        { error: "El servicio no está disponible en este horario" },
+        { status: 409 }
+      );
+    }
+
+    // Check for overlapping bookings
+    const overlappingBooking = await prisma.booking.findFirst({
+      where: {
+        serviceId: serviceId,
+        startDateTime: {
+          lt: new Date(endDateTime),
+        },
+        endDateTime: {
+          gt: new Date(startDateTime),
+        },
+        status: {
+          in: ["PENDING", "CONFIRMED"],
+        },
+        ...(professionalId && { professionalId }),
+      },
+    });
+
+    if (overlappingBooking) {
+      return NextResponse.json(
+        { error: "Este horario ya está ocupado" },
+        { status: 409 }
+      );
+    }
+
     // Find or create client
     let client = await prisma.user.findUnique({
       where: { email: clientEmail },
@@ -248,9 +300,7 @@ export async function DELETE(request: NextRequest) {
     const booking = await prisma.booking.findFirst({
       where: {
         id: bookingId,
-        service: {
-          tenantId: session.user.tenantId,
-        },
+        tenantId: session.user.tenantId,
       },
     });
 

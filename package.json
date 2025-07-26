@@ -11,11 +11,7 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "create-admin": "tsx src/scripts/create-admin.ts",
-    "test-db": "tsx src/scripts/test-db.ts",
-    "test-login": "tsx src/scripts/test-login.ts",
-    "test-system": "tsx src/scripts/test-system.ts",
-    "clean-duplicates": "tsx src/scripts/clean-duplicates.ts",
-    "test-nextauth": "tsx src/scripts/test-nextauth.ts"
+    "clean-duplicates": "tsx src/scripts/clean-duplicates.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

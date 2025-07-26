@@ -108,6 +108,7 @@ export async function POST(request: NextRequest) {
         professionalId:
           professionalId && professionalId !== "any" ? professionalId : null,
         serviceId,
+        tenantId: service.tenantId,
         startDateTime,
         endDateTime,
         totalPrice: service.price,

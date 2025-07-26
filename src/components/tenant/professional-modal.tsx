@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
+import { User, Users, Briefcase } from "lucide-react";
 
 interface Service {
   id: string;
@@ -55,7 +56,6 @@ export function TenantProfessionalModal({
     name: "",
     email: "",
     phone: "",
-    password: "",
     bio: "",
     hourlyRate: 0,
     isAvailable: true,
@@ -70,7 +70,6 @@ export function TenantProfessionalModal({
         name: professional.user.name,
         email: professional.user.email,
         phone: professional.user.phone || "",
-        password: "", // Don't populate password for security
         bio: professional.bio || "",
         hourlyRate: professional.hourlyRate || 0,
         isAvailable: professional.isAvailable,
@@ -81,7 +80,6 @@ export function TenantProfessionalModal({
         name: "",
         email: "",
         phone: "",
-        password: "",
         bio: "",
         hourlyRate: 0,
         isAvailable: true,
@@ -112,17 +110,13 @@ export function TenantProfessionalModal({
       
       const method = professional ? "PUT" : "POST";
 
-      const payload = professional ? {
-        // For updates, only send user info that can be updated
+      const payload = {
         name: formData.name,
+        email: formData.email,
         phone: formData.phone,
         bio: formData.bio,
         hourlyRate: formData.hourlyRate,
         isAvailable: formData.isAvailable,
-        services: formData.serviceIds,
-      } : {
-        // For creation, send all required data
-        ...formData,
         services: formData.serviceIds,
       };
 
@@ -180,8 +174,11 @@ export function TenantProfessionalModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>
+        <DialogHeader className="pb-4">
+          <DialogTitle className="flex items-center text-xl font-semibold">
+            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+              <User className="w-4 h-4 text-blue-600" />
+            </div>
             {professional ? "Editar Profesional" : "Nuevo Profesional"}
           </DialogTitle>
         </DialogHeader>
@@ -195,7 +192,12 @@ export function TenantProfessionalModal({
 
           {/* Información Personal */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Información Personal</h3>
+            <div className="flex items-center pb-2 border-b border-gray-100">
+              <div className="w-6 h-6 bg-blue-50 rounded-md flex items-center justify-center mr-2">
+                <User className="w-4 h-4 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Información Personal</h3>
+            </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -218,42 +220,30 @@ export function TenantProfessionalModal({
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="email@ejemplo.com"
                   required
-                  disabled={!!professional} // Can't change email after creation
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Teléfono</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+56 9 1234 5678"
-                />
-              </div>
-
-              {!professional && (
-                <div className="space-y-2">
-                  <Label htmlFor="password">Contraseña *</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    placeholder="Contraseña de acceso"
-                    required={!professional}
-                  />
-                </div>
-              )}
+            <div className="space-y-2">
+              <Label htmlFor="phone">Teléfono</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="+56 9 1234 5678"
+              />
             </div>
           </div>
 
           {/* Información Profesional */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Información Profesional</h3>
+            <div className="flex items-center pb-2 border-b border-gray-100">
+              <div className="w-6 h-6 bg-purple-50 rounded-md flex items-center justify-center mr-2">
+                <Briefcase className="w-4 h-4 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Información Profesional</h3>
+            </div>
             
             <div className="space-y-2">
               <Label htmlFor="bio">Biografía</Label>
@@ -291,7 +281,12 @@ export function TenantProfessionalModal({
           {/* Servicios */}
           {services.length > 0 && (
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">Servicios que puede brindar</h3>
+              <div className="flex items-center pb-2 border-b border-gray-100">
+                <div className="w-6 h-6 bg-green-50 rounded-md flex items-center justify-center mr-2">
+                  <Users className="w-4 h-4 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">Servicios que puede brindar</h3>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 {services.map((service) => (
                   <div key={service.id} className="flex items-center space-x-2">
