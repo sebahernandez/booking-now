@@ -27,6 +27,7 @@ interface Service {
   description?: string;
   duration: number;
   price: number;
+  isActive: boolean;
   _count?: {
     bookings: number;
   };
@@ -65,10 +66,7 @@ export default function TenantServicesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isAvailabilityModalOpen, setIsAvailabilityModalOpen] = useState(false);
-  const [selectedServiceForSchedule, setSelectedServiceForSchedule] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
+  const [selectedServiceForSchedule, setSelectedServiceForSchedule] = useState<Service | null>(null);
 
   useEffect(() => {
     fetchServices();
@@ -130,10 +128,7 @@ export default function TenantServicesPage() {
   };
 
   const handleOpenScheduleModal = (service: Service) => {
-    setSelectedServiceForSchedule({
-      id: service.id,
-      name: service.name,
-    });
+    setSelectedServiceForSchedule(service);
     setIsAvailabilityModalOpen(true);
   };
 
@@ -280,8 +275,7 @@ export default function TenantServicesPage() {
         isOpen={isAvailabilityModalOpen}
         onClose={handleCloseScheduleModal}
         onSave={handleSaveSchedule}
-        serviceId={selectedServiceForSchedule?.id || null}
-        serviceName={selectedServiceForSchedule?.name || ""}
+        service={selectedServiceForSchedule}
       />
     </div>
   );
