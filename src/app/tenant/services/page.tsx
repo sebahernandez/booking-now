@@ -138,7 +138,8 @@ export default function TenantServicesPage() {
   };
 
   const handleSaveSchedule = () => {
-    // Los horarios se guardan automáticamente en el modal
+    // Refrescar los servicios para mostrar la disponibilidad actualizada
+    fetchServices();
     handleCloseScheduleModal();
   };
 

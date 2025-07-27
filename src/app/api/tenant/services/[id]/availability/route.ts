@@ -195,11 +195,31 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { schedules }: { schedules: ScheduleData[] } = body;
-
-    if (!Array.isArray(schedules)) {
+    
+    // Support both single schedule and array of schedules
+    let schedules: ScheduleData[];
+    
+    if (body.schedules !== undefined) {
+      // Array format: { schedules: [...] }
+      schedules = Array.isArray(body.schedules) ? body.schedules : [body.schedules];
+    } else if (body.availabilities !== undefined) {
+      // Alternative array format: { availabilities: [...] }
+      schedules = Array.isArray(body.availabilities) ? body.availabilities : [body.availabilities];
+    } else if (body.dayOfWeek !== undefined && body.startTime && body.endTime) {
+      // Single schedule format: { dayOfWeek, startTime, endTime }
+      schedules = [{ dayOfWeek: body.dayOfWeek, startTime: body.startTime, endTime: body.endTime }];
+    } else {
+      // More detailed error message
+      const missingFields = [];
+      if (body.dayOfWeek === undefined) missingFields.push('dayOfWeek');
+      if (!body.startTime) missingFields.push('startTime');
+      if (!body.endTime) missingFields.push('endTime');
+      
       return NextResponse.json(
-        { error: "Se requiere un array de horarios" },
+        { 
+          error: `Faltan campos requeridos: ${missingFields.join(', ')}. Se requiere un horario (dayOfWeek, startTime, endTime) o un array de horarios (schedules/availabilities)`,
+          received: body
+        },
         { status: 400 }
       );
     }

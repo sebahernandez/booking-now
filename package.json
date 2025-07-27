@@ -11,7 +11,9 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "create-admin": "tsx src/scripts/create-admin.ts",
-    "clean-duplicates": "tsx src/scripts/clean-duplicates.ts"
+    "clean-duplicates": "tsx src/scripts/clean-duplicates.ts",
+    "seed-availability": "tsx src/scripts/seed-service-availability.ts",
+    "create-test-booking": "tsx src/scripts/create-test-booking.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

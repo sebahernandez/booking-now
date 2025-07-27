@@ -7,7 +7,6 @@ import {
   isSameDay,
   isBefore,
   parse,
-  addMinutes,
 } from "date-fns";
 
 interface TimeSlot {
@@ -41,11 +40,15 @@ export async function GET(
         orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
       });
 
-      return NextResponse.json(availability);
+      return NextResponse.json({
+        success: true,
+        availabilitySchedule: availability,
+      });
     }
 
     // Parse the date for time slot generation
     const selectedDate = parse(dateParam, "yyyy-MM-dd", new Date());
+    const dayOfWeek = selectedDate.getDay();
 
     // Verificar que el servicio pertenece al tenant
     const service = await prisma.service.findFirst({
@@ -62,6 +65,30 @@ export async function GET(
       );
     }
 
+    // Get service availability for this day of week
+    const dayAvailability = await prisma.serviceAvailability.findMany({
+      where: {
+        serviceId: serviceId,
+        dayOfWeek: dayOfWeek,
+        isActive: true,
+      },
+      orderBy: { startTime: "asc" },
+    });
+
+    if (dayAvailability.length === 0) {
+      return NextResponse.json({
+        success: true,
+        availability: [],
+        message: "No hay disponibilidad para este día",
+        service: {
+          id: service.id,
+          name: service.name,
+          duration: service.duration,
+        },
+        date: dateParam,
+      });
+    }
+
     // Get existing bookings for this date and service
     const existingBookings = await prisma.booking.findMany({
       where: {
@@ -71,7 +98,7 @@ export async function GET(
           lt: addDays(startOfDay(selectedDate), 1),
         },
         status: {
-          not: "CANCELLED",
+          in: ["PENDING", "CONFIRMED"],
         },
       },
       select: {
@@ -84,41 +111,43 @@ export async function GET(
       existingBookings.map((booking) => format(booking.startDateTime, "HH:mm"))
     );
 
-    // Generate available time slots
+    // Generate available time slots based on service availability
     const timeSlots: TimeSlot[] = [];
+    const slotDuration = service.duration || 30;
+    const slotInterval = 30; // Generate slots every 30 minutes
 
-    // Service working hours (you can make this dynamic per service later)
-    const startHour = 9; // 9 AM
-    const endHour = 18; // 6 PM
-    const slotDuration = service.duration || 30; // Default 30 minutes
-
-    for (let hour = startHour; hour < endHour; hour++) {
-      for (const minutes of [0, 30]) {
-        const slotTime = new Date(selectedDate);
-        slotTime.setHours(hour, minutes, 0, 0);
-
-        // Check if slot is in the past (only for today)
-        const now = new Date();
-        const isToday = isSameDay(selectedDate, now);
-        const isPast = isToday && isBefore(slotTime, now);
-
-        // Skip lunch break (1-2 PM) - you can make this configurable
-        const isLunchBreak = hour === 13;
-
-        // Check if there's enough time for the service duration
-        const slotEndTime = addMinutes(slotTime, slotDuration);
-        const isSlotTooLate = slotEndTime.getHours() >= endHour;
-
-        const timeString = format(slotTime, "HH:mm");
-
-        if (!isLunchBreak && !isSlotTooLate) {
+    dayAvailability.forEach(availability => {
+      const [startHour, startMinute] = availability.startTime.split(':').map(Number);
+      const [endHour, endMinute] = availability.endTime.split(':').map(Number);
+      
+      const startTotalMinutes = startHour * 60 + startMinute;
+      const endTotalMinutes = endHour * 60 + endMinute;
+      
+      for (let totalMinutes = startTotalMinutes; totalMinutes < endTotalMinutes; totalMinutes += slotInterval) {
+        const slotEndTotalMinutes = totalMinutes + slotDuration;
+        
+        // Check if the service duration fits within availability window
+        if (slotEndTotalMinutes <= endTotalMinutes) {
+          const hour = Math.floor(totalMinutes / 60);
+          const minute = totalMinutes % 60;
+          
+          const slotTime = new Date(selectedDate);
+          slotTime.setHours(hour, minute, 0, 0);
+          
+          // Check if slot is in the past (only for today)
+          const now = new Date();
+          const isToday = isSameDay(selectedDate, now);
+          const isPast = isToday && isBefore(slotTime, now);
+          
+          const timeString = format(slotTime, "HH:mm");
+          
           timeSlots.push({
             time: timeString,
             available: !isPast && !bookedTimes.has(timeString),
           });
         }
       }
-    }
+    });
 
     return NextResponse.json({
       success: true,

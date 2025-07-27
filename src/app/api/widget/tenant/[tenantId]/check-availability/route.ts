@@ -9,67 +9,98 @@ export async function GET(
     const { tenantId } = await params;
     const { searchParams } = new URL(request.url);
 
+    const date = searchParams.get("date");
+    const serviceId = searchParams.get("serviceId");
     const startDateTime = searchParams.get("startDateTime");
     const endDateTime = searchParams.get("endDateTime");
     const professionalId = searchParams.get("professionalId");
-    const serviceId = searchParams.get("serviceId");
 
-    if (!startDateTime || !endDateTime) {
+    // Support both modes: specific time slot check or full day booked slots
+    if (date && serviceId) {
+      // Mode 1: Get all booked slots for a specific date and service
+      const startOfDay = new Date(`${date}T00:00:00.000Z`);
+      const endOfDay = new Date(`${date}T23:59:59.999Z`);
+
+      const bookedSlots = await prisma.booking.findMany({
+        where: {
+          tenantId: tenantId,
+          serviceId: serviceId,
+          startDateTime: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+          status: {
+            in: ["PENDING", "CONFIRMED"],
+          },
+        },
+        select: {
+          startDateTime: true,
+          service: {
+            select: {
+              duration: true,
+            },
+          },
+        },
+      });
+
+      return NextResponse.json({
+        bookedSlots: bookedSlots.map(booking => ({
+          dateTime: booking.startDateTime.toISOString(),
+          duration: booking.service.duration,
+        })),
+      });
+    } else if (startDateTime && endDateTime) {
+      // Mode 2: Check specific time slot availability (legacy mode)
+      const startDate = new Date(startDateTime);
+      const endDate = new Date(endDateTime);
+
+      const existingBookings = await prisma.booking.findMany({
+        where: {
+          tenantId: tenantId,
+          AND: [
+            {
+              OR: [
+                {
+                  startDateTime: { lte: startDate },
+                  endDateTime: { gt: startDate },
+                },
+                {
+                  startDateTime: { lt: endDate },
+                  endDateTime: { gte: endDate },
+                },
+                {
+                  startDateTime: { gte: startDate },
+                  endDateTime: { lte: endDate },
+                },
+              ],
+            },
+            {
+              status: {
+                in: ["PENDING", "CONFIRMED"],
+              },
+            },
+          ],
+          ...(professionalId && professionalId !== "any"
+            ? { professionalId }
+            : {}),
+        },
+      });
+
+      const isAvailable = existingBookings.length === 0;
+
+      return NextResponse.json({
+        isAvailable,
+        conflictingBookings: existingBookings.length,
+        message: isAvailable
+          ? "Time slot is available"
+          : `${existingBookings.length} conflicting booking(s) found`,
+      });
+    } else {
       return NextResponse.json(
-        { error: "startDateTime and endDateTime are required" },
+        { error: "Either (date and serviceId) or (startDateTime and endDateTime) are required" },
         { status: 400 }
       );
     }
-
-    const startDate = new Date(startDateTime);
-    const endDate = new Date(endDateTime);
-
-    // Buscar reservas existentes que se superpongan con el tiempo solicitado
-    const existingBookings = await prisma.booking.findMany({
-      where: {
-        tenantId: tenantId,
-        AND: [
-          {
-            OR: [
-              // La reserva existente comienza antes y termina después del inicio solicitado
-              {
-                startDateTime: { lte: startDate },
-                endDateTime: { gt: startDate },
-              },
-              // La reserva existente comienza antes del final solicitado y termina después
-              {
-                startDateTime: { lt: endDate },
-                endDateTime: { gte: endDate },
-              },
-              // La reserva existente está completamente contenida en el rango solicitado
-              {
-                startDateTime: { gte: startDate },
-                endDateTime: { lte: endDate },
-              },
-            ],
-          },
-          {
-            status: {
-              in: ["PENDING", "CONFIRMED"], // Solo considerar reservas activas
-            },
-          },
-        ],
-        // Si se especifica un profesional, verificar solo sus reservas
-        ...(professionalId && professionalId !== "any"
-          ? { professionalId }
-          : {}),
-      },
-    });
-
-    const isAvailable = existingBookings.length === 0;
-
-    return NextResponse.json({
-      isAvailable,
-      conflictingBookings: existingBookings.length,
-      message: isAvailable
-        ? "Time slot is available"
-        : `${existingBookings.length} conflicting booking(s) found`,
-    });
   } catch (error) {
     console.error("Error checking availability for widget:", error);
     return NextResponse.json(
