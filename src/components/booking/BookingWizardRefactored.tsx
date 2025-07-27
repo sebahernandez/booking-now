@@ -48,7 +48,6 @@ export function BookingWizard({
     setHoveredService,
     validateStep,
     clearError,
-    handleRetrySlots,
   } = useBookingWizard(tenantId);
 
   const handleFormSubmit = () => {
@@ -168,9 +167,7 @@ export function BookingWizard({
                     availableSlots={availableSlots}
                     selectedTime={bookingData.selectedTime}
                     loading={loading}
-                    error={error}
                     onTimeSelect={handleTimeSelect}
-                    onRetry={handleRetrySlots}
                   />
                 </div>
               </div>

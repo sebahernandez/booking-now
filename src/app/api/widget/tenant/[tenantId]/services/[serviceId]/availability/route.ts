@@ -12,6 +12,12 @@ import {
 interface TimeSlot {
   time: string;
   available: boolean;
+  professionals?: {
+    id: string;
+    user: {
+      name: string;
+    };
+  }[];
 }
 
 export async function GET(
@@ -103,47 +109,93 @@ export async function GET(
       },
       select: {
         startDateTime: true,
+        professionalId: true,
       },
     });
 
-    // Get booked time slots
-    const bookedTimes = new Set(
-      existingBookings.map((booking) => format(booking.startDateTime, "HH:mm"))
-    );
+    // Get professionals available for this service
+    const availableProfessionals = await prisma.professional.findMany({
+      where: {
+        tenantId: tenantId,
+        services: {
+          some: {
+            serviceId: serviceId,
+          },
+        },
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    // Get booked time slots with professional info
+    const bookedSlots = new Map<string, Set<string>>();
+    existingBookings.forEach((booking) => {
+      const timeString = format(booking.startDateTime, "HH:mm");
+      if (!bookedSlots.has(timeString)) {
+        bookedSlots.set(timeString, new Set());
+      }
+      if (booking.professionalId) {
+        bookedSlots.get(timeString)!.add(booking.professionalId);
+      }
+    });
 
     // Generate available time slots based on service availability
     const timeSlots: TimeSlot[] = [];
     const slotDuration = service.duration || 30;
     const slotInterval = 30; // Generate slots every 30 minutes
 
-    dayAvailability.forEach(availability => {
-      const [startHour, startMinute] = availability.startTime.split(':').map(Number);
-      const [endHour, endMinute] = availability.endTime.split(':').map(Number);
-      
+    dayAvailability.forEach((availability) => {
+      const [startHour, startMinute] = availability.startTime
+        .split(":")
+        .map(Number);
+      const [endHour, endMinute] = availability.endTime.split(":").map(Number);
+
       const startTotalMinutes = startHour * 60 + startMinute;
       const endTotalMinutes = endHour * 60 + endMinute;
-      
-      for (let totalMinutes = startTotalMinutes; totalMinutes < endTotalMinutes; totalMinutes += slotInterval) {
+
+      for (
+        let totalMinutes = startTotalMinutes;
+        totalMinutes < endTotalMinutes;
+        totalMinutes += slotInterval
+      ) {
         const slotEndTotalMinutes = totalMinutes + slotDuration;
-        
+
         // Check if the service duration fits within availability window
         if (slotEndTotalMinutes <= endTotalMinutes) {
           const hour = Math.floor(totalMinutes / 60);
           const minute = totalMinutes % 60;
-          
+
           const slotTime = new Date(selectedDate);
           slotTime.setHours(hour, minute, 0, 0);
-          
+
           // Check if slot is in the past (only for today)
           const now = new Date();
           const isToday = isSameDay(selectedDate, now);
           const isPast = isToday && isBefore(slotTime, now);
-          
+
           const timeString = format(slotTime, "HH:mm");
-          
+
+          // Get professionals not booked at this time
+          const bookedProfessionalIds =
+            bookedSlots.get(timeString) || new Set();
+          const availableProfessionalsForSlot = availableProfessionals
+            .filter((prof) => !bookedProfessionalIds.has(prof.id))
+            .map((prof) => ({
+              id: prof.id,
+              user: {
+                name: prof.user.name || "Profesional",
+              },
+            }));
+
           timeSlots.push({
             time: timeString,
-            available: !isPast && !bookedTimes.has(timeString),
+            available: !isPast && availableProfessionalsForSlot.length > 0,
+            professionals: availableProfessionalsForSlot,
           });
         }
       }
