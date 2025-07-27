@@ -18,7 +18,7 @@ export function useBookingData() {
         case 1:
           return !!bookingData.service;
         case 2:
-          return !!bookingData.dateTime;
+          return !!(bookingData.selectedDate && bookingData.selectedTime);
         case 3:
           return !!bookingData.professional;
         case 4:
@@ -40,7 +40,7 @@ export function useBookingData() {
         case 1:
           return !bookingData.service ? "Por favor selecciona un servicio" : "";
         case 2:
-          return !bookingData.dateTime
+          return !(bookingData.selectedDate && bookingData.selectedTime)
             ? "Por favor selecciona una fecha y hora"
             : "";
         case 3:

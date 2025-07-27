@@ -11,6 +11,20 @@ export class BookingApiService {
     bookingData: BookingData
   ): Promise<{ success: boolean; data?: unknown; error?: string }> {
     try {
+      // Validar que tenemos los datos mínimos requeridos
+      if (
+        !bookingData.service?.id ||
+        !bookingData.selectedDate ||
+        !bookingData.selectedTime ||
+        !bookingData.clientName?.trim() ||
+        !bookingData.clientEmail?.trim()
+      ) {
+        return {
+          success: false,
+          error: "Faltan datos requeridos para crear la reserva",
+        };
+      }
+
       const response = await fetch(
         `/api/widget/tenant/${this.tenantId}/bookings`,
         {
@@ -19,13 +33,14 @@ export class BookingApiService {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            serviceId: bookingData.service?.id,
-            professionalId: bookingData.professional?.id,
-            dateTime: bookingData.dateTime,
-            clientName: bookingData.clientName,
-            clientEmail: bookingData.clientEmail,
-            clientPhone: bookingData.clientPhone,
-            notes: bookingData.notes,
+            serviceId: bookingData.service.id,
+            professionalId: bookingData.professional?.id || null,
+            date: bookingData.selectedDate, // Backend espera 'date' no 'dateTime'
+            time: bookingData.selectedTime, // Backend espera 'time' separado
+            customerName: bookingData.clientName, // Backend espera 'customerName' no 'clientName'
+            customerEmail: bookingData.clientEmail, // Backend espera 'customerEmail' no 'clientEmail'
+            customerPhone: bookingData.clientPhone || "", // Backend espera 'customerPhone' no 'clientPhone'
+            notes: bookingData.notes || "",
           }),
         }
       );
