@@ -23,7 +23,7 @@ export function ContactForm({ bookingData, onUpdateData }: ContactFormProps) {
           id="clientName"
           type="text"
           value={bookingData.clientName || ""}
-          onChange={(e) => onUpdateData({ clientName: e.target.value.trim() })}
+          onChange={(e) => onUpdateData({ clientName: e.target.value })}
           placeholder={messages.placeholders.name}
           className="mt-2 h-12 text-base"
           required
@@ -41,11 +41,7 @@ export function ContactForm({ bookingData, onUpdateData }: ContactFormProps) {
           id="clientEmail"
           type="email"
           value={bookingData.clientEmail || ""}
-          onChange={(e) =>
-            onUpdateData({
-              clientEmail: e.target.value.trim(),
-            })
-          }
+          onChange={(e) => onUpdateData({ clientEmail: e.target.value })}
           placeholder={messages.placeholders.email}
           className="mt-2 h-12 text-base"
           required
@@ -97,11 +93,10 @@ export function ContactForm({ bookingData, onUpdateData }: ContactFormProps) {
             htmlFor="acceptedTerms"
             className="text-sm text-gray-700 cursor-pointer"
           >
-            Acepto los{" "}
             <span className="text-blue-600 hover:text-blue-700 underline">
-              términos y condiciones
-            </span>{" "}
-            del servicio y autorizo el uso de mis datos para la reserva *
+              Acepto los términos y condiciones del servicio y autorizo el uso
+              de mis datos para la reserva *
+            </span>
           </Label>
         </div>
       </div>

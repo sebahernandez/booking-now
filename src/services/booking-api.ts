@@ -37,10 +37,10 @@ export class BookingApiService {
             professionalId: bookingData.professional?.id || null,
             date: bookingData.selectedDate, // Backend espera 'date' no 'dateTime'
             time: bookingData.selectedTime, // Backend espera 'time' separado
-            customerName: bookingData.clientName, // Backend espera 'customerName' no 'clientName'
-            customerEmail: bookingData.clientEmail, // Backend espera 'customerEmail' no 'clientEmail'
-            customerPhone: bookingData.clientPhone || "", // Backend espera 'customerPhone' no 'clientPhone'
-            notes: bookingData.notes || "",
+            customerName: bookingData.clientName?.trim() || "", // Limpiar espacios al enviar
+            customerEmail: bookingData.clientEmail?.trim() || "", // Limpiar espacios al enviar
+            customerPhone: bookingData.clientPhone?.trim() || "", // Limpiar espacios al enviar
+            notes: bookingData.notes?.trim() || "",
           }),
         }
       );
