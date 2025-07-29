@@ -21,6 +21,14 @@ export default function LoginPage() {
     setLoading(true)
     setError("")
 
+    // Debug information for Vercel
+    console.log("🌍 Environment Debug:", {
+      hostname: window.location.hostname,
+      origin: window.location.origin,
+      href: window.location.href,
+      userAgent: navigator.userAgent.substring(0, 50)
+    })
+
     console.log("🔑 Attempting login with:", { 
       email: email.trim(), 
       passwordLength: password.length 
@@ -30,6 +38,10 @@ export default function LoginPage() {
       // Get CSRF token first
       const csrfToken = await getCsrfToken()
       console.log("🔒 CSRF Token obtained:", !!csrfToken)
+      
+      // Log the auth endpoint we're hitting
+      const authUrl = `${window.location.origin}/api/auth/callback/credentials`
+      console.log("🎯 Auth endpoint:", authUrl)
 
       const result = await signIn("credentials", {
         email: email.trim(),
@@ -38,7 +50,12 @@ export default function LoginPage() {
         csrfToken
       })
 
-      console.log("🔄 SignIn result:", result)
+      console.log("🔄 SignIn result:", {
+        ok: result?.ok,
+        error: result?.error,
+        status: result?.status,
+        url: result?.url
+      })
 
       if (result?.error) {
         console.log("❌ SignIn error:", result.error)

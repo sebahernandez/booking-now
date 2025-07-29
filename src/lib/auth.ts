@@ -17,7 +17,7 @@ const authPrisma = new PrismaClient({
 });
 
 export const authOptions: NextAuthOptions = {
-  debug: process.env.NODE_ENV === 'development',
+  debug: true, // Always enable debug for troubleshooting
   logger: {
     error(code, metadata) {
       console.error('NextAuth Error:', code, metadata)
@@ -45,7 +45,11 @@ export const authOptions: NextAuthOptions = {
         console.log("🌍 Environment check:", {
           NODE_ENV: process.env.NODE_ENV,
           DATABASE_URL_exists: !!process.env.DATABASE_URL,
-          DATABASE_URL_preview: process.env.DATABASE_URL?.substring(0, 50) + '...'
+          DATABASE_URL_preview: process.env.DATABASE_URL?.substring(0, 50) + '...',
+          NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+          NEXTAUTH_SECRET_exists: !!process.env.NEXTAUTH_SECRET,
+          VERCEL: !!process.env.VERCEL,
+          VERCEL_ENV: process.env.VERCEL_ENV
         });
 
         if (!credentials?.email || !credentials?.password) {
