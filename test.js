@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); async function test() { try { const users = await prisma.user.count(); const tenants = await prisma.tenant.count(); console.log('✅ Users:', users); console.log('✅ Tenants:', tenants); } catch(err) { console.error('❌ Error:', err.message); } finally { await prisma.\(); } } test();

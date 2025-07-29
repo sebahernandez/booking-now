@@ -2,9 +2,37 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { UserRole } from "@prisma/client";
-import { prisma } from "./prisma";
+import { PrismaClient } from "@prisma/client";
+
+// Force load environment variables
+if (typeof window === 'undefined') {
+  require('dotenv').config({ path: '.env' });
+  require('dotenv').config({ path: '.env.local' });
+}
+
+// Create a new Prisma client specifically for auth
+const authPrisma = new PrismaClient({
+  log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL
+    }
+  }
+});
 
 export const authOptions: NextAuthOptions = {
+  debug: process.env.NODE_ENV === 'development',
+  logger: {
+    error(code, metadata) {
+      console.error('NextAuth Error:', code, metadata)
+    },
+    warn(code) {
+      console.warn('NextAuth Warning:', code)
+    },
+    debug(code, metadata) {
+      console.log('NextAuth Debug:', code, metadata)
+    }
+  },
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -18,28 +46,46 @@ export const authOptions: NextAuthOptions = {
           hasPassword: !!credentials?.password,
         });
 
+        console.log("🌍 Environment check:", {
+          NODE_ENV: process.env.NODE_ENV,
+          DATABASE_URL_exists: !!process.env.DATABASE_URL,
+          DATABASE_URL_preview: process.env.DATABASE_URL?.substring(0, 50) + '...'
+        });
+
         if (!credentials?.email || !credentials?.password) {
           console.log("❌ Missing credentials");
           return null;
         }
 
         try {
+          console.log("🔍 Looking for user with email:", credentials.email.toLowerCase().trim());
+          
           // First try to find a regular user
-          const user = await prisma.user.findUnique({
+          const user = await authPrisma.user.findUnique({
             where: {
               email: credentials.email.toLowerCase().trim(),
             },
           });
 
+          console.log("👤 User found:", {
+            exists: !!user,
+            email: user?.email,
+            role: user?.role,
+            hasPassword: !!user?.password
+          });
+
           if (user && user.password) {
+            console.log("🔐 Comparing passwords...");
             const isPasswordValid = await bcrypt.compare(
               credentials.password,
               user.password
             );
 
+            console.log("🔑 Password validation result:", isPasswordValid);
+
             if (isPasswordValid) {
               console.log("✅ User login successful for:", user.email);
-              return {
+              const returnUser = {
                 id: user.id,
                 email: user.email,
                 name: user.name,
@@ -47,11 +93,17 @@ export const authOptions: NextAuthOptions = {
                 tenantId: user.tenantId || undefined,
                 isTenant: false,
               };
+              console.log("📤 Returning user object:", returnUser);
+              return returnUser;
+            } else {
+              console.log("❌ Password validation failed");
             }
+          } else {
+            console.log("❌ User not found or has no password");
           }
 
           // If no user found or password invalid, try tenant login
-          const tenant = await prisma.tenant.findUnique({
+          const tenant = await authPrisma.tenant.findUnique({
             where: {
               email: credentials.email.toLowerCase().trim(),
             },

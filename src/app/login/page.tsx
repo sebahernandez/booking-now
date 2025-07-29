@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { signIn, getSession } from "next-auth/react"
+import { signIn, getSession, getCsrfToken } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,10 +27,15 @@ export default function LoginPage() {
     })
 
     try {
+      // Get CSRF token first
+      const csrfToken = await getCsrfToken()
+      console.log("🔒 CSRF Token obtained:", !!csrfToken)
+
       const result = await signIn("credentials", {
         email: email.trim(),
         password,
         redirect: false,
+        csrfToken
       })
 
       console.log("🔄 SignIn result:", result)

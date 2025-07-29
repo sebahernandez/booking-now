@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { Building2, Mail, Phone } from 'lucide-react';
+import { Building2, Mail, Phone, Eye, EyeOff, Lock } from 'lucide-react';
 
 interface Tenant {
   id: string;
@@ -41,10 +41,14 @@ export function TenantModal({
     name: '',
     email: '',
     phone: '',
+    password: '',
+    confirmPassword: '',
     isActive: true,
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (tenant) {
@@ -52,6 +56,8 @@ export function TenantModal({
         name: tenant.name || '',
         email: tenant.email || '',
         phone: tenant.phone || '',
+        password: '',
+        confirmPassword: '',
         isActive: tenant.isActive,
       });
     } else {
@@ -59,10 +65,14 @@ export function TenantModal({
         name: '',
         email: '',
         phone: '',
+        password: '',
+        confirmPassword: '',
         isActive: true,
       });
     }
     setErrors({});
+    setShowPassword(false);
+    setShowConfirmPassword(false);
   }, [tenant, isOpen]);
 
   const validateForm = () => {
@@ -76,6 +86,18 @@ export function TenantModal({
       newErrors.email = 'El email es requerido';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Email invalido';
+    }
+
+    // Password validation - required for new tenants, optional for updates
+    if (!tenant && !formData.password.trim()) {
+      newErrors.password = 'La contraseña es requerida para nuevos clientes';
+    } else if (formData.password && formData.password.length < 6) {
+      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+    }
+
+    // Confirm password validation - only if password is provided
+    if (formData.password && formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
 
     setErrors(newErrors);
@@ -92,12 +114,17 @@ export function TenantModal({
     setLoading(true);
 
     try {
-      const payload = {
+      const payload: Record<string, unknown> = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone || null,
         isActive: formData.isActive,
       };
+
+      // Include password if provided (required for new tenants, optional for updates)
+      if (formData.password.trim()) {
+        payload.password = formData.password;
+      }
 
       const url = tenant 
         ? `/api/admin/tenants/${tenant.id}`
@@ -179,6 +206,57 @@ export function TenantModal({
                     className="pl-10"
                   />
                 </div>
+              </div>
+
+              <div>
+                <Label htmlFor="password">
+                  Contraseña {!tenant && '*'}
+                  {tenant && <span className="text-sm text-gray-500 ml-1">(dejar vacío para no cambiar)</span>}
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                    placeholder={tenant ? "Nueva contraseña (opcional)" : "Contraseña del cliente"}
+                    className={`pl-10 pr-10 ${errors.password ? 'border-red-500' : ''}`}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="confirmPassword">
+                  Confirmar contraseña {!tenant && '*'}
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                    placeholder={tenant ? "Confirmar nueva contraseña" : "Confirmar contraseña"}
+                    className={`pl-10 pr-10 ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
               </div>
 
               <div>
