@@ -80,7 +80,10 @@ export async function POST(
     }
 
     // Parsear la fecha y hora
-    const bookingDate = new Date(date);
+    // Usar parseISO o crear la fecha manualmente para evitar problemas de zona horaria
+    const [year, month, day] = date.split("-").map(Number);
+    const bookingDate = new Date(year, month - 1, day); // month is 0-indexed
+    
     const [timeRange] = time.split(" - ");
     const [hours, minutes] = timeRange.split(":").map(Number);
 

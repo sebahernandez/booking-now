@@ -185,7 +185,7 @@ export function TenantProfessionalModal({
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">Nombre completo *</Label>
+                  <Label htmlFor="name" className="mb-2 block">Nombre completo *</Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -197,7 +197,7 @@ export function TenantProfessionalModal({
                 </div>
 
                 <div>
-                  <Label htmlFor="email">Email *</Label>
+                  <Label htmlFor="email" className="mb-2 block">Email *</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
@@ -213,7 +213,7 @@ export function TenantProfessionalModal({
                 </div>
 
                 <div>
-                  <Label htmlFor="phone">Teléfono</Label>
+                  <Label htmlFor="phone" className="mb-2 block">Teléfono</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
@@ -227,7 +227,7 @@ export function TenantProfessionalModal({
                 </div>
 
                 <div>
-                  <Label htmlFor="hourlyRate">Tarifa por hora (CLP)</Label>
+                  <Label htmlFor="hourlyRate" className="mb-2 block">Tarifa por hora (CLP)</Label>
                   <div className="relative">
                     <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
@@ -244,7 +244,7 @@ export function TenantProfessionalModal({
               </div>
 
               <div>
-                <Label htmlFor="bio">Biografía profesional</Label>
+                <Label htmlFor="bio" className="mb-2 block">Biografía profesional</Label>
                 <div className="relative">
                   <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Textarea
@@ -258,7 +258,7 @@ export function TenantProfessionalModal({
               </div>
 
               <div>
-                <Label htmlFor="isAvailable">Estado</Label>
+                <Label htmlFor="isAvailable" className="mb-2 block">Estado</Label>
                 <Select
                   value={formData.isAvailable.toString()}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, isAvailable: value === 'true' }))}
