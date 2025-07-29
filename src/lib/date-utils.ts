@@ -9,7 +9,7 @@ export const formatDate = (
       month: "short",
       day: "numeric",
     });
-  } catch (error) {
+  } catch {
     return "Fecha inválida";
   }
 };
@@ -27,7 +27,7 @@ export const formatDateTime = (
       hour: "2-digit",
       minute: "2-digit",
     });
-  } catch (error) {
+  } catch {
     return "Fecha inválida";
   }
 };

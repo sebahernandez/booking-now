@@ -4,11 +4,7 @@ import bcrypt from "bcryptjs";
 import { UserRole } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
 
-// Force load environment variables
-if (typeof window === 'undefined') {
-  require('dotenv').config({ path: '.env' });
-  require('dotenv').config({ path: '.env.local' });
-}
+// Environment variables are automatically loaded by Next.js
 
 // Create a new Prisma client specifically for auth
 const authPrisma = new PrismaClient({
