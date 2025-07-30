@@ -124,7 +124,7 @@ export function BookingWizard({
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="min-h-[500px]">
+        <div className="min-h-[400px]">
           {/* Step 1: Service Selection */}
           {currentStep === 1 && (
             <ServiceSelection

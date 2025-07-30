@@ -1,6 +1,6 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Clock, Star, DollarSign, Check } from "lucide-react";
+
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { Clock, DollarSign} from "lucide-react";
 import { Service } from "@/types/booking-wizard";
 import { formatters } from "@/utils/booking-utils";
 
@@ -25,68 +25,69 @@ export function ServiceSelection({
   };
 
   return (
-    <div className="space-y-10">
-      <div className="text-center max-w-2xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-medium text-gray-900 mb-4 tracking-tight">
-          ¿Qué servicio necesitas?
-        </h1>
-        <p className="text-lg text-gray-600 leading-relaxed">
-          Selecciona el servicio perfecto para ti
-        </p>
-      </div>
+    <div className="flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-2xl space-y-8">
+        <div className="text-center">
+          <h1 className="text-4xl md:text-5xl font-medium text-gray-900 mb-4 tracking-tight">
+            ¿Qué servicio necesitas?
+          </h1>
+          <p className="text-lg text-gray-600 leading-relaxed">
+            Selecciona el servicio perfecto para ti
+          </p>
+        </div>
 
-      <div className="max-w-md mx-auto">
-        <div className="space-y-3">
-          <label className="text-sm font-medium text-gray-700 block">
-            Selecciona un servicio
-          </label>
-          <Select 
-            value={selectedService?.id || ""} 
-            onValueChange={handleServiceChange}
-          >
-            <SelectTrigger className="w-full h-16 px-6 text-left border-2 border-gray-200 hover:border-gray-300 focus:border-gray-900 bg-white shadow-sm rounded-xl transition-all duration-200">
-              <span className="text-gray-900 text-lg">
-                {selectedService ? selectedService.name : "Elige tu servicio..."}
-              </span>
-            </SelectTrigger>
-            <SelectContent className="max-h-80 rounded-xl border-2 border-gray-100 shadow-lg">
-              {services.map((service) => (
-                <SelectItem 
-                  key={service.id} 
-                  value={service.id}
-                  className="p-4 cursor-pointer hover:bg-gray-50 focus:bg-gray-50 rounded-lg mx-2 my-1"
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-900 text-base mb-1">
-                        {service.name}
-                      </div>
-                      {service.description && (
-                        <div className="text-sm text-gray-600 mb-2 line-clamp-2">
-                          {service.description}
+        <div className="max-w-md mx-auto">
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-700 block">
+              Selecciona un servicio
+            </label>
+            <Select 
+              value={selectedService?.id || ""} 
+              onValueChange={handleServiceChange}
+            >
+              <SelectTrigger className="w-full h-16 px-6 text-left border-2 border-gray-200 hover:border-gray-300 focus:border-gray-900 bg-white shadow-sm rounded-xl transition-all duration-200">
+                <span className="text-gray-900 text-lg">
+                  {selectedService ? selectedService.name : "Elige tu servicio..."}
+                </span>
+              </SelectTrigger>
+              <SelectContent className="max-h-80 rounded-xl border-2 border-gray-100 shadow-lg">
+                {services.map((service) => (
+                  <SelectItem 
+                    key={service.id} 
+                    value={service.id}
+                    className="p-4 cursor-pointer hover:bg-gray-50 focus:bg-gray-50 rounded-lg mx-2 my-1"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900 text-base mb-1">
+                          {service.name}
                         </div>
-                      )}
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center text-gray-500">
-                          <Clock className="w-4 h-4 mr-1" />
-                          <span className="text-sm">{service.duration} min</span>
-                        </div>
-                        <div className="flex items-center text-gray-900">
-                          <DollarSign className="w-4 h-4 mr-1" />
-                          <span className="text-sm font-semibold">
-                            {formatters.currency(service.price)}
-                          </span>
+                        {service.description && (
+                          <div className="text-sm text-gray-600 mb-2 line-clamp-2">
+                            {service.description}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center text-gray-500">
+                            <Clock className="w-4 h-4 mr-1" />
+                            <span className="text-sm">{service.duration} min</span>
+                          </div>
+                          <div className="flex items-center text-gray-900">
+                            <DollarSign className="w-4 h-4 mr-1" />
+                            <span className="text-sm font-semibold">
+                              {formatters.currency(service.price)}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
-
     </div>
   );
 }
