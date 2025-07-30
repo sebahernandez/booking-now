@@ -41,8 +41,10 @@ export function useBookingWizard(tenantId: string) {
   const handleServiceSelect = useCallback(
     (service: Service) => {
       bookingData.updateBookingData({ service });
+      // Avanzar automáticamente al paso 2 cuando se selecciona un servicio
+      navigation.nextStep();
     },
-    [bookingData]
+    [bookingData, navigation]
   );
 
   const handleDateSelect = useCallback(
