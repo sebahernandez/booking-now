@@ -153,6 +153,20 @@ export function useServiceAvailability(tenantId: string) {
             console.log("🎯 Slots details:", availableSlots);
             setAvailableSlots(availableSlots);
             return;
+          } else if (data.success && data.availability?.length === 0) {
+            // Log debug information when no slots are available
+            console.log("⚠️ No available slots found");
+            console.log("🔍 Debug info:", data.debug);
+            console.log("💡 Message:", data.message);
+            
+            // Set a more descriptive error message
+            if (data.debug?.totalAvailabilityConfigs === 0) {
+              setError("Este servicio no tiene horarios configurados. Contacta al administrador.");
+            } else {
+              setError(data.message || "No hay horarios disponibles para esta fecha.");
+            }
+            setAvailableSlots([]);
+            return;
           }
         } else {
           const errorText = await response.text();

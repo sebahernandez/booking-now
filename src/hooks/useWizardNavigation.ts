@@ -4,7 +4,7 @@ export function useWizardNavigation() {
   const [currentStep, setCurrentStep] = useState(1);
 
   const nextStep = useCallback(() => {
-    setCurrentStep((prev) => Math.min(prev + 1, 4));
+    setCurrentStep((prev) => Math.min(prev + 1, 6));
   }, []);
 
   const prevStep = useCallback(() => {
@@ -12,7 +12,7 @@ export function useWizardNavigation() {
   }, []);
 
   const goToStep = useCallback((step: number) => {
-    setCurrentStep(Math.max(1, Math.min(step, 4)));
+    setCurrentStep(Math.max(1, Math.min(step, 6)));
   }, []);
 
   const resetWizard = useCallback(() => {

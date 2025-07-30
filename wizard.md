@@ -1,64 +1,58 @@
-# Wizard de Reserva de Cita
+Necesito que configures o desarrolles un wizard (widget) para el proceso de agendamiento de citas paso a paso. Cada paso debe tener un propósito claro y mostrar únicamente la información o los campos indicados. No debe mezclarse información entre pasos. El diseño debe ser limpio, intuitivo y centrado en la experiencia del usuario.
 
-Este flujo guía al usuario a través de un proceso paso a paso para reservar un servicio disponible en el sistema.
+🧭 Estructura del wizard: 6 pasos obligatorios
 
----
 
-## 🟠 Paso 1: Selección del Servicio
+Paso 1: Selección de servicio
+Mostrar un campo selector (input select) que despliegue todos los servicios disponibles.
 
-El usuario debe seleccionar un **servicio disponible** dentro del sistema. Esta lista puede estar filtrada por categoría, tipo o relevancia.  
-Cada servicio puede tener una o más configuraciones de disponibilidad.
+El usuario debe seleccionar uno para continuar.
 
----
+al seleccionar el servicio debe mostrar el destalle el pa parte inferior del input.
 
-## 🟡 Paso 2: Selección de Horario Disponible
+Paso 2: Selección de fecha
+Mostrar únicamente un calendario interactivo para que el usuario elija el día en que desea agendar su cita.
 
-Basado en el servicio seleccionado en el Paso 1, se muestra un calendario con los días y horarios **disponibles según configuración** del servicio.
+El calendario debe estar vinculado al servicio seleccionado en el paso anterior (es decir, debe mostrar sólo los días disponibles para ese servicio).
 
-### Reglas:
+No mostrar horarios ni profesionales todavía.
 
-- Cada servicio tiene definidos **días y franjas horarias de atención**.
-- Solo se puede seleccionar un horario dentro de esos rangos.
-- **Ejemplo**:
-  - Si el servicio está disponible los **martes de 10:00 a 12:00 hrs**, solo se podrá seleccionar un horario dentro de ese rango todos los martes en los que **no haya reservas existentes**.
-  - Si también está disponible los **sábados de 10:00 a 21:00 hrs**, se mostrarán esas franjas los sábados.
-- Los horarios ya reservados se marcarán como **no disponibles**.
+Paso 3: Selección de horario
+Mostrar los horarios disponibles para el servicio y fecha seleccionados previamente.
 
----
+Los horarios deben estar filtrados en función de la disponibilidad real del servicio ese día.
 
-## 🟢 Paso 3: Selección del Profesional
+Permitir seleccionar solo un horario.
 
-Una vez definido el servicio y horario, el usuario selecciona un **profesional disponible** que esté **asociado al servicio**.
+Paso 4: Selección de profesional
+Mostrar una lista o selector con los profesionales disponibles para el servicio, día y hora seleccionados.
 
-### Condiciones:
+Puede usarse un campo selector, tarjetas o lista visual, según convenga al diseño.
 
-- Solo se muestran los profesionales **vinculados al servicio seleccionado**.
-- Se filtran los profesionales que **estén disponibles** en el horario seleccionado.
-- Si no hay profesionales disponibles en el horario, se sugiere al usuario volver al paso anterior.
+Solo debe permitirse la selección de un profesional.
 
----
+Paso 5: Revisión del resumen de la cita
+Mostrar un resumen con todos los detalles seleccionados:
 
-## 🔵 Paso 4: Ingreso de Datos del Cliente
+Nombre del servicio
 
-El usuario debe ingresar los datos requeridos por el sistema para completar la reserva.
+Fecha y hora
 
-### Campos Requeridos (ejemplo):
+Profesional asignado
 
-- Nombre completo
-- Correo electrónico
-- Teléfono de contacto
-- Comentarios o notas adicionales (opcional)
-- Aceptación de términos y condiciones (checkbox)
+Duración, precio u otros datos del servicio si están disponibles
 
----
+Este paso es solo de revisión, no editable.
 
-## ✅ Confirmación Final
+Paso 6: Formulario de contacto y confirmación
+Mostrar un formulario donde el usuario debe ingresar sus datos de contacto para confirmar la cita:
 
-Una vez completados todos los pasos, se muestra un resumen de:
+Nombre
 
-- Servicio seleccionado
-- Día y hora
-- Profesional asignado
-- Datos del cliente
+Email
 
-El usuario debe presionar el botón **“Confirmar Reserva”** para finalizar el proceso.
+Teléfono
+
+Observaciones (opcional)
+
+Incluir un botón final de "Reservar cita" que envíe o procese los datos.

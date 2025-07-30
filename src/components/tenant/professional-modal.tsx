@@ -125,7 +125,7 @@ export function TenantProfessionalModal({
         bio: formData.bio || null,
         hourlyRate: formData.hourlyRate ? Number(formData.hourlyRate) : null,
         isAvailable: formData.isAvailable,
-        serviceIds: formData.selectedServices,
+        services: formData.selectedServices,
       };
 
       const url = professional 

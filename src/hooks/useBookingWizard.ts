@@ -41,9 +41,8 @@ export function useBookingWizard(tenantId: string) {
   const handleServiceSelect = useCallback(
     (service: Service) => {
       bookingData.updateBookingData({ service });
-      navigation.nextStep();
     },
-    [bookingData, navigation]
+    [bookingData]
   );
 
   const handleDateSelect = useCallback(
@@ -60,22 +59,20 @@ export function useBookingWizard(tenantId: string) {
         selectedTime: slot.time,
         dateTime: slot.datetime,
       });
-      navigation.nextStep();
     },
-    [bookingData, navigation]
+    [bookingData]
   );
 
   const handleProfessionalSelect = useCallback(
     (professional: Professional) => {
       bookingData.updateBookingData({ professional });
-      navigation.nextStep();
     },
-    [bookingData, navigation]
+    [bookingData]
   );
 
   const handleBookingComplete = useCallback(async () => {
     // Validate all required fields
-    const validationError = bookingData.getValidationError(4);
+    const validationError = bookingData.getValidationError(6);
     if (validationError) {
       setError(validationError);
       return;

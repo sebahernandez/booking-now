@@ -12,6 +12,9 @@ interface TimeSelectionProps {
   error?: string;
   onTimeSelect: (slot: AvailableSlot) => void;
   onRetry?: () => void;
+  tenantId?: string;
+  serviceId?: string;
+  serviceName?: string;
 }
 
 export function TimeSelection({
@@ -76,10 +79,24 @@ export function TimeSelection({
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
-          <CalendarIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500 mb-2">No hay horarios disponibles</p>
-          <p className="text-sm text-gray-400">Selecciona otra fecha</p>
+        <div className="space-y-4">
+          <div className="text-center py-12">
+            <CalendarIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+            <p className="text-gray-500 mb-2">No hay horarios disponibles</p>
+            <p className="text-sm text-gray-400 mb-4">
+              Selecciona otra fecha o verifica la configuración del servicio
+            </p>
+            {onRetry && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRetry}
+                className="text-xs"
+              >
+                Reintentar carga
+              </Button>
+            )}
+          </div>
         </div>
       )}
     </div>

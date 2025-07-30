@@ -91,7 +91,7 @@ export function BookingWizard({
             </h1>
             <div className="flex items-center space-x-2 text-sm text-gray-500">
               <span className="px-3 py-1 bg-gray-100 rounded-full">
-                {success ? "Completado" : `Paso ${currentStep} de 4`}
+                {success ? "Completado" : `Paso ${currentStep} de 6`}
               </span>
             </div>
           </div>
@@ -100,7 +100,7 @@ export function BookingWizard({
           <div className="mt-4 w-full bg-gray-200 rounded-full h-1">
             <div
               className="bg-gradient-to-r from-blue-500 to-purple-600 h-1 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${success ? 100 : (currentStep / 4) * 100}%` }}
+              style={{ width: `${success ? 100 : (currentStep / 6) * 100}%` }}
             />
           </div>
 
@@ -136,49 +136,61 @@ export function BookingWizard({
             />
           )}
 
-          {/* Step 2: Date and Time Selection */}
+          {/* Step 2: Date Selection Only */}
           {currentStep === 2 && (
             <div className="space-y-8">
               <div className="text-center">
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                  ¿Cuándo te gustaría agendar?
+                  ¿Qué día te gustaría agendar?
                 </h2>
                 <p className="text-gray-600">
-                  Selecciona la fecha y hora que más te convenga
+                  Selecciona la fecha que más te convenga
                 </p>
               </div>
 
-              <div className="grid lg:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <Calendar
-                    currentMonth={currentMonth}
-                    selectedDate={selectedDate}
-                    dates={monthDates}
-                    onPrevMonth={prevMonth}
-                    onNextMonth={nextMonth}
-                    onDateSelect={handleDateSelect}
-                    isDateInCurrentMonth={isDateInCurrentMonth}
-                    isDateSelectable={isDateSelectable}
-                  />
-                </div>
-
-                <div className="space-y-4">
-                  <TimeSelection
-                    selectedDate={selectedDate}
-                    availableSlots={availableSlots}
-                    selectedTime={bookingData.selectedTime}
-                    loading={loading}
-                    error={error}
-                    onTimeSelect={handleTimeSelect}
-                    onRetry={handleRetrySlots}
-                  />
-                </div>
+              <div className="max-w-lg mx-auto">
+                <Calendar
+                  currentMonth={currentMonth}
+                  selectedDate={selectedDate}
+                  dates={monthDates}
+                  onPrevMonth={prevMonth}
+                  onNextMonth={nextMonth}
+                  onDateSelect={handleDateSelect}
+                  isDateInCurrentMonth={isDateInCurrentMonth}
+                  isDateSelectable={isDateSelectable}
+                />
               </div>
             </div>
           )}
 
-          {/* Step 3: Professional Selection */}
+          {/* Step 3: Time Selection Only */}
           {currentStep === 3 && (
+            <div className="space-y-8">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                  ¿A qué hora prefieres tu cita?
+                </h2>
+                <p className="text-gray-600">
+                  Horarios disponibles para {selectedDate && new Date(selectedDate).toLocaleDateString()}
+                </p>
+              </div>
+
+              <div className="max-w-lg mx-auto">
+                <TimeSelection
+                  selectedDate={selectedDate}
+                  availableSlots={availableSlots}
+                  selectedTime={bookingData.selectedTime}
+                  loading={loading}
+                  error={error}
+                  onTimeSelect={handleTimeSelect}
+                  onRetry={handleRetrySlots}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Professional Selection */}
+          {currentStep === 4 && (
             <ProfessionalSelection
               bookingData={bookingData}
               availableSlots={availableSlots}
@@ -189,8 +201,26 @@ export function BookingWizard({
             />
           )}
 
-          {/* Step 4: Contact Information & Confirmation */}
-          {currentStep === 4 && (
+          {/* Step 5: Booking Summary Only */}
+          {currentStep === 5 && (
+            <div className="space-y-8">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                  Resumen de tu cita
+                </h2>
+                <p className="text-gray-600">
+                  Revisa los detalles antes de continuar
+                </p>
+              </div>
+
+              <div className="max-w-2xl mx-auto">
+                <BookingSummary bookingData={bookingData} />
+              </div>
+            </div>
+          )}
+
+          {/* Step 6: Contact Information Only */}
+          {currentStep === 6 && (
             <div className="space-y-8">
               <div className="text-center">
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -201,8 +231,7 @@ export function BookingWizard({
                 </p>
               </div>
 
-              <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <BookingSummary bookingData={bookingData} />
+              <div className="max-w-lg mx-auto">
                 <ContactForm
                   bookingData={bookingData}
                   onUpdateData={updateBookingData}
@@ -227,7 +256,7 @@ export function BookingWizard({
               Anterior
             </Button>
 
-            {currentStep < 4 ? (
+            {currentStep < 6 ? (
               <Button
                 onClick={nextStep}
                 disabled={!validateStep(currentStep)}

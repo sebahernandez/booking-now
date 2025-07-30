@@ -18,10 +18,14 @@ export function useBookingData() {
         case 1:
           return !!bookingData.service;
         case 2:
-          return !!(bookingData.selectedDate && bookingData.selectedTime);
+          return !!bookingData.selectedDate;
         case 3:
-          return !!bookingData.professional;
+          return !!bookingData.selectedTime;
         case 4:
+          return !!bookingData.professional;
+        case 5:
+          return !!(bookingData.service && bookingData.selectedDate && bookingData.selectedTime && bookingData.professional);
+        case 6:
           return !!(
             bookingData.clientName?.trim() &&
             bookingData.clientEmail?.trim()?.includes("@") &&
@@ -40,14 +44,14 @@ export function useBookingData() {
         case 1:
           return !bookingData.service ? "Por favor selecciona un servicio" : "";
         case 2:
-          return !(bookingData.selectedDate && bookingData.selectedTime)
-            ? "Por favor selecciona una fecha y hora"
-            : "";
+          return !bookingData.selectedDate ? "Por favor selecciona una fecha" : "";
         case 3:
-          return !bookingData.professional
-            ? "Por favor selecciona un profesional"
-            : "";
+          return !bookingData.selectedTime ? "Por favor selecciona una hora" : "";
         case 4:
+          return !bookingData.professional ? "Por favor selecciona un profesional" : "";
+        case 5:
+          return "";
+        case 6:
           if (!bookingData.clientName?.trim()) {
             return "Por favor ingresa tu nombre completo";
           }

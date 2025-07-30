@@ -82,10 +82,23 @@ export async function GET(
     });
 
     if (dayAvailability.length === 0) {
+      console.log("❌ No availability config found for dayOfWeek:", dayOfWeek);
+      
+      // Debug: Check if there's any availability config for this service
+      const allAvailability = await prisma.serviceAvailability.findMany({
+        where: { serviceId: serviceId },
+      });
+      console.log("🔍 All availability configs for service:", allAvailability);
+      
       return NextResponse.json({
         success: true,
         availability: [],
-        message: "No hay disponibilidad para este día",
+        message: "No hay disponibilidad configurada para este día",
+        debug: {
+          dayOfWeek,
+          totalAvailabilityConfigs: allAvailability.length,
+          availabilityConfigs: allAvailability,
+        },
         service: {
           id: service.id,
           name: service.name,
@@ -130,6 +143,16 @@ export async function GET(
           },
         },
       },
+    });
+
+    console.log("👥 Available professionals for service:", {
+      serviceId,
+      count: availableProfessionals.length,
+      professionals: availableProfessionals.map(p => ({
+        id: p.id,
+        name: p.user.name,
+        isAvailable: p.isAvailable
+      }))
     });
 
     // Get booked time slots with professional info
