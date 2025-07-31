@@ -16,7 +16,7 @@ This is a modern booking system built with Next.js, TypeScript, ShadCN UI, and P
 ### Backend
 - **Next.js API Routes** for serverless backend
 - **Prisma ORM** for database management
-- **SQLite** (development) / **PostgreSQL** (production)
+- **PostgreSQL** (Supabase) for all environments
 
 ### Database Models
 - **Users** - Clients and professionals
