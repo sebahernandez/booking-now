@@ -143,9 +143,6 @@ export function BookingWizard({
                 <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
                   ¿Qué día te gustaría agendar?
                 </h2>
-                <p className="text-gray-600 text-sm">
-                  Selecciona la fecha que más te convenga
-                </p>
               </div>
 
               <div className="flex-1 flex items-center justify-center">
