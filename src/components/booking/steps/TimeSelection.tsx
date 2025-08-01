@@ -65,7 +65,7 @@ export function TimeSelection({
                 variant={selectedTime === slot.time ? "default" : "outline"}
                 className={`w-full h-12 font-medium transition-all duration-200 ${
                   selectedTime === slot.time
-                    ? "bg-gradient-to-r from-blue-500 to-purple-600 border-0 shadow-md"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-md"
                     : "hover:bg-blue-50 hover:border-blue-300"
                 }`}
                 onClick={() => onTimeSelect(slot)}

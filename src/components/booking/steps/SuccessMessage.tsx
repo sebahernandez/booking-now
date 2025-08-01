@@ -16,7 +16,7 @@ export function SuccessMessage({ clientEmail }: SuccessMessageProps) {
         {messages.success.bookingDescription}
       </p>
       {clientEmail && (
-        <div className="max-w-md mx-auto bg-green-50 border border-green-200 rounded-xl p-6">
+        <div className="w-full mx-auto bg-green-50 border border-green-200 rounded-xl p-6">
           <p className="text-green-800">
             {messages.success.emailConfirmation} <strong>{clientEmail}</strong>
           </p>

@@ -25,8 +25,8 @@ export function ServiceSelection({
   };
 
   return (
-    <div className="flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-2xl space-y-8">
+    <div className="flex items-center justify-center h-screen px-4">
+      <div className="w-full space-y-8">
         <div className="text-center">
           <h1 className="text-4xl md:text-5xl font-medium text-gray-900 mb-4 tracking-tight">
             ¿Qué servicio necesitas?
@@ -34,7 +34,7 @@ export function ServiceSelection({
         
         </div>
 
-        <div className="max-w-md mx-auto">
+        <div className="w-full mx-auto">
           <div className="space-y-3">
       
             <Select 

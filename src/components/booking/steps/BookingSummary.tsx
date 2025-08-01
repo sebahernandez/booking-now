@@ -8,9 +8,9 @@ interface BookingSummaryProps {
 
 export function BookingSummary({ bookingData }: BookingSummaryProps) {
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-blue-200 overflow-hidden">
+    <div className="bg-blue-50 rounded-xl shadow-sm border border-blue-200 overflow-hidden">
       {/* Header compacto */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3">
+      <div className="bg-blue-600 text-white p-3">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold mb-0.5">

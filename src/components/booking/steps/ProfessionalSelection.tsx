@@ -38,7 +38,7 @@ export function ProfessionalSelection({
         </p>
       </div>
 
-      <div className="flex-1 max-w-2xl mx-auto w-full min-h-0">
+      <div className="flex-1 w-full mx-auto min-h-0">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 h-full flex flex-col">
           <div className="mb-4 p-3 bg-blue-50 rounded-lg flex-shrink-0">
             <h3 className="font-semibold text-gray-900 mb-2 text-sm">
@@ -80,7 +80,7 @@ export function ProfessionalSelection({
                     }
                     className={`w-full h-14 justify-start font-medium transition-all duration-200 ${
                       selectedProfessional?.id === professional.id
-                        ? "bg-gradient-to-r from-blue-500 to-purple-600 border-0 shadow-md"
+                        ? "bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-md"
                         : "hover:bg-blue-50 hover:border-blue-300"
                     }`}
                     onClick={() => onProfessionalSelect(professional)}

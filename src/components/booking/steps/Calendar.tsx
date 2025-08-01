@@ -87,7 +87,7 @@ export function Calendar({
                       : !available
                       ? "text-gray-300 cursor-not-allowed bg-gray-50"
                       : isSelected
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md"
+                      ? "bg-blue-600 text-white shadow-md"
                       : isTodayDate
                       ? "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100"
                       : "text-gray-700 hover:bg-green-50 hover:text-green-700 border hover:border-green-200"
@@ -96,10 +96,10 @@ export function Calendar({
               >
                 {formatters.dayNumber(date)}
                 {isTodayDate && !isSelected && isCurrentMonth && (
-                  <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full"></div>
+                  <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full"></div>
                 )}
                 {available && !isSelected && !isTodayDate && (
-                  <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full"></div>
+                  <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-600 rounded-full"></div>
                 )}
               </button>
             );
@@ -110,11 +110,11 @@ export function Calendar({
         <div className="mt-2 pt-2 border-t border-gray-100 flex-shrink-0">
           <div className="flex items-center justify-center gap-2 text-xs">
             <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+              <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
               <span className="text-gray-600">Disponible</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
               <span className="text-gray-600">Hoy</span>
             </div>
             <div className="flex items-center gap-1">

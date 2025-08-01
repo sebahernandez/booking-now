@@ -81,12 +81,12 @@ export function BookingWizard({
   };
 
   return (
-    <div className="max-w-6xl mx-auto bg-gradient-to-br from-gray-50 to-white h-screen flex flex-col">
+    <div className="w-full mx-auto bg-gray-50 h-screen flex flex-col">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200 flex-shrink-0">
-        <div className="max-w-4xl mx-auto px-4 py-3">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">
               Reserva tu cita
             </h1>
             <div className="flex items-center space-x-2 text-sm text-gray-500">
@@ -99,7 +99,7 @@ export function BookingWizard({
           {/* Progress Bar */}
           <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
             <div
-              className="bg-gradient-to-r from-blue-500 to-purple-600 h-1 rounded-full transition-all duration-500 ease-out"
+              className="bg-blue-600 h-1 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${success ? 100 : (currentStep / 6) * 100}%` }}
             />
           </div>
@@ -123,7 +123,7 @@ export function BookingWizard({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-4 flex-1 overflow-y-auto">
+      <div className="container mx-auto px-4 py-4 flex-1 overflow-y-auto">
         <div className="h-full flex flex-col">
           {/* Step 1: Service Selection */}
           {currentStep === 1 && (
@@ -149,7 +149,7 @@ export function BookingWizard({
               </div>
 
               <div className="flex-1 flex items-center justify-center">
-                <div className="w-full max-w-md">
+                <div className="w-full">
                   <Calendar
                     currentMonth={currentMonth}
                     selectedDate={selectedDate}
@@ -178,7 +178,7 @@ export function BookingWizard({
               </div>
 
               <div className="flex-1 flex items-start justify-center overflow-y-auto">
-                <div className="w-full max-w-md">
+                <div className="w-full">
                   <TimeSelection
                     selectedDate={selectedDate}
                     availableSlots={availableSlots}
@@ -222,7 +222,7 @@ export function BookingWizard({
               </div>
 
               <div className="flex-1 flex items-center justify-center min-h-0">
-                <div className="w-full max-w-2xl px-2">
+                <div className="w-full px-2">
                   <BookingSummary bookingData={bookingData} />
                 </div>
               </div>
@@ -242,7 +242,7 @@ export function BookingWizard({
               </div>
 
               <div className="flex-1 flex items-center justify-center min-h-0">
-                <div className="w-full max-w-sm">
+                <div className="w-full">
                   <ContactForm
                     bookingData={bookingData}
                     onUpdateData={updateBookingData}
@@ -260,7 +260,7 @@ export function BookingWizard({
       {/* Navigation Buttons - Fixed Footer */}
       {!success && (
         <div className="bg-white border-t border-gray-200 flex-shrink-0">
-          <div className="max-w-4xl mx-auto px-4 py-3">
+          <div className="container mx-auto px-4 py-3">
             <div className="flex justify-between">
               <Button
                 variant="outline"
@@ -275,7 +275,7 @@ export function BookingWizard({
                 <Button
                   onClick={nextStep}
                   disabled={!validateStep(currentStep)}
-                  className="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                  className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   Siguiente
                 </Button>
@@ -283,7 +283,7 @@ export function BookingWizard({
                 <Button
                   onClick={handleFormSubmit}
                   disabled={loading}
-                  className="px-4 py-2 text-sm bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                  className="px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white"
                 >
                   {loading ? "Creando reserva..." : "Confirmar Reserva"}
                 </Button>
