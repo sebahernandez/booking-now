@@ -1,4 +1,7 @@
 realiza las siguientes tareas en wizard(widget)
 
-- ajustar el tamaño del calendario, no debe generar un scroling.
-- ajuta el tamaño de todos lo pasos para que ninguno genere scrolling y se ajusten a la altura de cualquier pantalla.
+- elimina los labels del formulario de informacion de contacto y usa solo los placeholder de los inputs para indicar la informacion solicitada 
+
+- ajusta el tamaño de la seccion de profesional en el paso 4 para que no tenga scrolling y los elementos se vean correctamente.
+
+- cambia los colores de la UI por tonos fijos y elimina el uso de degradados.
