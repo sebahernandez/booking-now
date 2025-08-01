@@ -233,9 +233,6 @@ export function BookingWizard({
                 <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-1">
                   Información de contacto
                 </h2>
-                <p className="text-gray-600 text-xs">
-                  Completa tus datos para confirmar la reserva
-                </p>
               </div>
 
               <div className="flex-1 flex items-center justify-center min-h-0">

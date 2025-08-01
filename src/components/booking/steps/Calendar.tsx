@@ -25,9 +25,9 @@ export function Calendar({
   isDateSelectable,
 }: CalendarProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 w-full h-fit max-h-[70vh] flex flex-col">
-      <div className="flex items-center justify-between mb-3 flex-shrink-0">
-        <h3 className="text-sm font-semibold text-gray-900">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2.5 w-full h-fit max-h-[65vh] flex flex-col">
+      <div className="flex items-center justify-between mb-2.5 flex-shrink-0">
+        <h3 className="text-sm font-medium text-gray-900">
           Selecciona una fecha
         </h3>
         <div className="flex items-center space-x-1">
@@ -35,18 +35,18 @@ export function Calendar({
             variant="outline"
             size="sm"
             onClick={onPrevMonth}
-            className="p-1 h-7 w-7"
+            className="p-1 h-6 w-6"
           >
             <ChevronLeft className="w-3 h-3" />
           </Button>
-          <span className="font-medium text-gray-700 min-w-[90px] text-center text-xs">
+          <span className="font-medium text-gray-700 min-w-[85px] text-center text-xs">
             {formatters.monthYear(currentMonth)}
           </span>
           <Button
             variant="outline"
             size="sm"
             onClick={onNextMonth}
-            className="p-1 h-7 w-7"
+            className="p-1 h-6 w-6"
           >
             <ChevronRight className="w-3 h-3" />
           </Button>
@@ -55,11 +55,11 @@ export function Calendar({
 
       {/* Custom Calendar Grid - Responsive height */}
       <div className="flex flex-col min-h-0">
-        <div className="grid grid-cols-7 gap-1 mb-2 flex-shrink-0">
+        <div className="grid grid-cols-7 gap-1 mb-1.5 flex-shrink-0">
           {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map((day) => (
             <div
               key={day}
-              className="p-1 text-center text-xs font-medium text-gray-500"
+              className="p-0.5 text-center text-xs font-medium text-gray-500"
             >
               {day}
             </div>
@@ -81,7 +81,7 @@ export function Calendar({
                 disabled={!available}
                 className={`
                   relative text-xs font-medium rounded-md transition-all duration-200 flex items-center justify-center 
-                  h-8 sm:h-10 md:h-12 lg:h-14 min-h-[32px]
+                  h-7 sm:h-8 md:h-10 lg:h-11 min-h-[28px]
                   ${
                     !isCurrentMonth
                       ? "text-gray-200 cursor-not-allowed"
@@ -108,8 +108,8 @@ export function Calendar({
         </div>
 
         {/* Calendar Legend - Compact */}
-        <div className="mt-2 pt-2 border-t border-gray-100 flex-shrink-0">
-          <div className="flex items-center justify-center gap-2 text-xs">
+        <div className="mt-1.5 pt-1.5 border-t border-gray-100 flex-shrink-0">
+          <div className="flex items-center justify-center gap-1.5 text-xs">
             <div className="flex items-center gap-1">
               <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
               <span className="text-gray-600">Disponible</span>
