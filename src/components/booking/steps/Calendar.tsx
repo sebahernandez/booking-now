@@ -27,9 +27,7 @@ export function Calendar({
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2.5 w-full h-fit max-h-[65vh] flex flex-col">
       <div className="flex items-center justify-between mb-2.5 flex-shrink-0">
-        <h3 className="text-sm font-medium text-gray-900">
-          Selecciona una fecha
-        </h3>
+       
         <div className="flex items-center space-x-1">
           <Button
             variant="outline"
