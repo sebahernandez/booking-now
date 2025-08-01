@@ -80,7 +80,7 @@ export default function BookingWidget() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-screen bg-white overflow-hidden">
       {/* Solo el Widget de Reservas */}
       <BookingWizard
         tenantId={tenantId}

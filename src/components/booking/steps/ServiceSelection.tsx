@@ -31,16 +31,12 @@ export function ServiceSelection({
           <h1 className="text-4xl md:text-5xl font-medium text-gray-900 mb-4 tracking-tight">
             ¿Qué servicio necesitas?
           </h1>
-          <p className="text-lg text-gray-600 leading-relaxed">
-            Selecciona el servicio perfecto para ti
-          </p>
+        
         </div>
 
         <div className="max-w-md mx-auto">
           <div className="space-y-3">
-            <label className="text-sm font-medium text-gray-700 block">
-              Selecciona un servicio
-            </label>
+      
             <Select 
               value={selectedService?.id || ""} 
               onValueChange={handleServiceChange}

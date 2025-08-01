@@ -49,6 +49,18 @@ export function WidgetLayoutClient({
             margin: 0 !important;
             padding: 0 !important;
             font-family: 'Inter', 'Inter Fallback' !important;
+            height: 100vh !important;
+            overflow: hidden !important;
+          }
+          
+          html {
+            height: 100vh !important;
+            overflow: hidden !important;
+          }
+          
+          #__next {
+            height: 100vh !important;
+            overflow: hidden !important;
           }
           
           /* Estilos para cuando está en iframe */
@@ -60,6 +72,8 @@ export function WidgetLayoutClient({
           
           .widget-iframe {
             background: transparent;
+            height: 100vh !important;
+            overflow: hidden !important;
           }
         `;
         document.head.appendChild(style);
