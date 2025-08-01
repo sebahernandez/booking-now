@@ -25,7 +25,7 @@ export function Calendar({
   isDateSelectable,
 }: CalendarProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 h-full flex flex-col">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 w-full h-fit max-h-[70vh] flex flex-col">
       <div className="flex items-center justify-between mb-3 flex-shrink-0">
         <h3 className="text-sm font-semibold text-gray-900">
           Selecciona una fecha
@@ -53,8 +53,8 @@ export function Calendar({
         </div>
       </div>
 
-      {/* Custom Calendar Grid - Flex grow to fill available space */}
-      <div className="flex-1 flex flex-col min-h-0">
+      {/* Custom Calendar Grid - Responsive height */}
+      <div className="flex flex-col min-h-0">
         <div className="grid grid-cols-7 gap-1 mb-2 flex-shrink-0">
           {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map((day) => (
             <div
@@ -66,7 +66,7 @@ export function Calendar({
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-1 flex-1 content-start">
+        <div className="grid grid-cols-7 gap-1 auto-rows-fr">
           {dates.map((date) => {
             const dateString = format(date, "yyyy-MM-dd");
             const isCurrentMonth = isDateInCurrentMonth(date);
@@ -80,7 +80,8 @@ export function Calendar({
                 onClick={() => available && onDateSelect(dateString)}
                 disabled={!available}
                 className={`
-                  relative text-xs font-medium rounded-md transition-all duration-200 flex items-center justify-center aspect-square min-h-[28px]
+                  relative text-xs font-medium rounded-md transition-all duration-200 flex items-center justify-center 
+                  h-8 sm:h-10 md:h-12 lg:h-14 min-h-[32px]
                   ${
                     !isCurrentMonth
                       ? "text-gray-200 cursor-not-allowed"
