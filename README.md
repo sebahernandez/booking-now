@@ -51,8 +51,7 @@
 - **bcryptjs** - Encriptación de contraseñas
 
 ### **Base de Datos**
-- **SQLite** (desarrollo)
-- **PostgreSQL** (producción)
+- **PostgreSQL** - Base de datos principal (desarrollo y producción)
 - Migraciones automáticas con Prisma
 
 ### **Herramientas de Desarrollo**
@@ -95,8 +94,9 @@
 
 ### **Prerrequisitos**
 - Node.js 18 o superior
-- npm o yarn
+- npm, yarn, pnpm o bun
 - Git
+- PostgreSQL (opcional para desarrollo local)
 
 ### **Instalación Local**
 
@@ -109,9 +109,21 @@
 2. **Instalar dependencias**
    ```bash
    npm install
+   # o
+   yarn install
+   # o
+   pnpm install
+   # o
+   bun install
    ```
 
-3. **Configurar la base de datos**
+3. **Configurar variables de entorno**
+   ```bash
+   cp .env.example .env.local
+   # Editar .env.local con tus configuraciones
+   ```
+
+4. **Configurar la base de datos**
    ```bash
    # Ejecutar migraciones
    npm run db:migrate
@@ -120,20 +132,26 @@
    npm run db:seed
    ```
 
-4. **Crear usuario administrador**
+5. **Crear usuario administrador**
    ```bash
    npm run create-admin
    ```
 
-5. **Iniciar el servidor de desarrollo**
+6. **Iniciar el servidor de desarrollo**
    ```bash
    npm run dev
+   # o
+   yarn dev
+   # o
+   pnpm dev
+   # o
+   bun dev
    ```
 
-6. **Abrir en el navegador**
-   ```
-   http://localhost:3000
-   ```
+7. **Abrir en el navegador**
+   - Aplicación: [http://localhost:3000](http://localhost:3000)
+   - Panel Admin: [http://localhost:3000/admin](http://localhost:3000/admin)
+   - Panel Tenant: [http://localhost:3000/tenant](http://localhost:3000/tenant)
 
 ## 📝 Scripts Disponibles
 
@@ -274,40 +292,3 @@ Para soporte técnico o consultas:
 ---
 
 **Desarrollado con ❤️ usando Next.js y tecnologías modernas**
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-#   r e d e p l o y   t r i g g e r  
- 
