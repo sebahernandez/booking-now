@@ -87,11 +87,11 @@ export async function POST(request: NextRequest) {
       clientName
     });
 
-    // Check service availability for the requested time slot
+    // Check service availability for the requested time slot (consistent with availability API)
     const requestedDate = new Date(startDateTime);
-    const dayOfWeek = requestedDate.getDay();
-    const requestedTime = requestedDate.toTimeString().slice(0, 5); // HH:MM format
-    const endTime = new Date(endDateTime).toTimeString().slice(0, 5); // HH:MM format
+    const dayOfWeek = requestedDate.getUTCDay(); // Use UTC day to match availability API
+    const requestedTime = requestedDate.toISOString().slice(11, 16); // HH:MM format in UTC
+    const endTime = new Date(endDateTime).toISOString().slice(11, 16); // HH:MM format in UTC
     
     console.log('Time validation:', {
       dayOfWeek,

@@ -51,9 +51,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Calculate start and end times
+    // Calculate start and end times (consistent with availability API using UTC)
     let startDateTime: Date;
     let endDateTime: Date;
+
+    // Parse the date consistently with availability API
+    const [year, month, day] = date.split("-").map(Number);
 
     // Check if time is a range (e.g., "09:00 - 12:00") or single time (e.g., "09:00")
     if (time.includes(" - ")) {
@@ -62,17 +65,15 @@ export async function POST(request: NextRequest) {
       const [startHours, startMinutes] = startTime.split(":").map(Number);
       const [endHours, endMinutes] = endTime.split(":").map(Number);
 
-      startDateTime = new Date(date);
-      startDateTime.setHours(startHours, startMinutes, 0, 0);
-
-      endDateTime = new Date(date);
-      endDateTime.setHours(endHours, endMinutes, 0, 0);
+      // Create UTC dates to match availability API logic
+      startDateTime = new Date(Date.UTC(year, month - 1, day, startHours, startMinutes, 0, 0));
+      endDateTime = new Date(Date.UTC(year, month - 1, day, endHours, endMinutes, 0, 0));
     } else {
       // Handle single time (legacy support)
       const [hours, minutes] = time.split(":").map(Number);
-      startDateTime = new Date(date);
-      startDateTime.setHours(hours, minutes, 0, 0);
-
+      
+      // Create UTC date to match availability API logic
+      startDateTime = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0, 0));
       endDateTime = new Date(startDateTime);
       endDateTime.setMinutes(endDateTime.getMinutes() + service.duration);
     }
