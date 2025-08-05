@@ -14,8 +14,8 @@ export const prisma =
       }
     },
     transactionOptions: {
-      timeout: 10000, // 10 seconds
-    },
+      timeout: 15000, // 15 seconds for Vercel
+    }
   });
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+globalForPrisma.prisma = prisma;
