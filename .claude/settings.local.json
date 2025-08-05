@@ -9,7 +9,9 @@
       "Bash(npm run build:*)",
       "Bash(node:*)",
       "Bash(npm install:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(npx next:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": []
   }

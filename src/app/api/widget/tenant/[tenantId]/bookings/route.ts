@@ -219,24 +219,25 @@ export async function POST(
       },
     });
   } catch (error) {
+    const err = error as Error & { code?: string };
     console.error("Detailed error creating booking for widget:", {
-      message: error.message,
-      stack: error.stack,
-      name: error.name,
-      code: error.code
+      message: err.message || 'Unknown error',
+      stack: err.stack || 'No stack trace',
+      name: err.name || 'Unknown',
+      code: err.code || 'No code'
     });
     
     // Proveer error más específico
     let errorMessage = "Error interno del servidor";
     let statusCode = 500;
     
-    if (error.code === 'P2002') {
+    if (err.code === 'P2002') {
       errorMessage = "Conflicto de datos: ya existe una reserva similar";
       statusCode = 409;
-    } else if (error.code === 'P2025') {
+    } else if (err.code === 'P2025') {
       errorMessage = "Registro no encontrado";
       statusCode = 404;
-    } else if (error.message.includes('timeout')) {
+    } else if (err.message?.includes('timeout')) {
       errorMessage = "Timeout de base de datos";
       statusCode = 504;
     }
@@ -244,7 +245,7 @@ export async function POST(
     return NextResponse.json(
       { 
         error: errorMessage,
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? err.message : undefined
       },
       { status: statusCode }
     );
