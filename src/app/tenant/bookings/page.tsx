@@ -984,25 +984,33 @@ export default function TenantBookingsPage() {
           {selectedBooking && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <p><strong>Cliente:</strong> {selectedBooking.client.name}</p>
-                <p><strong>Email:</strong> {selectedBooking.client.email}</p>
-                {selectedBooking.client.phone && (
-                  <p><strong>Teléfono:</strong> {selectedBooking.client.phone}</p>
+                <p><strong>Cliente:</strong> {selectedBooking?.client.name}</p>
+                <p><strong>Email:</strong> {selectedBooking?.client.email}</p>
+                {selectedBooking?.client.phone && (
+                  <p><strong>Teléfono:</strong> {selectedBooking?.client.phone}</p>
                 )}
-                <p><strong>Servicio:</strong> {selectedBooking.service.name}</p>
-                <p><strong>Fecha:</strong> {format(parseISO(selectedBooking.startDateTime), "dd/MM/yyyy", { locale: es })}</p>
-                <p><strong>Hora:</strong> {format(parseISO(selectedBooking.startDateTime), "HH:mm")} - {format(parseISO(selectedBooking.endDateTime), "HH:mm")}</p>
-                <p><strong>Estado:</strong> {getStatusBadge(selectedBooking.status)}</p>
-                <p><strong>Precio:</strong> ${selectedBooking.totalPrice.toLocaleString()}</p>
-                {selectedBooking.notes && (
-                  <p><strong>Notas:</strong> {selectedBooking.notes}</p>
+                <p><strong>Servicio:</strong> {selectedBooking?.service.name}</p>
+                {selectedBooking && (
+                  <>
+                    <p><strong>Fecha:</strong> {format(parseISO(selectedBooking!.startDateTime), "dd/MM/yyyy", { locale: es })}</p>
+                    <p><strong>Hora:</strong> {format(parseISO(selectedBooking!.startDateTime), "HH:mm")} - {format(parseISO(selectedBooking!.endDateTime), "HH:mm")}</p>
+                  </>
+                )}
+                {selectedBooking && (
+                  <>
+                    <p><strong>Estado:</strong> {getStatusBadge(selectedBooking!.status).label}</p>
+                    <p><strong>Precio:</strong> ${selectedBooking!.totalPrice.toLocaleString()}</p>
+                  </>
+                )}
+                {selectedBooking?.notes && (
+                  <p><strong>Notas:</strong> {selectedBooking?.notes}</p>
                 )}
               </div>
               
-              {selectedBooking.status === "PENDING" && (
+              {selectedBooking?.status === "PENDING" && (
                 <div className="flex gap-2">
                   <Button 
-                    onClick={() => updateBookingStatus(selectedBooking.id, "CONFIRMED")}
+                    onClick={() => updateBookingStatus(selectedBooking!.id, "CONFIRMED")}
                     className="flex-1"
                   >
                     <Check className="w-4 h-4 mr-2" />
@@ -1010,7 +1018,7 @@ export default function TenantBookingsPage() {
                   </Button>
                   <Button 
                     variant="destructive"
-                    onClick={() => updateBookingStatus(selectedBooking.id, "CANCELLED")}
+                    onClick={() => updateBookingStatus(selectedBooking!.id, "CANCELLED")}
                     className="flex-1"
                   >
                     <X className="w-4 h-4 mr-2" />
@@ -1019,10 +1027,10 @@ export default function TenantBookingsPage() {
                 </div>
               )}
               
-              {selectedBooking.status === "CONFIRMED" && (
+              {selectedBooking?.status === "CONFIRMED" && (
                 <div className="flex gap-2">
                   <Button 
-                    onClick={() => updateBookingStatus(selectedBooking.id, "COMPLETED")}
+                    onClick={() => updateBookingStatus(selectedBooking!.id, "COMPLETED")}
                     className="flex-1"
                   >
                     <Check className="w-4 h-4 mr-2" />
@@ -1030,7 +1038,7 @@ export default function TenantBookingsPage() {
                   </Button>
                   <Button 
                     variant="outline"
-                    onClick={() => updateBookingStatus(selectedBooking.id, "NO_SHOW")}
+                    onClick={() => updateBookingStatus(selectedBooking!.id, "NO_SHOW")}
                     className="flex-1"
                   >
                     <X className="w-4 h-4 mr-2" />
