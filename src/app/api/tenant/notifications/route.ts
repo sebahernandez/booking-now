@@ -38,10 +38,18 @@ export async function GET(request: NextRequest) {
       WHERE "tenantId" = ${tenantId}
       ORDER BY "createdAt" DESC
       LIMIT 50
-    ` as any[];
+    ` as {
+      id: string;
+      type: string;
+      title: string;
+      message: string;
+      read: boolean;
+      createdAt: Date;
+      bookingId: string | null;
+    }[];
 
     // Formatear las notificaciones para el frontend
-    const formattedNotifications = notifications.map((notification: any) => ({
+    const formattedNotifications = notifications.map((notification) => ({
       id: notification.id,
       type: notification.type,
       title: notification.title,

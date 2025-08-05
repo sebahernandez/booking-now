@@ -459,7 +459,7 @@ export default function TenantProfessionalsPage() {
               No se encontraron resultados
             </h3>
             <p className="text-gray-500 text-center mb-6 max-w-md leading-relaxed">
-              No hay profesionales que coincidan con tu búsqueda "{searchTerm}". 
+              No hay profesionales que coincidan con tu búsqueda &quot;{searchTerm}&quot;. 
               Intenta con otros términos o limpia el filtro.
             </p>
             <Button
