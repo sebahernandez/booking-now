@@ -81,21 +81,73 @@ export async function POST(
       });
     }
 
-    // Parsear la fecha y hora
-    // Usar parseISO o crear la fecha manualmente para evitar problemas de zona horaria
-    const [year, month, day] = date.split("-").map(Number);
-    const bookingDate = new Date(year, month - 1, day); // month is 0-indexed
+    // Parsear la fecha y hora con manejo mejorado para producción
+    console.log('Processing booking with raw data:', { date, time, serviceId, tenantId });
     
+    const [year, month, day] = date.split("-").map(Number);
     const [timeRange] = time.split(" - ");
     const [hours, minutes] = timeRange.split(":").map(Number);
 
-    const startDateTime = new Date(bookingDate);
-    startDateTime.setHours(hours, minutes, 0, 0);
+    // Crear fechas en UTC para evitar problemas de zona horaria en producción
+    const startDateTime = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0, 0));
+    const endDateTime = new Date(startDateTime.getTime() + (service.duration * 60 * 1000));
+    
+    console.log('Parsed datetime:', {
+      startDateTime: startDateTime.toISOString(),
+      endDateTime: endDateTime.toISOString(),
+      duration: service.duration
+    });
 
-    const endDateTime = new Date(startDateTime);
-    endDateTime.setMinutes(endDateTime.getMinutes() + service.duration);
+    // Verificar disponibilidad antes de crear
+    console.log('Checking availability for:', {
+      serviceId,
+      startDateTime: startDateTime.toISOString(),
+      endDateTime: endDateTime.toISOString()
+    });
+
+    // Verificar conflictos de horario
+    const conflictingBooking = await prisma.booking.findFirst({
+      where: {
+        serviceId: serviceId,
+        tenantId: tenantId,
+        status: {
+          in: ["PENDING", "CONFIRMED"]
+        },
+        OR: [
+          {
+            startDateTime: {
+              gte: startDateTime,
+              lt: endDateTime
+            }
+          },
+          {
+            endDateTime: {
+              gt: startDateTime,
+              lte: endDateTime
+            }
+          },
+          {
+            startDateTime: {
+              lte: startDateTime
+            },
+            endDateTime: {
+              gte: endDateTime
+            }
+          }
+        ]
+      }
+    });
+
+    if (conflictingBooking) {
+      console.log('Booking conflict found:', conflictingBooking.id);
+      return NextResponse.json(
+        { error: "Este horario ya está ocupado" },
+        { status: 409 }
+      );
+    }
 
     // Crear la reserva
+    console.log('Creating booking...');
     const booking = await prisma.booking.create({
       data: {
         clientId: client.id,
@@ -167,10 +219,37 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error("Error creating booking for widget:", error);
+    console.error("Detailed error creating booking for widget:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code
+    });
+    
+    // Proveer error más específico
+    let errorMessage = "Error interno del servidor";
+    let statusCode = 500;
+    
+    if (error.code === 'P2002') {
+      errorMessage = "Conflicto de datos: ya existe una reserva similar";
+      statusCode = 409;
+    } else if (error.code === 'P2025') {
+      errorMessage = "Registro no encontrado";
+      statusCode = 404;
+    } else if (error.message.includes('timeout')) {
+      errorMessage = "Timeout de base de datos";
+      statusCode = 504;
+    }
+    
     return NextResponse.json(
-      { error: "Error interno del servidor" },
-      { status: 500 }
+      { 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
+      { status: statusCode }
     );
+  } finally {
+    // Asegurar que las conexiones se liberen en producción
+    await prisma.$disconnect();
   }
 }

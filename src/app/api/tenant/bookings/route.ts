@@ -78,11 +78,27 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Logging para debug en producción
+    console.log('Creating booking with data:', {
+      startDateTime,
+      endDateTime,
+      serviceId,
+      professionalId,
+      clientName
+    });
+
     // Check service availability for the requested time slot
     const requestedDate = new Date(startDateTime);
     const dayOfWeek = requestedDate.getDay();
     const requestedTime = requestedDate.toTimeString().slice(0, 5); // HH:MM format
     const endTime = new Date(endDateTime).toTimeString().slice(0, 5); // HH:MM format
+    
+    console.log('Time validation:', {
+      dayOfWeek,
+      requestedTime,
+      endTime,
+      requestedDate: requestedDate.toISOString()
+    });
 
     // Get service availability for this day and time
     const serviceAvailability = await prisma.serviceAvailability.findFirst({
@@ -265,13 +281,41 @@ export async function POST(request: NextRequest) {
       // No fallar la reserva si falla el email
     }
 
+    console.log('Booking created successfully:', booking.id);
     return NextResponse.json(booking, { status: 201 });
   } catch (error) {
-    console.error("Error creating booking:", error);
+    console.error("Detailed error creating booking (tenant):", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code
+    });
+    
+    // Proveer error más específico
+    let errorMessage = "Error interno del servidor";
+    let statusCode = 500;
+    
+    if (error.code === 'P2002') {
+      errorMessage = "Conflicto de datos: ya existe una reserva similar";
+      statusCode = 409;
+    } else if (error.code === 'P2025') {
+      errorMessage = "Registro no encontrado";
+      statusCode = 404;
+    } else if (error.message.includes('timeout')) {
+      errorMessage = "Timeout de base de datos";
+      statusCode = 504;
+    }
+    
     return NextResponse.json(
-      { error: "Error interno del servidor" },
-      { status: 500 }
+      { 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
+      { status: statusCode }
     );
+  } finally {
+    // Liberar conexiones en producción
+    await prisma.$disconnect();
   }
 }
 
