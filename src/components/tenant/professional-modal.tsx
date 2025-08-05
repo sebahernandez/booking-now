@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { X, User, Mail, Phone, DollarSign, FileText, Briefcase } from 'lucide-react';
+import { useToast } from '@/hooks/useToast';
 
 interface Professional {
   id: string;
@@ -61,6 +62,7 @@ export function TenantProfessionalModal({
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { showError, showLoading, updateToast } = useToast();
 
   useEffect(() => {
     if (professional) {
@@ -112,10 +114,13 @@ export function TenantProfessionalModal({
     e.preventDefault();
     
     if (!validateForm()) {
+      showError("Por favor corrige los errores en el formulario");
       return;
     }
 
     setLoading(true);
+    const isEdit = !!professional;
+    const toastId = showLoading(isEdit ? "Actualizando profesional..." : "Creando profesional...");
 
     try {
       const payload = {
@@ -143,12 +148,15 @@ export function TenantProfessionalModal({
       });
 
       if (response.ok) {
+        updateToast(toastId, "success", isEdit ? "Profesional actualizado exitosamente" : "Profesional creado exitosamente");
         onSave();
       } else {
         const errorData = await response.json();
+        updateToast(toastId, "error", errorData.error || "Error al guardar el profesional");
         setErrors({ submit: errorData.error || 'Error al guardar el profesional' });
       }
-    } catch (error) {
+    } catch {
+      updateToast(toastId, "error", "Error de conexión");
       setErrors({ submit: 'Error de conexión' });
     } finally {
       setLoading(false);

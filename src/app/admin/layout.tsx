@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/useToast";
 import {
   Home,
   LogOut,
@@ -23,12 +24,13 @@ export default function AdminLayout({
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const { showInfo } = useToast();
 
   useEffect(() => {
     if (status === "loading") return;
 
     if (!session) {
-      router.push("/login");
+      router.push("/");
       return;
     }
 
@@ -102,7 +104,10 @@ export default function AdminLayout({
               </div>
 
               <Button
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={() => {
+                  showInfo("Cerrando sesión...");
+                  signOut({ callbackUrl: "/?logout=true" });
+                }}
                 variant="ghost"
                 size="sm"
                 className="text-gray-700 hover:text-gray-900"

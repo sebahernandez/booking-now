@@ -2,12 +2,22 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/useToast";
+import { NotificationToast } from "@/components/ui/notification-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Calendar,
   Users,
@@ -16,7 +26,148 @@ import {
   Briefcase,
   BookOpen,
   Code,
+  Bell,
+  Clock,
 } from "lucide-react";
+
+interface Notification {
+  id: string;
+  type: "NEW_BOOKING" | "BOOKING_CANCELLED" | "BOOKING_UPDATED";
+  title: string;
+  message: string;
+  createdAt: string;
+  read: boolean;
+  bookingId?: string;
+  clientName?: string;
+  serviceName?: string;
+}
+
+function NotificationsBell({ tenantId }: { tenantId?: string }) {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (tenantId) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 15000);
+      return () => clearInterval(interval);
+    }
+  }, [tenantId]);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch(`/api/tenant/notifications`);
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await fetch(`/api/tenant/notifications/mark-all-read`, {
+        method: "PUT",
+      });
+      
+      // Actualizar el estado local inmediatamente para ocultar el badge
+      setNotifications(prev =>
+        prev.map(notification => ({ ...notification, read: true }))
+      );
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
+  };
+
+  const handleDropdownToggle = (open: boolean) => {
+    setIsOpen(open);
+    if (open && tenantId) {
+      // Marcar todas las notificaciones como leídas al abrir el dropdown (comportamiento estilo Facebook)
+      const unreadNotifications = notifications.filter(n => !n.read);
+      if (unreadNotifications.length > 0) {
+        markAllAsRead();
+      }
+    }
+  };
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  return (
+    <DropdownMenu open={isOpen} onOpenChange={handleDropdownToggle}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="relative p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-full"
+        >
+          <Bell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <Badge
+              variant="destructive"
+              className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs font-bold bg-red-500 text-white rounded-full"
+            >
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </Badge>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      
+      <DropdownMenuContent 
+        align="end" 
+        className="w-80 max-h-96 overflow-y-auto"
+        sideOffset={8}
+      >
+        <div className="px-4 py-3 border-b">
+          <h3 className="font-semibold text-gray-900">Notificaciones</h3>
+        </div>
+
+        <div className="max-h-80 overflow-y-auto">
+          {loading ? (
+            <div className="p-4 text-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 mx-auto"></div>
+              <p className="text-sm text-gray-500 mt-2">Cargando...</p>
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="p-6 text-center">
+              <Bell className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-500">No tienes notificaciones</p>
+            </div>
+          ) : (
+            notifications.map((notification) => (
+              <DropdownMenuItem
+                key={notification.id}
+                className={`p-4 cursor-pointer ${!notification.read ? "bg-blue-50" : ""}`}
+              >
+                <div className="w-full">
+                  <div className="flex items-center justify-between">
+                    <p className={`text-sm font-medium ${!notification.read ? "text-gray-900" : "text-gray-700"}`}>
+                      {notification.title}
+                    </p>
+                    {!notification.read && (
+                      <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {notification.message}
+                  </p>
+                  <div className="flex items-center mt-2 text-xs text-gray-500">
+                    <Clock className="w-3 h-3 mr-1" />
+                    <span>{new Date(notification.createdAt).toLocaleString('es-ES')}</span>
+                  </div>
+                </div>
+              </DropdownMenuItem>
+            ))
+          )}
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export default function TenantLayout({
   children,
@@ -26,12 +177,13 @@ export default function TenantLayout({
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const { showInfo } = useToast();
 
   useEffect(() => {
     if (status === "loading") return;
 
     if (!session) {
-      router.push("/login");
+      router.push("/");
       return;
     }
 
@@ -89,6 +241,8 @@ export default function TenantLayout({
             </div>
 
             <div className="flex items-center space-x-4">
+              <NotificationsBell tenantId={session.user.tenantId} />
+              
               <div className="hidden sm:flex items-center space-x-2">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-rose-100 text-rose-700 text-sm">
@@ -106,7 +260,10 @@ export default function TenantLayout({
               </div>
 
               <Button
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={() => {
+                  showInfo("Cerrando sesión...");
+                  signOut({ callbackUrl: "/?logout=true" });
+                }}
                 variant="ghost"
                 size="sm"
                 className="text-gray-700 hover:text-gray-900"
@@ -183,6 +340,9 @@ export default function TenantLayout({
           })}
         </div>
       </div>
+      
+      {/* Notification Toast System */}
+      <NotificationToast tenantId={session.user.tenantId} />
     </div>
   );
 }

@@ -19,12 +19,12 @@ export default withAuth(
 
     // Protect admin routes - only allow ADMIN users (not tenants)
     if (isAdminRoute && token?.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/login", req.url))
+      return NextResponse.redirect(new URL("/", req.url))
     }
 
     // Protect tenant routes - only allow tenant users
     if (isTenantRoute && !token?.isTenant) {
-      return NextResponse.redirect(new URL("/login", req.url))
+      return NextResponse.redirect(new URL("/", req.url))
     }
 
     return NextResponse.next()
@@ -32,9 +32,8 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Allow access to public routes
-        if (req.nextUrl.pathname.startsWith("/login") || 
-            req.nextUrl.pathname === "/" ||
+        // Allow access to public routes (/ is now the login page)
+        if (req.nextUrl.pathname === "/" ||
             req.nextUrl.pathname.startsWith("/api/auth")) {
           return true
         }
@@ -52,5 +51,5 @@ export default withAuth(
 )
 
 export const config = {
-  matcher: ["/admin/:path*", "/tenant/:path*", "/login"]
+  matcher: ["/admin/:path*", "/tenant/:path*"]
 }

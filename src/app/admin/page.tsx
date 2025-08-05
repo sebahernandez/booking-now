@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Building2, Users, Globe, TrendingUp, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/useToast";
 
 interface DashboardStats {
   totalTenants: number;
@@ -29,6 +30,7 @@ interface DashboardStats {
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const { showError, showInfo } = useToast();
 
   useEffect(() => {
     fetchDashboardStats();
@@ -40,9 +42,13 @@ export default function AdminDashboard() {
       if (response.ok) {
         const data = await response.json();
         setStats(data);
+        showInfo(`Dashboard actualizado - ${data.totalTenants} clientes registrados`);
+      } else {
+        showError("Error al cargar las estadísticas del dashboard");
       }
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
+      showError("Error de conexión al cargar el dashboard");
     } finally {
       setLoading(false);
     }

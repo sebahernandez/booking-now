@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus, Building2, Users, Calendar, MoreHorizontal } from "lucide-react";
 import { TenantModal } from "@/components/admin/tenant-modal";
+import { useToast } from "@/hooks/useToast";
 
 interface Tenant {
   id: string;
@@ -32,20 +33,36 @@ export default function TenantsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
+  const { showLoading, updateToast } = useToast();
 
   useEffect(() => {
     fetchTenants();
   }, []);
 
-  const fetchTenants = async () => {
+  const fetchTenants = async (showToast = false) => {
+    let toastId;
+    if (showToast) {
+      toastId = showLoading("Actualizando lista de clientes...");
+    }
+    
     try {
       const response = await fetch("/api/admin/tenants");
       if (response.ok) {
         const data = await response.json();
         setTenants(data);
+        if (showToast && toastId) {
+          updateToast(toastId, "success", `${data.length} clientes cargados exitosamente`);
+        }
+      } else {
+        if (showToast && toastId) {
+          updateToast(toastId, "error", "Error al cargar los clientes");
+        }
       }
     } catch (error) {
       console.error("Error fetching tenants:", error);
+      if (showToast && toastId) {
+        updateToast(toastId, "error", "Error de conexión al cargar clientes");
+      }
     } finally {
       setLoading(false);
     }
@@ -62,7 +79,7 @@ export default function TenantsPage() {
   };
 
   const handleSaveTenant = () => {
-    fetchTenants();
+    fetchTenants(true); // Refresh con toast
     handleCloseModal();
   };
 

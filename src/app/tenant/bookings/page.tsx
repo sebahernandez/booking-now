@@ -48,6 +48,7 @@ import {
 } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/useToast";
 
 interface Booking {
   id: string;
@@ -82,20 +83,38 @@ export default function TenantBookingsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { showSuccess, showError, showWarning, showLoading, updateToast } = useToast();
 
   useEffect(() => {
     fetchBookings();
   }, []);
 
-  const fetchBookings = async () => {
+  const fetchBookings = async (showToast = false) => {
+    let toastId;
+    if (showToast) {
+      toastId = showLoading("Actualizando reservas...");
+    }
+
     try {
       const response = await fetch("/api/tenant/bookings");
       if (response.ok) {
         const data = await response.json();
         setBookings(data);
+        if (showToast && toastId) {
+          updateToast(toastId, "success", `${data.length} reservas cargadas`);
+        }
+      } else {
+        if (showToast && toastId) {
+          updateToast(toastId, "error", "Error al cargar reservas");
+        }
+        showError("Error al cargar las reservas");
       }
     } catch (error) {
       console.error("Error fetching bookings:", error);
+      if (showToast && toastId) {
+        updateToast(toastId, "error", "Error de conexión");
+      }
+      showError("Error de conexión al cargar reservas");
     } finally {
       setLoading(false);
     }
@@ -156,6 +175,39 @@ export default function TenantBookingsPage() {
     setIsModalOpen(false);
   };
 
+  const updateBookingStatus = async (bookingId: string, newStatus: string) => {
+    const statusLabels = {
+      CONFIRMED: "confirmada",
+      COMPLETED: "completada", 
+      CANCELLED: "cancelada",
+      NO_SHOW: "marcada como no asistió"
+    };
+
+    const toastId = showLoading(`Actualizando reserva...`);
+
+    try {
+      const response = await fetch(`/api/tenant/bookings/${bookingId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        updateToast(toastId, "success", `Reserva ${statusLabels[newStatus as keyof typeof statusLabels]} exitosamente`);
+        fetchBookings();
+        closeBookingModal();
+      } else {
+        const error = await response.json();
+        updateToast(toastId, "error", error.error || "Error al actualizar la reserva");
+      }
+    } catch (error) {
+      console.error("Error updating booking:", error);
+      updateToast(toastId, "error", "Error de conexión al actualizar reserva");
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       CONFIRMED: {
@@ -193,18 +245,32 @@ export default function TenantBookingsPage() {
     newStatus: string
   ) => {
     try {
-      const response = await fetch(`/api/tenant/bookings/${bookingId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      if (newStatus === "CANCELLED") {
+        // For cancellation, delete the booking instead of updating status
+        const response = await fetch(`/api/tenant/bookings/${bookingId}`, {
+          method: "DELETE",
+        });
 
-      if (response.ok) {
-        fetchBookings();
+        if (response.ok) {
+          fetchBookings();
+        } else {
+          console.error("Error cancelling booking");
+        }
       } else {
-        console.error("Error updating booking status");
+        // For other status updates, use the PUT method
+        const response = await fetch(`/api/tenant/bookings/${bookingId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
+
+        if (response.ok) {
+          fetchBookings();
+        } else {
+          console.error("Error updating booking status");
+        }
       }
     } catch (error) {
       console.error("Error updating booking status:", error);
@@ -900,4 +966,82 @@ export default function TenantBookingsPage() {
       </Card>
     );
   }
+
+  return (
+    <div className="space-y-6">
+      {/* Main content here */}
+      
+      {/* Booking Details Modal */}
+      <Dialog open={isModalOpen} onOpenChange={closeBookingModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Detalles de la Reserva</DialogTitle>
+            <DialogDescription>
+              Gestiona el estado y detalles de esta reserva
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedBooking && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <p><strong>Cliente:</strong> {selectedBooking.client.name}</p>
+                <p><strong>Email:</strong> {selectedBooking.client.email}</p>
+                {selectedBooking.client.phone && (
+                  <p><strong>Teléfono:</strong> {selectedBooking.client.phone}</p>
+                )}
+                <p><strong>Servicio:</strong> {selectedBooking.service.name}</p>
+                <p><strong>Fecha:</strong> {format(parseISO(selectedBooking.startDateTime), "dd/MM/yyyy", { locale: es })}</p>
+                <p><strong>Hora:</strong> {format(parseISO(selectedBooking.startDateTime), "HH:mm")} - {format(parseISO(selectedBooking.endDateTime), "HH:mm")}</p>
+                <p><strong>Estado:</strong> {getStatusBadge(selectedBooking.status)}</p>
+                <p><strong>Precio:</strong> ${selectedBooking.totalPrice.toLocaleString()}</p>
+                {selectedBooking.notes && (
+                  <p><strong>Notas:</strong> {selectedBooking.notes}</p>
+                )}
+              </div>
+              
+              {selectedBooking.status === "PENDING" && (
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => updateBookingStatus(selectedBooking.id, "CONFIRMED")}
+                    className="flex-1"
+                  >
+                    <Check className="w-4 h-4 mr-2" />
+                    Confirmar
+                  </Button>
+                  <Button 
+                    variant="destructive"
+                    onClick={() => updateBookingStatus(selectedBooking.id, "CANCELLED")}
+                    className="flex-1"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Cancelar
+                  </Button>
+                </div>
+              )}
+              
+              {selectedBooking.status === "CONFIRMED" && (
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => updateBookingStatus(selectedBooking.id, "COMPLETED")}
+                    className="flex-1"
+                  >
+                    <Check className="w-4 h-4 mr-2" />
+                    Completar
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => updateBookingStatus(selectedBooking.id, "NO_SHOW")}
+                    className="flex-1"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    No asistió
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }

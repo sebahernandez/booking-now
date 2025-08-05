@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { createNotification, getNotificationMessages } from "@/lib/notifications";
 
 export async function PUT(
   request: NextRequest,
@@ -138,6 +139,19 @@ export async function DELETE(
         id,
         tenantId: session.user.tenantId,
       },
+      include: {
+        client: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        service: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
 
     if (!existingBooking) {
@@ -145,6 +159,27 @@ export async function DELETE(
         { error: "Reserva no encontrada" },
         { status: 404 }
       );
+    }
+
+    // Create cancellation notification before deleting
+    try {
+      const { title, message } = getNotificationMessages(
+        "BOOKING_CANCELLED",
+        existingBooking.client.name || existingBooking.client.email,
+        existingBooking.service.name,
+        existingBooking.startDateTime
+      );
+
+      await createNotification({
+        tenantId: session.user.tenantId,
+        bookingId: existingBooking.id,
+        type: 'BOOKING_CANCELLED',
+        title,
+        message,
+      });
+    } catch (notificationError) {
+      console.error("Error creating cancellation notification:", notificationError);
+      // Continue with deletion even if notification fails
     }
 
     // Delete the booking completely

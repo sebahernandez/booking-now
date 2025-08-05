@@ -26,7 +26,7 @@ export const authOptions: NextAuthOptions = {
       console.warn('NextAuth Warning:', code)
     },
     debug(code, metadata) {
-      console.log('NextAuth Debug:', code, metadata)
+      // Debug logging disabled
     }
   },
   providers: [
@@ -37,29 +37,11 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("🔍 Authorize called with:", {
-          email: credentials?.email,
-          hasPassword: !!credentials?.password,
-        });
-
-        console.log("🌍 Environment check:", {
-          NODE_ENV: process.env.NODE_ENV,
-          DATABASE_URL_exists: !!process.env.DATABASE_URL,
-          DATABASE_URL_preview: process.env.DATABASE_URL?.substring(0, 50) + '...',
-          NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-          NEXTAUTH_SECRET_exists: !!process.env.NEXTAUTH_SECRET,
-          VERCEL: !!process.env.VERCEL,
-          VERCEL_ENV: process.env.VERCEL_ENV
-        });
-
         if (!credentials?.email || !credentials?.password) {
-          console.log("❌ Missing credentials");
           return null;
         }
 
         try {
-          console.log("🔍 Looking for user with email:", credentials.email.toLowerCase().trim());
-          
           // First try to find a regular user
           const user = await authPrisma.user.findUnique({
             where: {
@@ -172,6 +154,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/login",
+    signIn: "/",
   },
 };

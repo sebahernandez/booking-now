@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { createNotification, getNotificationMessages } from "@/lib/notifications";
 
 export async function POST(request: NextRequest) {
   try {
@@ -187,6 +188,27 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Create notification for the tenant
+    try {
+      const { title, message } = getNotificationMessages(
+        "NEW_BOOKING",
+        clientName,
+        service.name,
+        new Date(startDateTime)
+      );
+
+      await createNotification({
+        tenantId: session.user.tenantId,
+        bookingId: booking.id,
+        type: 'NEW_BOOKING',
+        title,
+        message,
+      });
+    } catch (notificationError) {
+      console.error("Error creating notification:", notificationError);
+      // No fallar la reserva si falla la notificación
+    }
 
     return NextResponse.json(booking, { status: 201 });
   } catch (error) {

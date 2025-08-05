@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Plus, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/useToast';
 
 interface ServiceAvailability {
   id: string;
@@ -55,6 +56,7 @@ export function ServiceAvailabilityModal({
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { showError, showLoading, updateToast, showSuccess } = useToast();
 
   useEffect(() => {
     if (service) {
@@ -124,6 +126,7 @@ export function ServiceAvailabilityModal({
     if (!service) return;
 
     setLoading(true);
+    const toastId = showLoading("Guardando horarios de disponibilidad...");
 
     try {
       const response = await fetch(`/api/tenant/services/${service.id}/availability`, {
@@ -141,12 +144,15 @@ export function ServiceAvailabilityModal({
       });
 
       if (response.ok) {
+        updateToast(toastId, "success", "Horarios de disponibilidad guardados exitosamente");
         onSave();
       } else {
         const errorData = await response.json();
+        updateToast(toastId, "error", errorData.error || "Error al guardar disponibilidad");
         setErrors({ submit: errorData.error || 'Error al guardar disponibilidad' });
       }
-    } catch (error) {
+    } catch {
+      updateToast(toastId, "error", "Error de conexión");
       setErrors({ submit: 'Error de conexion' });
     } finally {
       setLoading(false);

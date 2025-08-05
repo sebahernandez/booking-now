@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Building2, Mail, Phone, Eye, EyeOff, Lock } from 'lucide-react';
+import { useToast } from '@/hooks/useToast';
 
 interface Tenant {
   id: string;
@@ -49,6 +50,7 @@ export function TenantModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { showError, showLoading, updateToast } = useToast();
 
   useEffect(() => {
     if (tenant) {
@@ -108,10 +110,13 @@ export function TenantModal({
     e.preventDefault();
     
     if (!validateForm()) {
+      showError("Por favor corrige los errores en el formulario");
       return;
     }
 
     setLoading(true);
+    const isEdit = !!tenant;
+    const toastId = showLoading(isEdit ? "Actualizando cliente..." : "Creando cliente...");
 
     try {
       const payload: Record<string, unknown> = {
@@ -141,12 +146,15 @@ export function TenantModal({
       });
 
       if (response.ok) {
+        updateToast(toastId, "success", isEdit ? "Cliente actualizado exitosamente" : "Cliente creado exitosamente");
         onSave();
       } else {
         const errorData = await response.json();
+        updateToast(toastId, "error", errorData.error || "Error al guardar el cliente");
         setErrors({ submit: errorData.error || 'Error al guardar el cliente' });
       }
-    } catch (error) {
+    } catch {
+      updateToast(toastId, "error", "Error de conexión");
       setErrors({ submit: 'Error de conexion' });
     } finally {
       setLoading(false);

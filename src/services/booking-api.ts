@@ -1,4 +1,5 @@
 import { BookingData } from "@/types/booking-wizard";
+import { triggerNewNotificationEvent } from "@/utils/notification-utils";
 
 export class BookingApiService {
   private tenantId: string;
@@ -47,6 +48,8 @@ export class BookingApiService {
 
       if (response.ok) {
         const result = await response.json();
+        // Disparar evento para actualizar notificaciones inmediatamente
+        triggerNewNotificationEvent();
         return { success: true, data: result };
       } else {
         const errorData = await response.json();

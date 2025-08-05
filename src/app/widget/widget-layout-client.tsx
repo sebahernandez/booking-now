@@ -91,8 +91,6 @@ export function WidgetLayoutClient({
           isClient: true,
           mounted: true,
         };
-
-        console.log("🔧 Widget Debug Mode Activated");
       }
     }
   }, []);

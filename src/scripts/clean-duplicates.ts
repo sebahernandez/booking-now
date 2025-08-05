@@ -4,8 +4,6 @@ const prisma = new PrismaClient()
 
 async function cleanDuplicates() {
   try {
-    console.log('🧹 Cleaning duplicate services...')
-
     // Get all services grouped by name
     const services = await prisma.service.findMany({
       include: {
@@ -28,15 +26,11 @@ async function cleanDuplicates() {
     // Process each group
     for (const [name, group] of serviceGroups) {
       if (group.length > 1) {
-        console.log(`Found ${group.length} duplicates of "${name}"`)
-        
         // Keep the first one (oldest), delete the rest
         const toKeep = group[0]
         const toDelete = group.slice(1)
         
         for (const duplicate of toDelete) {
-          console.log(`  Deleting duplicate: ${duplicate.id}`)
-          
           // Delete professional service links first
           await prisma.professionalService.deleteMany({
             where: { serviceId: duplicate.id }
@@ -52,25 +46,17 @@ async function cleanDuplicates() {
             where: { id: duplicate.id }
           })
         }
-        
-        console.log(`  Kept: ${toKeep.id} (${toKeep.name})`)
       }
     }
 
     // Show final count
     const finalCount = await prisma.service.count()
-    console.log(`✅ Cleanup complete! Now have ${finalCount} unique services`)
 
     // Show remaining services
     const remainingServices = await prisma.service.findMany({
       include: {
         professionals: true
       }
-    })
-
-    console.log('\n📋 Remaining services:')
-    remainingServices.forEach(service => {
-      console.log(`   - ${service.name} ($${service.price}) - ${service.professionals.length} professional(s)`)
     })
 
   } catch (error) {

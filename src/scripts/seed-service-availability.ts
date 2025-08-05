@@ -4,21 +4,17 @@ const prisma = new PrismaClient();
 
 async function seedServiceAvailability() {
   try {
-    console.log('🌱 Seeding service availability...');
-
     // Get all services
     const services = await prisma.service.findMany({
       where: { isActive: true },
     });
 
     if (services.length === 0) {
-      console.log('❌ No services found. Please run the main seed first.');
       return;
     }
 
     // Clear existing service availability
     await prisma.serviceAvailability.deleteMany({});
-    console.log('🧹 Cleared existing service availability');
 
     // Create availability for each service
     for (const service of services) {
@@ -57,16 +53,10 @@ async function seedServiceAvailability() {
           isActive: true,
         },
       });
-
-      console.log(`✅ Created availability for service: ${service.name}`);
     }
 
-    console.log('🎉 Service availability seeding completed!');
-    console.log(`📊 Created availability for ${services.length} services`);
-    
     // Show summary
     const totalAvailability = await prisma.serviceAvailability.count();
-    console.log(`📈 Total service availability records: ${totalAvailability}`);
 
   } catch (error) {
     console.error('❌ Error seeding service availability:', error);

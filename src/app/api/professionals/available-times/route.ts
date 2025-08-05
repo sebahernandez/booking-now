@@ -47,7 +47,6 @@ export async function GET(request: NextRequest) {
           }
         }
       } catch {
-        console.log('Could not fetch professional schedule, using mock data');
         // Fall back to mock data
       }
     }

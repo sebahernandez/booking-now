@@ -8,8 +8,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Plus,
   Mail,
@@ -20,8 +36,14 @@ import {
   Calendar,
   Star,
   Users,
+  MoreHorizontal,
+  Search,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { TenantProfessionalModal } from "@/components/tenant/professional-modal";
+import { useToast } from "@/hooks/useToast";
 
 interface Professional {
   id: string;
@@ -57,21 +79,45 @@ export default function TenantProfessionalsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProfessional, setSelectedProfessional] =
     useState<Professional | null>(null);
+  
+  // Estados para filtrado y paginación
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  const { showSuccess, showError, showLoading, updateToast } = useToast();
 
   useEffect(() => {
     fetchProfessionals();
     fetchServices();
   }, []);
 
-  const fetchProfessionals = async () => {
+  const fetchProfessionals = async (showToast = false) => {
+    let toastId;
+    if (showToast) {
+      toastId = showLoading("Actualizando profesionales...");
+    }
+
     try {
       const response = await fetch("/api/tenant/professionals");
       if (response.ok) {
         const data = await response.json();
         setProfessionals(data);
+        if (showToast && toastId) {
+          updateToast(toastId, "success", `${data.length} profesionales cargados`);
+        }
+      } else {
+        if (showToast && toastId) {
+          updateToast(toastId, "error", "Error al cargar profesionales");
+        }
+        showError("Error al cargar profesionales");
       }
     } catch (error) {
       console.error("Error fetching professionals:", error);
+      if (showToast && toastId) {
+        updateToast(toastId, "error", "Error de conexión");
+      }
+      showError("Error de conexión al cargar profesionales");
     } finally {
       setLoading(false);
     }
@@ -83,9 +129,12 @@ export default function TenantProfessionalsPage() {
       if (response.ok) {
         const data = await response.json();
         setServices(data);
+      } else {
+        showError("Error al cargar servicios disponibles");
       }
     } catch (error) {
       console.error("Error fetching services:", error);
+      showError("Error de conexión al cargar servicios");
     }
   };
 
@@ -100,8 +149,38 @@ export default function TenantProfessionalsPage() {
   };
 
   const handleSaveProfessional = () => {
-    fetchProfessionals();
+    fetchProfessionals(true); // Refresh con toast
     handleCloseModal();
+  };
+
+  // Funciones de filtrado y paginación
+  const filteredProfessionals = professionals.filter((professional) =>
+    professional.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    professional.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    professional.bio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    professional.services.some(service => 
+      service.service.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
+  const totalPages = Math.ceil(filteredProfessionals.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProfessionals = filteredProfessionals.slice(startIndex, endIndex);
+
+  // Reset página cuando cambia el filtro
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(parseInt(value));
+    setCurrentPage(1);
   };
 
   if (loading) {
@@ -125,196 +204,227 @@ export default function TenantProfessionalsPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {professionals.map((professional) => (
-          <Card
-            key={professional.id}
-            className="hover:shadow-lg transition-shadow duration-200 border-0 shadow-md"
-          >
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-md">
-                      <User className="w-7 h-7 text-white" />
-                    </div>
-                    <div
-                      className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${
-                        professional.isAvailable
-                          ? "bg-green-500"
-                          : "bg-gray-400"
-                      }`}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-xl font-semibold text-gray-900 mb-1">
-                      {professional.user.name}
-                    </CardTitle>
-                    <div className="flex items-center text-gray-500 text-sm">
-                      <Users className="w-4 h-4 mr-1" />
-                      {professional.services.length} servicio
-                      {professional.services.length !== 1 ? "s" : ""}
-                    </div>
-                  </div>
-                </div>
-                <Badge
-                  variant={professional.isAvailable ? "default" : "secondary"}
-                  className={`px-3 py-1 text-xs font-medium ${
-                    professional.isAvailable
-                      ? "bg-green-100 text-green-800 border-green-200"
-                      : "bg-gray-100 text-gray-600 border-gray-200"
-                  }`}
-                >
-                  {professional.isAvailable ? "Disponible" : "No disponible"}
-                </Badge>
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+            <div>
+              <CardTitle>Equipo de Profesionales</CardTitle>
+              <CardDescription>
+                {filteredProfessionals.length} de {professionals.length} profesional{professionals.length !== 1 ? 'es' : ''} 
+                {searchTerm && ` (filtrado por "${searchTerm}")`}
+              </CardDescription>
+            </div>
+            
+            {/* Controles de búsqueda y paginación */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Buscar profesionales..."
+                  value={searchTerm}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-10 w-full sm:w-64"
+                />
               </div>
-            </CardHeader>
-
-            <CardContent className="pt-0">
-              <div className="space-y-4">
-                {professional.bio && (
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-sm text-gray-700 line-clamp-2 leading-relaxed">
-                      {professional.bio}
-                    </p>
-                  </div>
-                )}
-
-                {/* Información de contacto */}
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center mr-3">
-                      <Mail className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <span className="truncate">{professional.user.email}</span>
-                  </div>
-
-                  {professional.user.phone && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center mr-3">
-                        <Phone className="w-4 h-4 text-green-600" />
-                      </div>
-                      <span>{professional.user.phone}</span>
-                    </div>
-                  )}
-
-                  {professional.hourlyRate && professional.hourlyRate > 0 ? (
-                    <div className="flex items-center justify-between bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg p-3 border border-emerald-100">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center mr-3 shadow-sm">
-                          <Briefcase className="w-5 h-5 text-emerald-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-emerald-600 font-medium uppercase tracking-wide">
-                            Tarifa por hora
-                          </p>
-                          <p className="text-lg font-bold text-emerald-800">
-                            {new Intl.NumberFormat("es-CL", {
-                              style: "currency",
-                              currency: "CLP",
-                              minimumFractionDigits: 0,
-                            }).format(professional.hourlyRate)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-                          <span className="text-xs font-semibold">
-                            Por hora
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-3 border border-gray-200">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3 shadow-sm">
-                          <Briefcase className="w-5 h-5 text-gray-500" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
-                            Tarifa por hora
-                          </p>
-                          <p className="text-sm font-medium text-gray-600">
-                            No configurada
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">
-                          <span className="text-xs font-medium">
-                            Sin tarifa
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Estadísticas */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                        <Calendar className="w-4 h-4 text-blue-600" />
-                      </div>
+              
+              <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5 por página</SelectItem>
+                  <SelectItem value="10">10 por página</SelectItem>
+                  <SelectItem value="20">20 por página</SelectItem>
+                  <SelectItem value="50">50 por página</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Profesional</TableHead>
+                <TableHead>Contacto</TableHead>
+                <TableHead>Servicios</TableHead>
+                <TableHead>Tarifa/Hora</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Reservas</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {currentProfessionals.map((professional) => (
+                <TableRow key={professional.id}>
+                  <TableCell>
+                    <div className="flex items-center space-x-3">
+                      <Avatar>
+                        <AvatarFallback className="bg-blue-600 text-white">
+                          {professional.user.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {professional._count?.bookings || 0}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          reservas completadas
-                        </p>
+                        <div className="font-medium text-gray-900">
+                          {professional.user.name}
+                        </div>
+                        {professional.bio && (
+                          <div className="text-sm text-gray-500 truncate max-w-[200px]">
+                            {professional.bio}
+                          </div>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                      <span className="text-sm font-medium text-gray-700">
-                        4.8
-                      </span>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <div className="space-y-1">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Mail className="w-3 h-3 mr-1" />
+                        <span className="truncate max-w-[150px]">{professional.user.email}</span>
+                      </div>
+                      {professional.user.phone && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Phone className="w-3 h-3 mr-1" />
+                          <span>{professional.user.phone}</span>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </div>
-
-                {/* Servicios */}
-                {professional.services.length > 0 && (
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-                      <Briefcase className="w-4 h-4 mr-1" />
-                      Especialidades
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {professional.services.map((service) => (
+                  </TableCell>
+                  
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1 max-w-[200px]">
+                      {professional.services.slice(0, 2).map((service) => (
                         <Badge
                           key={service.service.id}
                           variant="outline"
-                          className="text-xs font-normal px-2 py-1 bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                          className="text-xs"
                         >
                           {service.service.name}
                         </Badge>
                       ))}
+                      {professional.services.length > 2 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{professional.services.length - 2}
+                        </Badge>
+                      )}
                     </div>
-                  </div>
-                )}
-
-                <div className="flex gap-2 pt-2 border-t border-gray-100">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors"
-                    onClick={() => handleOpenModal(professional)}
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Editar Perfil
-                  </Button>
-                </div>
+                  </TableCell>
+                  
+                  <TableCell>
+                    {professional.hourlyRate && professional.hourlyRate > 0 ? (
+                      <div className="font-medium text-green-600">
+                        {new Intl.NumberFormat("es-CL", {
+                          style: "currency",
+                          currency: "CLP",
+                          minimumFractionDigits: 0,
+                        }).format(professional.hourlyRate)}
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-500">No configurada</span>
+                    )}
+                  </TableCell>
+                  
+                  <TableCell>
+                    <Badge
+                      variant={professional.isAvailable ? "default" : "secondary"}
+                      className={
+                        professional.isAvailable
+                          ? "bg-green-100 text-green-800 border-green-200"
+                          : "bg-gray-100 text-gray-600 border-gray-200"
+                      }
+                    >
+                      {professional.isAvailable ? "Disponible" : "No disponible"}
+                    </Badge>
+                  </TableCell>
+                  
+                  <TableCell>
+                    <div className="flex items-center space-x-1">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm text-gray-600">
+                        {professional._count?.bookings || 0}
+                      </span>
+                      <Star className="w-3 h-3 text-yellow-500 ml-2" />
+                      <span className="text-sm text-gray-600">4.8</span>
+                    </div>
+                  </TableCell>
+                  
+                  <TableCell className="text-right">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenModal(professional)}
+                    >
+                      <Edit className="w-4 h-4 mr-1" />
+                      Editar
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          
+          {/* Paginación */}
+          {filteredProfessionals.length > itemsPerPage && (
+            <div className="flex items-center justify-between mt-4 pt-4 border-t">
+              <div className="text-sm text-gray-600">
+                Mostrando {startIndex + 1} a {Math.min(endIndex, filteredProfessionals.length)} de {filteredProfessionals.length} resultados
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Anterior
+                </Button>
+                
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNumber;
+                    if (totalPages <= 5) {
+                      pageNumber = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNumber = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNumber = totalPages - 4 + i;
+                    } else {
+                      pageNumber = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNumber}
+                        variant={currentPage === pageNumber ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(pageNumber)}
+                        className="w-8 h-8 p-0"
+                      >
+                        {pageNumber}
+                      </Button>
+                    );
+                  })}
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Siguiente
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      {professionals.length === 0 && (
+      {professionals.length === 0 && !searchTerm && (
         <Card className="border-2 border-dashed border-gray-200 bg-gray-50/50">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mb-6 shadow-sm">
@@ -333,6 +443,30 @@ export default function TenantProfessionalsPage() {
             >
               <Plus className="w-5 h-5 mr-2" />
               Agregar primer profesional
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Estado cuando no hay resultados de búsqueda */}
+      {professionals.length > 0 && filteredProfessionals.length === 0 && searchTerm && (
+        <Card className="border-2 border-dashed border-gray-200 bg-gray-50/50">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-6 shadow-sm">
+              <Search className="w-10 h-10 text-gray-500" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+              No se encontraron resultados
+            </h3>
+            <p className="text-gray-500 text-center mb-6 max-w-md leading-relaxed">
+              No hay profesionales que coincidan con tu búsqueda "{searchTerm}". 
+              Intenta con otros términos o limpia el filtro.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => handleSearchChange("")}
+            >
+              Limpiar búsqueda
             </Button>
           </CardContent>
         </Card>
