@@ -75,7 +75,7 @@ export default function TenantBookingPage() {
   const [pageLoading, setPageLoading] = useState(true);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-  const { showSuccess, showError, showLoading, updateToast } = useToast();
+  const { showError, showLoading, updateToast } = useToast();
 
   const [formData, setFormData] = useState({
     clientName: "",
@@ -134,27 +134,7 @@ export default function TenantBookingPage() {
     }
   }, [formData.date, formData.serviceId, formData.professionalId]);
 
-  useEffect(() => {
-    const initializePage = async () => {
-      setPageLoading(true);
-      await Promise.all([fetchServices(), fetchProfessionals()]);
-      setPageLoading(false);
-    };
-    initializePage();
-  }, []);
-
-  useEffect(() => {
-    if (formData.date && formData.serviceId) {
-      fetchAvailableSlots();
-    }
-  }, [
-    formData.date,
-    formData.professionalId,
-    formData.serviceId,
-    fetchAvailableSlots,
-  ]);
-
-  const fetchServices = async () => {
+  const fetchServices = useCallback(async () => {
     try {
       const response = await fetch("/api/tenant/services");
       if (response.ok) {
@@ -167,9 +147,9 @@ export default function TenantBookingPage() {
       console.error("Error fetching services:", error);
       showError("Error de conexión al cargar servicios");
     }
-  };
+  }, [showError]);
 
-  const fetchProfessionals = async () => {
+  const fetchProfessionals = useCallback(async () => {
     try {
       const response = await fetch("/api/tenant/professionals");
       if (response.ok) {
@@ -182,7 +162,27 @@ export default function TenantBookingPage() {
       console.error("Error fetching professionals:", error);
       showError("Error de conexión al cargar profesionales");
     }
-  };
+  }, [showError]);
+
+  useEffect(() => {
+    const initializePage = async () => {
+      setPageLoading(true);
+      await Promise.all([fetchServices(), fetchProfessionals()]);
+      setPageLoading(false);
+    };
+    initializePage();
+  }, [fetchServices, fetchProfessionals]);
+
+  useEffect(() => {
+    if (formData.date && formData.serviceId) {
+      fetchAvailableSlots();
+    }
+  }, [
+    formData.date,
+    formData.professionalId,
+    formData.serviceId,
+    fetchAvailableSlots,
+  ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

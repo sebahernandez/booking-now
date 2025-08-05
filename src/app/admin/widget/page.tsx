@@ -14,8 +14,6 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Copy, Eye } from "lucide-react";
-import { useSession } from "next-auth/react";
-
 interface TenantData {
   id: string;
   name: string;
@@ -25,7 +23,6 @@ interface TenantData {
 }
 
 export default function WidgetPage() {
-  const { data: session } = useSession();
   const [tenants, setTenants] = useState<TenantData[]>([]);
   const [selectedTenant, setSelectedTenant] = useState<string>("");
   const [baseUrl, setBaseUrl] = useState<string>("");

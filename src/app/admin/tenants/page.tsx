@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -35,11 +35,7 @@ export default function TenantsPage() {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const { showLoading, updateToast } = useToast();
 
-  useEffect(() => {
-    fetchTenants();
-  }, []);
-
-  const fetchTenants = async (showToast = false) => {
+  const fetchTenants = useCallback(async (showToast = false) => {
     let toastId;
     if (showToast) {
       toastId = showLoading("Actualizando lista de clientes...");
@@ -66,7 +62,11 @@ export default function TenantsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showLoading, updateToast, setTenants, setLoading]);
+
+  useEffect(() => {
+    fetchTenants();
+  }, [fetchTenants]);
 
   const handleOpenModal = (tenant?: Tenant) => {
     setSelectedTenant(tenant || null);

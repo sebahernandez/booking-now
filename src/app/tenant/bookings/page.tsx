@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -27,7 +26,6 @@ import {
   List,
   CalendarDays,
   Eye,
-  MapPin,
 } from "lucide-react";
 import {
   Dialog,
@@ -36,14 +34,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   format,
   startOfWeek,
@@ -87,18 +77,13 @@ export default function TenantBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { showSuccess, showError, showWarning, showLoading, updateToast } = useToast();
+  const { showError, showLoading, updateToast } = useToast();
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
-
-  const fetchBookings = async (showToast = false) => {
+  const fetchBookings = useCallback(async (showToast = false) => {
     let toastId;
     if (showToast) {
       toastId = showLoading("Actualizando reservas...");
@@ -127,7 +112,11 @@ export default function TenantBookingsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showLoading, updateToast, showError]);
+
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
 
   // Calendar logic
   const getCalendarDays = () => {
@@ -613,7 +602,7 @@ export default function TenantBookingsPage() {
                     !isCurrentMonth && "bg-gray-50 text-gray-400",
                     isToday && "bg-blue-50 border-2 border-blue-200"
                   )}
-                  onClick={() => setSelectedDate(day)}
+                  onClick={() => {}}
                 >
                   <div
                     className={cn(
@@ -880,30 +869,6 @@ export default function TenantBookingsPage() {
     );
   }
 
-  // Loading Skeleton
-  function CalendarSkeleton() {
-    return (
-      <Card className="shadow-sm border-0">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <Skeleton className="h-6 w-32" />
-            <div className="flex space-x-2">
-              <Skeleton className="h-8 w-8" />
-              <Skeleton className="h-8 w-16" />
-              <Skeleton className="h-8 w-8" />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-7 gap-2">
-            {Array.from({ length: 35 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full" />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="space-y-6">

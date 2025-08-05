@@ -11,7 +11,9 @@
       "Bash(npm install:*)",
       "Bash(npx prisma:*)",
       "Bash(npx next:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "WebFetch(domain:pris.ly)",
+      "Bash(npm audit:*)"
     ],
     "deny": []
   }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, Bell, Calendar, Clock, User } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { X, Bell, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -29,56 +29,28 @@ export function NotificationToast({ tenantId }: NotificationToastProps) {
   const [toastNotifications, setToastNotifications] = useState<ToastNotification[]>([]);
   const [shownNotifications, setShownNotifications] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    if (!tenantId) return;
+  const hideToast = (notificationId: string) => {
+    setToastNotifications(prev => 
+      prev.map(toast => 
+        toast.id === notificationId 
+          ? { ...toast, isVisible: false }
+          : toast
+      )
+    );
 
-    // Cargar notificaciones ya mostradas desde localStorage
-    const stored = localStorage.getItem(`shownNotifications_${tenantId}`);
-    if (stored) {
-      setShownNotifications(new Set(JSON.parse(stored)));
-    }
-
-    // Escuchar eventos de nuevas notificaciones
-    const handleNewNotification = async () => {
-      await fetchAndShowNewNotifications();
-    };
-
-    window.addEventListener('newNotification', handleNewNotification);
-    
-    // Verificar notificaciones al cargar
-    fetchAndShowNewNotifications();
-
-    return () => {
-      window.removeEventListener('newNotification', handleNewNotification);
-    };
-  }, [tenantId]);
-
-  const fetchAndShowNewNotifications = async () => {
-    if (!tenantId) return;
-
-    try {
-      const response = await fetch('/api/tenant/notifications?limit=5');
-      if (response.ok) {
-        const notifications: Notification[] = await response.json();
-        
-        // Filtrar solo las notificaciones nuevas que no hemos mostrado
-        const newNotifications = notifications.filter(notification => 
-          !shownNotifications.has(notification.id) && 
-          !notification.read &&
-          // Solo mostrar notificaciones de los últimos 5 minutos
-          new Date().getTime() - new Date(notification.createdAt).getTime() < 5 * 60 * 1000
-        );
-
-        if (newNotifications.length > 0) {
-          showToastNotifications(newNotifications);
+    // Remover completamente después de la animación
+    setTimeout(() => {
+      setToastNotifications(prev => {
+        const toastToRemove = prev.find(toast => toast.id === notificationId);
+        if (toastToRemove?.timeoutId) {
+          clearTimeout(toastToRemove?.timeoutId);
         }
-      }
-    } catch (error) {
-      console.error("Error fetching notifications for toast:", error);
-    }
+        return prev.filter(toast => toast.id !== notificationId);
+      });
+    }, 300);
   };
 
-  const showToastNotifications = (notifications: Notification[]) => {
+  const showToastNotifications = useCallback((notifications: Notification[]) => {
     notifications.forEach((notification, index) => {
       const delay = index * 1000; // Espaciar las notificaciones por 1 segundo
       
@@ -115,28 +87,56 @@ export function NotificationToast({ tenantId }: NotificationToastProps) {
         );
       }, delay);
     });
-  };
+  }, [tenantId]);
 
-  const hideToast = (notificationId: string) => {
-    setToastNotifications(prev => 
-      prev.map(toast => 
-        toast.id === notificationId 
-          ? { ...toast, isVisible: false }
-          : toast
-      )
-    );
+  const fetchAndShowNewNotifications = useCallback(async () => {
+    if (!tenantId) return;
 
-    // Remover completamente después de la animación
-    setTimeout(() => {
-      setToastNotifications(prev => {
-        const toastToRemove = prev.find(toast => toast.id === notificationId);
-        if (toastToRemove?.timeoutId) {
-          clearTimeout(toastToRemove.timeoutId);
+    try {
+      const response = await fetch('/api/tenant/notifications?limit=5');
+      if (response.ok) {
+        const notifications: Notification[] = await response.json();
+        
+        // Filtrar solo las notificaciones nuevas que no hemos mostrado
+        const newNotifications = notifications.filter(notification => 
+          !shownNotifications.has(notification.id) && 
+          !notification.read &&
+          // Solo mostrar notificaciones de los últimos 5 minutos
+          new Date().getTime() - new Date(notification.createdAt).getTime() < 5 * 60 * 1000
+        );
+
+        if (newNotifications.length > 0) {
+          showToastNotifications(newNotifications);
         }
-        return prev.filter(toast => toast.id !== notificationId);
-      });
-    }, 300);
-  };
+      }
+    } catch (error) {
+      console.error("Error fetching notifications for toast:", error);
+    }
+  }, [tenantId, shownNotifications, showToastNotifications]);
+
+  useEffect(() => {
+    if (!tenantId) return;
+
+    // Cargar notificaciones ya mostradas desde localStorage
+    const stored = localStorage.getItem(`shownNotifications_${tenantId}`);
+    if (stored) {
+      setShownNotifications(new Set(JSON.parse(stored)));
+    }
+
+    // Escuchar eventos de nuevas notificaciones
+    const handleNewNotification = async () => {
+      await fetchAndShowNewNotifications();
+    };
+
+    window.addEventListener('newNotification', handleNewNotification);
+    
+    // Verificar notificaciones al cargar
+    fetchAndShowNewNotifications();
+
+    return () => {
+      window.removeEventListener('newNotification', handleNewNotification);
+    };
+  }, [tenantId, fetchAndShowNewNotifications]);
 
   const getNotificationIcon = (type: Notification["type"]) => {
     switch (type) {

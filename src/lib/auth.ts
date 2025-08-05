@@ -19,13 +19,13 @@ const authPrisma = new PrismaClient({
 export const authOptions: NextAuthOptions = {
   debug: true, // Always enable debug for troubleshooting
   logger: {
-    error(code, metadata) {
-      console.error('NextAuth Error:', code, metadata)
+    error(code) {
+      console.error('NextAuth Error:', code)
     },
     warn(code) {
       console.warn('NextAuth Warning:', code)
     },
-    debug(code, metadata) {
+    debug() {
       // Debug logging disabled
     }
   },

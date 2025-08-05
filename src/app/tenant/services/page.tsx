@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -36,7 +36,6 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal,
 } from "lucide-react";
 import { TenantServiceModal } from "@/components/tenant/service-modal";
 import { ServiceAvailabilityModal } from "@/components/tenant/service-availability-modal";
@@ -105,11 +104,7 @@ export default function TenantServicesPage() {
   
   const { showSuccess, showError, showWarning, showLoading, updateToast } = useToast();
 
-  useEffect(() => {
-    fetchServices();
-  }, []);
-
-  const fetchServices = async (showToast = false) => {
+  const fetchServices = useCallback(async (showToast = false) => {
     let toastId;
     if (showToast) {
       toastId = showLoading("Actualizando servicios...");
@@ -138,7 +133,11 @@ export default function TenantServicesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError, showLoading, updateToast]);
+
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
 
   const handleOpenModal = (service?: Service) => {
     setSelectedService(service || null);

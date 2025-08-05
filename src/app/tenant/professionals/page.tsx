@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -30,13 +30,10 @@ import {
   Plus,
   Mail,
   Phone,
-  User,
-  Briefcase,
   Edit,
   Calendar,
   Star,
   Users,
-  MoreHorizontal,
   Search,
   ChevronLeft,
   ChevronRight,
@@ -86,14 +83,9 @@ export default function TenantProfessionalsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
-  const { showSuccess, showError, showLoading, updateToast } = useToast();
+  const { showError, showLoading, updateToast } = useToast();
 
-  useEffect(() => {
-    fetchProfessionals();
-    fetchServices();
-  }, []);
-
-  const fetchProfessionals = async (showToast = false) => {
+  const fetchProfessionals = useCallback(async (showToast = false) => {
     let toastId;
     if (showToast) {
       toastId = showLoading("Actualizando profesionales...");
@@ -122,9 +114,9 @@ export default function TenantProfessionalsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showLoading, updateToast, showError]);
 
-  const fetchServices = async () => {
+  const fetchServices = useCallback(async () => {
     try {
       const response = await fetch("/api/tenant/services");
       if (response.ok) {
@@ -137,7 +129,12 @@ export default function TenantProfessionalsPage() {
       console.error("Error fetching services:", error);
       showError("Error de conexión al cargar servicios");
     }
-  };
+  }, [showError]);
+
+  useEffect(() => {
+    fetchProfessionals();
+    fetchServices();
+  }, [fetchProfessionals, fetchServices]);
 
   const handleOpenModal = (professional?: Professional) => {
     setSelectedProfessional(professional || null);

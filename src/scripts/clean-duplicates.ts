@@ -24,10 +24,9 @@ async function cleanDuplicates() {
     }
 
     // Process each group
-    for (const [name, group] of serviceGroups) {
+    for (const [, group] of serviceGroups) {
       if (group.length > 1) {
         // Keep the first one (oldest), delete the rest
-        const toKeep = group[0]
         const toDelete = group.slice(1)
         
         for (const duplicate of toDelete) {
@@ -49,15 +48,7 @@ async function cleanDuplicates() {
       }
     }
 
-    // Show final count
-    const finalCount = await prisma.service.count()
-
-    // Show remaining services
-    const remainingServices = await prisma.service.findMany({
-      include: {
-        professionals: true
-      }
-    })
+    console.log('✅ Duplicate services cleaned successfully')
 
   } catch (error) {
     console.error('❌ Error cleaning duplicates:', error)

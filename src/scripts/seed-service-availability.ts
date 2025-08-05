@@ -55,8 +55,7 @@ async function seedServiceAvailability() {
       });
     }
 
-    // Show summary
-    const totalAvailability = await prisma.serviceAvailability.count();
+    console.log('✅ Service availability seeded successfully');
 
   } catch (error) {
     console.error('❌ Error seeding service availability:', error);

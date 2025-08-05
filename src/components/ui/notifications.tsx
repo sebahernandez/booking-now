@@ -5,7 +5,6 @@ import { Bell, Calendar, User, Clock, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -78,23 +77,6 @@ export function Notifications({ tenantId }: NotificationsProps) {
     }
   };
 
-  const markAsRead = async (notificationId: string) => {
-    try {
-      await fetch(`/api/tenant/notifications/${notificationId}/read`, {
-        method: "PUT",
-      });
-      
-      setNotifications(prev =>
-        prev.map(notification =>
-          notification.id === notificationId
-            ? { ...notification, read: true }
-            : notification
-        )
-      );
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
-    }
-  };
 
   const markAllAsRead = async () => {
     try {

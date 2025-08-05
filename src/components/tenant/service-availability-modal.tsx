@@ -56,7 +56,7 @@ export function ServiceAvailabilityModal({
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { showError, showLoading, updateToast, showSuccess } = useToast();
+  const { showLoading, updateToast } = useToast();
 
   useEffect(() => {
     if (service) {

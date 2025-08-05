@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -32,11 +32,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const { showError, showInfo } = useToast();
 
-  useEffect(() => {
-    fetchDashboardStats();
-  }, []);
-
-  const fetchDashboardStats = async () => {
+  const fetchDashboardStats = useCallback(async () => {
     try {
       const response = await fetch("/api/admin/dashboard");
       if (response.ok) {
@@ -52,7 +48,11 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError, showInfo, setStats, setLoading]);
+
+  useEffect(() => {
+    fetchDashboardStats();
+  }, [fetchDashboardStats]);
 
   const getStatusBadge = (isActive: boolean) => {
     return isActive 
