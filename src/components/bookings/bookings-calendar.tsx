@@ -128,26 +128,67 @@ export function BookingsCalendar() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+        <div className="xl:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
+              <CardTitle className="flex items-center text-lg sm:text-xl">
                 <CalendarIcon className="w-5 h-5 mr-2" />
                 Calendar de Reservas
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div style={{ height: '600px' }}>
+            <CardContent className="p-2 sm:p-6">
+              <div className="h-96 sm:h-[500px] lg:h-[600px] overflow-auto">
+                <style jsx>{`
+                  .rbc-calendar {
+                    min-width: 100%;
+                  }
+                  .rbc-toolbar {
+                    flex-wrap: wrap;
+                    gap: 0.5rem;
+                    margin-bottom: 1rem;
+                  }
+                  .rbc-toolbar button {
+                    padding: 0.375rem 0.75rem;
+                    font-size: 0.875rem;
+                  }
+                  .rbc-toolbar-label {
+                    font-size: 1rem;
+                    font-weight: 600;
+                  }
+                  @media (max-width: 640px) {
+                    .rbc-toolbar {
+                      flex-direction: column;
+                      align-items: center;
+                    }
+                    .rbc-btn-group {
+                      flex-wrap: wrap;
+                      justify-content: center;
+                    }
+                    .rbc-header {
+                      font-size: 0.75rem;
+                      padding: 0.25rem;
+                    }
+                    .rbc-date-cell {
+                      padding: 0.125rem;
+                    }
+                    .rbc-event {
+                      font-size: 0.625rem !important;
+                      padding: 1px 2px;
+                    }
+                  }
+                `}</style>
                 <Calendar
                   localizer={localizer}
                   events={bookings}
                   startAccessor="start"
                   endAccessor="end"
-                  style={{ height: '100%' }}
+                  style={{ height: '100%', minHeight: '400px' }}
                   onSelectEvent={handleSelectEvent}
                   culture="es"
+                  views={['month', 'week', 'day']}
+                  defaultView="month"
                   messages={{
                     month: 'Mes',
                     week: 'Semana',
@@ -166,24 +207,28 @@ export function BookingsCalendar() {
                       backgroundColor: event.status === 'CONFIRMED' ? '#10b981' : 
                                      event.status === 'PENDING' ? '#f59e0b' :
                                      event.status === 'CANCELLED' ? '#ef4444' : '#3b82f6',
-                      borderRadius: '6px',
+                      borderRadius: '4px',
                       opacity: event.status === 'CANCELLED' ? 0.6 : 1,
                       color: 'white',
                       border: 'none',
-                      fontSize: '12px',
+                      fontSize: '11px',
+                      fontWeight: 'normal',
                     },
                   })}
+                  step={30}
+                  timeslots={2}
+                  min={new Date(0, 0, 0, 8, 0, 0)}
+                  max={new Date(0, 0, 0, 20, 0, 0)}
                 />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        <div className="space-y-4">
-          {selectedBooking ? (
+        <div className="space-y-4">{selectedBooking ? (
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Detalles de la Reserva</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Detalles de la Reserva</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -193,31 +238,31 @@ export function BookingsCalendar() {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex items-center">
-                    <User className="w-4 h-4 mr-2 text-gray-500" />
-                    <div>
-                      <p className="font-medium">{selectedBooking.clientName}</p>
+                  <div className="flex items-start sm:items-center">
+                    <User className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0 mt-0.5 sm:mt-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium truncate">{selectedBooking.clientName}</p>
                       {selectedBooking.clientPhone && (
-                        <p className="text-sm text-gray-600">{selectedBooking.clientPhone}</p>
+                        <p className="text-sm text-gray-600 truncate">{selectedBooking.clientPhone}</p>
                       )}
                       {selectedBooking.clientEmail && (
-                        <p className="text-sm text-gray-600">{selectedBooking.clientEmail}</p>
+                        <p className="text-sm text-gray-600 truncate">{selectedBooking.clientEmail}</p>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center">
-                    <MapPin className="w-4 h-4 mr-2 text-gray-500" />
-                    <div>
-                      <p className="font-medium">{selectedBooking.serviceName}</p>
-                      <p className="text-sm text-gray-600">con {selectedBooking.professionalName}</p>
+                  <div className="flex items-start sm:items-center">
+                    <MapPin className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0 mt-0.5 sm:mt-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium truncate">{selectedBooking.serviceName}</p>
+                      <p className="text-sm text-gray-600 truncate">con {selectedBooking.professionalName}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center">
-                    <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                    <div>
-                      <p className="font-medium">
+                  <div className="flex items-start sm:items-center">
+                    <Clock className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0 mt-0.5 sm:mt-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm sm:text-base">
                         {format(selectedBooking.start, 'PPP', { locale: es })}
                       </p>
                       <p className="text-sm text-gray-600">
@@ -229,14 +274,14 @@ export function BookingsCalendar() {
                   {selectedBooking.notes && (
                     <div>
                       <p className="font-medium text-sm text-gray-700 mb-1">Notas:</p>
-                      <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                      <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded break-words">
                         {selectedBooking.notes}
                       </p>
                     </div>
                   )}
                 </div>
 
-                <div className="flex gap-2 pt-4 border-t">
+                <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t">
                   <Button size="sm" variant="outline" className="flex-1">
                     Editar
                   </Button>
@@ -248,10 +293,10 @@ export function BookingsCalendar() {
             </Card>
           ) : (
             <Card>
-              <CardContent className="p-6 text-center">
-                <CalendarIcon className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-                <h3 className="font-medium text-gray-900 mb-1">Selecciona una reserva</h3>
-                <p className="text-sm text-gray-500">
+              <CardContent className="p-4 sm:p-6 text-center">
+                <CalendarIcon className="w-8 h-8 sm:w-12 sm:h-12 mx-auto text-gray-400 mb-3" />
+                <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Selecciona una reserva</h3>
+                <p className="text-xs sm:text-sm text-gray-500">
                   Haz clic en una reserva del calendario para ver sus detalles
                 </p>
               </CardContent>
@@ -260,29 +305,29 @@ export function BookingsCalendar() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Resumen del Día</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Resumen del Día</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6">
               <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Total reservas:</span>
-                  <span className="font-medium">{bookings.length}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-600">Total reservas:</span>
+                  <span className="font-medium text-sm sm:text-base">{bookings.length}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Confirmadas:</span>
-                  <span className="font-medium text-green-600">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-600">Confirmadas:</span>
+                  <span className="font-medium text-green-600 text-sm sm:text-base">
                     {bookings.filter(b => b.status === 'CONFIRMED').length}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Pendientes:</span>
-                  <span className="font-medium text-yellow-600">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-600">Pendientes:</span>
+                  <span className="font-medium text-yellow-600 text-sm sm:text-base">
                     {bookings.filter(b => b.status === 'PENDING').length}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Completadas:</span>
-                  <span className="font-medium text-blue-600">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm text-gray-600">Completadas:</span>
+                  <span className="font-medium text-blue-600 text-sm sm:text-base">
                     {bookings.filter(b => b.status === 'COMPLETED').length}
                   </span>
                 </div>

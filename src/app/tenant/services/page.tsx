@@ -261,8 +261,8 @@ export default function TenantServicesPage() {
             </div>
             
             {/* Controles de búsqueda y paginación */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <div className="relative flex-1 sm:flex-none">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
                   placeholder="Buscar servicios..."
@@ -273,7 +273,7 @@ export default function TenantServicesPage() {
               </div>
               
               <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full sm:w-32">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -287,129 +287,222 @@ export default function TenantServicesPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Servicio</TableHead>
-                <TableHead>Duración</TableHead>
-                <TableHead>Precio</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Reservas</TableHead>
-                <TableHead>Horarios</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentServices.map((service) => (
-                <TableRow key={service.id}>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {service.name}
-                      </div>
-                      {service.description && (
-                        <div className="text-sm text-gray-500 truncate max-w-[300px]">
-                          {service.description}
+          {/* Tabla Desktop */}
+          <div className="hidden lg:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Servicio</TableHead>
+                  <TableHead>Duración</TableHead>
+                  <TableHead>Precio</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Reservas</TableHead>
+                  <TableHead>Horarios</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {currentServices.map((service) => (
+                  <TableRow key={service.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {service.name}
                         </div>
+                        {service.description && (
+                          <div className="text-sm text-gray-500 truncate max-w-[300px]">
+                            {service.description}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {service.duration} min
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="flex items-center font-medium text-green-600">
+                        <DollarSign className="w-4 h-4 mr-1" />
+                        {service.price.toLocaleString("es-CL", {
+                          style: "currency",
+                          currency: "CLP",
+                          minimumFractionDigits: 0,
+                        })}
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <Badge
+                        variant={service.isActive ? "default" : "secondary"}
+                        className={
+                          service.isActive
+                            ? "bg-green-100 text-green-800 border-green-200"
+                            : "bg-gray-100 text-gray-600 border-gray-200"
+                        }
+                      >
+                        {service.isActive ? "Activo" : "Inactivo"}
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {service._count?.bookings || 0} reservas
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="text-sm text-gray-600 max-w-[200px] truncate">
+                        {getScheduleSummary(service.availabilitySchedule)}
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenModal(service)}
+                          title="Editar servicio"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleOpenScheduleModal(service)}
+                          title="Configurar horarios"
+                          className="text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-blue-200 hover:border-blue-300"
+                        >
+                          <Calendar className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteService(service.id)}
+                          title="Eliminar servicio"
+                          className="text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 hover:border-red-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Vista Mobile - Cards */}
+          <div className="lg:hidden space-y-4">
+            {currentServices.map((service) => (
+              <Card key={service.id} className="p-4">
+                <div className="space-y-3">
+                  {/* Header con nombre y estado */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 truncate">
+                        {service.name}
+                      </h3>
+                      {service.description && (
+                        <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                          {service.description}
+                        </p>
                       )}
                     </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Clock className="w-4 h-4 mr-1" />
-                      {service.duration} min
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="flex items-center font-medium text-green-600">
-                      <DollarSign className="w-4 h-4 mr-1" />
-                      {service.price.toLocaleString("es-CL", {
-                        style: "currency",
-                        currency: "CLP",
-                        minimumFractionDigits: 0,
-                      })}
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell>
                     <Badge
                       variant={service.isActive ? "default" : "secondary"}
                       className={
                         service.isActive
-                          ? "bg-green-100 text-green-800 border-green-200"
-                          : "bg-gray-100 text-gray-600 border-gray-200"
+                          ? "bg-green-100 text-green-800 border-green-200 ml-2 flex-shrink-0"
+                          : "bg-gray-100 text-gray-600 border-gray-200 ml-2 flex-shrink-0"
                       }
                     >
                       {service.isActive ? "Activo" : "Inactivo"}
                     </Badge>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {service._count?.bookings || 0} reservas
+                  </div>
+
+                  {/* Información del servicio */}
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center text-gray-600">
+                      <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>{service.duration} min</span>
                     </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="text-sm text-gray-600 max-w-[200px] truncate">
-                      {getScheduleSummary(service.availabilitySchedule)}
+                    <div className="flex items-center font-medium text-green-600">
+                      <DollarSign className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>
+                        {service.price.toLocaleString("es-CL", {
+                          style: "currency",
+                          currency: "CLP",
+                          minimumFractionDigits: 0,
+                        })}
+                      </span>
                     </div>
-                  </TableCell>
-                  
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleOpenModal(service)}
-                        title="Editar servicio"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleOpenScheduleModal(service)}
-                        title="Configurar horarios"
-                        className="text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-blue-200 hover:border-blue-300"
-                      >
-                        <Calendar className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteService(service.id)}
-                        title="Eliminar servicio"
-                        className="text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 hover:border-red-300"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <div className="flex items-center text-gray-600">
+                      <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>{service._count?.bookings || 0} reservas</span>
                     </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    <div className="flex items-center text-gray-600">
+                      <span className="truncate">
+                        {getScheduleSummary(service.availabilitySchedule)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Acciones */}
+                  <div className="flex items-center gap-2 pt-2 border-t">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenModal(service)}
+                      className="flex-1"
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenScheduleModal(service)}
+                      className="text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-blue-200 hover:border-blue-300"
+                    >
+                      <Calendar className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteService(service.id)}
+                      className="text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 hover:border-red-300"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
           
           {/* Paginación */}
           {filteredServices.length > itemsPerPage && (
-            <div className="flex items-center justify-between mt-4 pt-4 border-t">
-              <div className="text-sm text-gray-600">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 pt-4 border-t space-y-3 sm:space-y-0">
+              <div className="text-sm text-gray-600 text-center sm:text-left">
                 Mostrando {startIndex + 1} a {Math.min(endIndex, filteredServices.length)} de {filteredServices.length} resultados
               </div>
               
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-center space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
+                  className="px-2 sm:px-3"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  Anterior
+                  <span className="hidden sm:inline ml-1">Anterior</span>
                 </Button>
                 
                 <div className="flex items-center space-x-1">
@@ -444,8 +537,9 @@ export default function TenantServicesPage() {
                   size="sm"
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
+                  className="px-2 sm:px-3"
                 >
-                  Siguiente
+                  <span className="hidden sm:inline mr-1">Siguiente</span>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>

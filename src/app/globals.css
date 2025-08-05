@@ -299,3 +299,122 @@
 .Toastify__close-button {
   @apply text-gray-500 hover:text-gray-700;
 }
+
+/* Responsive Tables Improvements */
+@media (max-width: 768px) {
+  .rbc-calendar {
+    font-size: 12px;
+  }
+  
+  .rbc-toolbar {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .rbc-toolbar button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .rbc-toolbar-label {
+    font-size: 0.875rem;
+    order: -1;
+    margin-bottom: 0.5rem;
+  }
+  
+  .rbc-btn-group {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+  
+  .rbc-header {
+    font-size: 0.625rem;
+    padding: 0.125rem;
+    font-weight: 600;
+  }
+  
+  .rbc-date-cell {
+    padding: 0.125rem;
+    min-height: 2rem;
+  }
+  
+  .rbc-event {
+    font-size: 0.625rem;
+    padding: 1px 2px;
+    line-height: 1.2;
+  }
+  
+  .rbc-time-view .rbc-header {
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .rbc-time-content {
+    font-size: 0.75rem;
+  }
+  
+  .rbc-time-slot {
+    min-height: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .rbc-month-view {
+    min-height: 300px;
+  }
+  
+  .rbc-month-row {
+    min-height: 2.5rem;
+  }
+  
+  .rbc-date-cell {
+    padding: 0.25rem 0.125rem;
+  }
+  
+  .rbc-event {
+    margin: 1px 0;
+    border-radius: 2px;
+  }
+}
+
+/* Improved Mobile Table Scrolling */
+.table-container {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.table-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Line clamp utilities for better text truncation */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

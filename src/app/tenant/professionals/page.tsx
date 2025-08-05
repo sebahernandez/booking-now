@@ -214,8 +214,8 @@ export default function TenantProfessionalsPage() {
             </div>
             
             {/* Controles de búsqueda y paginación */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <div className="relative flex-1 sm:flex-none">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
                   placeholder="Buscar profesionales..."
@@ -226,7 +226,7 @@ export default function TenantProfessionalsPage() {
               </div>
               
               <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-                <SelectTrigger className="w-32">
+                <SelectTrigger className="w-full sm:w-32">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -240,59 +240,186 @@ export default function TenantProfessionalsPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Profesional</TableHead>
-                <TableHead>Contacto</TableHead>
-                <TableHead>Servicios</TableHead>
-                <TableHead>Tarifa/Hora</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Reservas</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentProfessionals.map((professional) => (
-                <TableRow key={professional.id}>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
+          {/* Tabla Desktop */}
+          <div className="hidden lg:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Profesional</TableHead>
+                  <TableHead>Contacto</TableHead>
+                  <TableHead>Servicios</TableHead>
+                  <TableHead>Tarifa/Hora</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Reservas</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {currentProfessionals.map((professional) => (
+                  <TableRow key={professional.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        <Avatar>
+                          <AvatarFallback className="bg-blue-600 text-white">
+                            {professional.user.name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {professional.user.name}
+                          </div>
+                          {professional.bio && (
+                            <div className="text-sm text-gray-500 truncate max-w-[200px]">
+                              {professional.bio}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Mail className="w-3 h-3 mr-1" />
+                          <span className="truncate max-w-[150px]">{professional.user.email}</span>
+                        </div>
+                        {professional.user.phone && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Phone className="w-3 h-3 mr-1" />
+                            <span>{professional.user.phone}</span>
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1 max-w-[200px]">
+                        {professional.services.slice(0, 2).map((service) => (
+                          <Badge
+                            key={service.service.id}
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            {service.service.name}
+                          </Badge>
+                        ))}
+                        {professional.services.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{professional.services.length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell>
+                      {professional.hourlyRate && professional.hourlyRate > 0 ? (
+                        <div className="font-medium text-green-600">
+                          {new Intl.NumberFormat("es-CL", {
+                            style: "currency",
+                            currency: "CLP",
+                            minimumFractionDigits: 0,
+                          }).format(professional.hourlyRate)}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-500">No configurada</span>
+                      )}
+                    </TableCell>
+                    
+                    <TableCell>
+                      <Badge
+                        variant={professional.isAvailable ? "default" : "secondary"}
+                        className={
+                          professional.isAvailable
+                            ? "bg-green-100 text-green-800 border-green-200"
+                            : "bg-gray-100 text-gray-600 border-gray-200"
+                        }
+                      >
+                        {professional.isAvailable ? "Disponible" : "No disponible"}
+                      </Badge>
+                    </TableCell>
+                    
+                    <TableCell>
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm text-gray-600">
+                          {professional._count?.bookings || 0}
+                        </span>
+                        <Star className="w-3 h-3 text-yellow-500 ml-2" />
+                        <span className="text-sm text-gray-600">4.8</span>
+                      </div>
+                    </TableCell>
+                    
+                    <TableCell className="text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleOpenModal(professional)}
+                      >
+                        <Edit className="w-4 h-4 mr-1" />
+                        Editar
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Vista Mobile - Cards */}
+          <div className="lg:hidden space-y-4">
+            {currentProfessionals.map((professional) => (
+              <Card key={professional.id} className="p-4">
+                <div className="space-y-3">
+                  {/* Header con nombre y estado */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3 flex-1 min-w-0">
                       <Avatar>
                         <AvatarFallback className="bg-blue-600 text-white">
                           {professional.user.name.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <div className="font-medium text-gray-900">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900 truncate">
                           {professional.user.name}
-                        </div>
+                        </h3>
                         {professional.bio && (
-                          <div className="text-sm text-gray-500 truncate max-w-[200px]">
+                          <p className="text-sm text-gray-500 mt-1 line-clamp-2">
                             {professional.bio}
-                          </div>
+                          </p>
                         )}
                       </div>
                     </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Mail className="w-3 h-3 mr-1" />
-                        <span className="truncate max-w-[150px]">{professional.user.email}</span>
-                      </div>
-                      {professional.user.phone && (
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Phone className="w-3 h-3 mr-1" />
-                          <span>{professional.user.phone}</span>
-                        </div>
-                      )}
+                    <Badge
+                      variant={professional.isAvailable ? "default" : "secondary"}
+                      className={
+                        professional.isAvailable
+                          ? "bg-green-100 text-green-800 border-green-200 ml-2 flex-shrink-0"
+                          : "bg-gray-100 text-gray-600 border-gray-200 ml-2 flex-shrink-0"
+                      }
+                    >
+                      {professional.isAvailable ? "Disponible" : "No disponible"}
+                    </Badge>
+                  </div>
+
+                  {/* Información de contacto */}
+                  <div className="space-y-2">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span className="truncate">{professional.user.email}</span>
                     </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1 max-w-[200px]">
-                      {professional.services.slice(0, 2).map((service) => (
+                    {professional.user.phone && (
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
+                        <span>{professional.user.phone}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Servicios */}
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Servicios:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {professional.services.slice(0, 3).map((service) => (
                         <Badge
                           key={service.service.id}
                           variant="outline"
@@ -301,83 +428,77 @@ export default function TenantProfessionalsPage() {
                           {service.service.name}
                         </Badge>
                       ))}
-                      {professional.services.length > 2 && (
+                      {professional.services.length > 3 && (
                         <Badge variant="outline" className="text-xs">
-                          +{professional.services.length - 2}
+                          +{professional.services.length - 3}
                         </Badge>
                       )}
                     </div>
-                  </TableCell>
-                  
-                  <TableCell>
-                    {professional.hourlyRate && professional.hourlyRate > 0 ? (
-                      <div className="font-medium text-green-600">
-                        {new Intl.NumberFormat("es-CL", {
-                          style: "currency",
-                          currency: "CLP",
-                          minimumFractionDigits: 0,
-                        }).format(professional.hourlyRate)}
-                      </div>
-                    ) : (
-                      <span className="text-sm text-gray-500">No configurada</span>
-                    )}
-                  </TableCell>
-                  
-                  <TableCell>
-                    <Badge
-                      variant={professional.isAvailable ? "default" : "secondary"}
-                      className={
-                        professional.isAvailable
-                          ? "bg-green-100 text-green-800 border-green-200"
-                          : "bg-gray-100 text-gray-600 border-gray-200"
-                      }
-                    >
-                      {professional.isAvailable ? "Disponible" : "No disponible"}
-                    </Badge>
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">
-                        {professional._count?.bookings || 0}
-                      </span>
-                      <Star className="w-3 h-3 text-yellow-500 ml-2" />
-                      <span className="text-sm text-gray-600">4.8</span>
+                  </div>
+
+                  {/* Información adicional */}
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500 mb-1">Tarifa/Hora:</p>
+                      {professional.hourlyRate && professional.hourlyRate > 0 ? (
+                        <p className="font-medium text-green-600">
+                          {new Intl.NumberFormat("es-CL", {
+                            style: "currency",
+                            currency: "CLP",
+                            minimumFractionDigits: 0,
+                          }).format(professional.hourlyRate)}
+                        </p>
+                      ) : (
+                        <p className="text-gray-500">No configurada</p>
+                      )}
                     </div>
-                  </TableCell>
-                  
-                  <TableCell className="text-right">
+                    <div>
+                      <p className="text-gray-500 mb-1">Reservas:</p>
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-600">
+                          {professional._count?.bookings || 0}
+                        </span>
+                        <Star className="w-3 h-3 text-yellow-500 ml-2" />
+                        <span className="text-gray-600">4.8</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Acciones */}
+                  <div className="pt-2 border-t">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleOpenModal(professional)}
+                      className="w-full"
                     >
-                      <Edit className="w-4 h-4 mr-1" />
-                      Editar
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar Profesional
                     </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
           
           {/* Paginación */}
           {filteredProfessionals.length > itemsPerPage && (
-            <div className="flex items-center justify-between mt-4 pt-4 border-t">
-              <div className="text-sm text-gray-600">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 pt-4 border-t space-y-3 sm:space-y-0">
+              <div className="text-sm text-gray-600 text-center sm:text-left">
                 Mostrando {startIndex + 1} a {Math.min(endIndex, filteredProfessionals.length)} de {filteredProfessionals.length} resultados
               </div>
               
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-center space-x-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
+                  className="px-2 sm:px-3"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  Anterior
+                  <span className="hidden sm:inline ml-1">Anterior</span>
                 </Button>
                 
                 <div className="flex items-center space-x-1">
@@ -412,8 +533,9 @@ export default function TenantProfessionalsPage() {
                   size="sm"
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
+                  className="px-2 sm:px-3"
                 >
-                  Siguiente
+                  <span className="hidden sm:inline mr-1">Siguiente</span>
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
