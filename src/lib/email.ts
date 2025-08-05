@@ -79,7 +79,6 @@ export async function sendBookingConfirmationEmail(booking: BookingData) {
       throw new Error(`Failed to send email: ${error.message}`);
     }
 
-    console.log('Email sent successfully:', data);
     return { success: true, data };
   } catch (error) {
     console.error('Email service error:', error);
@@ -90,7 +89,6 @@ export async function sendBookingConfirmationEmail(booking: BookingData) {
 // Optional: Send email to tenant/business owner
 export async function sendBookingNotificationToTenant(booking: BookingData) {
   if (!booking.tenant.email) {
-    console.log('No tenant email provided, skipping tenant notification');
     return { success: false, reason: 'No tenant email' };
   }
 
@@ -162,7 +160,6 @@ export async function sendBookingNotificationToTenant(booking: BookingData) {
       throw new Error(`Failed to send tenant notification: ${error.message}`);
     }
 
-    console.log('Tenant notification email sent successfully:', data);
     return { success: true, data };
   } catch (error) {
     console.error('Tenant email service error:', error);

@@ -1,11 +1,12 @@
 import { toast, ToastOptions, Id } from 'react-toastify';
+import { useCallback } from 'react';
 
 export interface ToastConfig extends ToastOptions {
   autoClose?: number;
 }
 
 export const useToast = () => {
-  const showSuccess = (message: string, config?: ToastConfig) => {
+  const showSuccess = useCallback((message: string, config?: ToastConfig) => {
     toast.success(message, {
       position: 'top-right',
       autoClose: 3000,
@@ -15,9 +16,9 @@ export const useToast = () => {
       draggable: true,
       ...config,
     });
-  };
+  }, []);
 
-  const showError = (message: string, config?: ToastConfig) => {
+  const showError = useCallback((message: string, config?: ToastConfig) => {
     toast.error(message, {
       position: 'top-right',
       autoClose: 5000,
@@ -27,9 +28,9 @@ export const useToast = () => {
       draggable: true,
       ...config,
     });
-  };
+  }, []);
 
-  const showWarning = (message: string, config?: ToastConfig) => {
+  const showWarning = useCallback((message: string, config?: ToastConfig) => {
     toast.warning(message, {
       position: 'top-right',
       autoClose: 4000,
@@ -39,9 +40,9 @@ export const useToast = () => {
       draggable: true,
       ...config,
     });
-  };
+  }, []);
 
-  const showInfo = (message: string, config?: ToastConfig) => {
+  const showInfo = useCallback((message: string, config?: ToastConfig) => {
     toast.info(message, {
       position: 'top-right',
       autoClose: 3000,
@@ -51,16 +52,16 @@ export const useToast = () => {
       draggable: true,
       ...config,
     });
-  };
+  }, []);
 
-  const showLoading = (message: string, config?: ToastConfig) => {
+  const showLoading = useCallback((message: string, config?: ToastConfig) => {
     return toast.loading(message, {
       position: 'top-right',
       ...config,
     });
-  };
+  }, []);
 
-  const updateToast = (toastId: Id, type: 'success' | 'error' | 'warning' | 'info', message: string, config?: ToastConfig) => {
+  const updateToast = useCallback((toastId: Id, type: 'success' | 'error' | 'warning' | 'info', message: string, config?: ToastConfig) => {
     toast.update(toastId, {
       render: message,
       type,
@@ -73,15 +74,15 @@ export const useToast = () => {
       draggable: true,
       ...config,
     });
-  };
+  }, []);
 
-  const dismiss = (toastId?: Id) => {
+  const dismiss = useCallback((toastId?: Id) => {
     if (toastId) {
       toast.dismiss(toastId);
     } else {
       toast.dismiss();
     }
-  };
+  }, []);
 
   return {
     showSuccess,

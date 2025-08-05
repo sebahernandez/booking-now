@@ -7,7 +7,7 @@ import { NotificationType } from "@prisma/client";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,7 +19,7 @@ export async function PUT(
       );
     }
 
-    const { id } = await params;
+    const { id } = context.params;
     const body = await request.json();
     const { status, professionalId, startDateTime, endDateTime, notes } = body;
 
@@ -120,7 +120,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -132,7 +132,7 @@ export async function DELETE(
       );
     }
 
-    const { id } = await params;
+    const { id } = context.params;
 
     // Verify booking exists and belongs to the tenant
     const existingBooking = await prisma.booking.findFirst({
@@ -202,7 +202,7 @@ export async function DELETE(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -214,7 +214,7 @@ export async function GET(
       );
     }
 
-    const { id } = await params;
+    const { id } = context.params;
 
     const booking = await prisma.booking.findFirst({
       where: {

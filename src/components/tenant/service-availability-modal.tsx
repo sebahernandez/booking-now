@@ -56,7 +56,7 @@ export function ServiceAvailabilityModal({
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { showLoading, updateToast } = useToast();
+  const toast = useToast();
 
   useEffect(() => {
     if (service) {
@@ -126,7 +126,7 @@ export function ServiceAvailabilityModal({
     if (!service) return;
 
     setLoading(true);
-    const toastId = showLoading("Guardando horarios de disponibilidad...");
+    const toastId = toast.showLoading("Guardando horarios de disponibilidad...");
 
     try {
       const response = await fetch(`/api/tenant/services/${service.id}/availability`, {
@@ -144,15 +144,15 @@ export function ServiceAvailabilityModal({
       });
 
       if (response.ok) {
-        updateToast(toastId, "success", "Horarios de disponibilidad guardados exitosamente");
+        toast.updateToast(toastId, "success", "Horarios de disponibilidad guardados exitosamente");
         onSave();
       } else {
         const errorData = await response.json();
-        updateToast(toastId, "error", errorData.error || "Error al guardar disponibilidad");
+        toast.updateToast(toastId, "error", errorData.error || "Error al guardar disponibilidad");
         setErrors({ submit: errorData.error || 'Error al guardar disponibilidad' });
       }
     } catch {
-      updateToast(toastId, "error", "Error de conexión");
+      toast.updateToast(toastId, "error", "Error de conexión");
       setErrors({ submit: 'Error de conexion' });
     } finally {
       setLoading(false);

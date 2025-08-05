@@ -3,10 +3,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ tenantId: string; professionalId: string }> }
+  context: { params: { tenantId: string; professionalId: string } }
 ) {
   try {
-    const { tenantId, professionalId } = await params;
+    const { tenantId, professionalId } = context.params;
 
     // Verificar que el professional pertenece al tenant
     const professional = await prisma.professional.findFirst({

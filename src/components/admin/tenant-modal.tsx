@@ -50,7 +50,7 @@ export function TenantModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { showError, showLoading, updateToast } = useToast();
+  const toast = useToast();
 
   useEffect(() => {
     if (tenant) {
@@ -110,13 +110,13 @@ export function TenantModal({
     e.preventDefault();
     
     if (!validateForm()) {
-      showError("Por favor corrige los errores en el formulario");
+      toast.showError("Por favor corrige los errores en el formulario");
       return;
     }
 
     setLoading(true);
     const isEdit = !!tenant;
-    const toastId = showLoading(isEdit ? "Actualizando cliente..." : "Creando cliente...");
+    const toastId = toast.showLoading(isEdit ? "Actualizando cliente..." : "Creando cliente...");
 
     try {
       const payload: Record<string, unknown> = {
@@ -146,15 +146,15 @@ export function TenantModal({
       });
 
       if (response.ok) {
-        updateToast(toastId, "success", isEdit ? "Cliente actualizado exitosamente" : "Cliente creado exitosamente");
+        toast.updateToast(toastId, "success", isEdit ? "Cliente actualizado exitosamente" : "Cliente creado exitosamente");
         onSave();
       } else {
         const errorData = await response.json();
-        updateToast(toastId, "error", errorData.error || "Error al guardar el cliente");
+        toast.updateToast(toastId, "error", errorData.error || "Error al guardar el cliente");
         setErrors({ submit: errorData.error || 'Error al guardar el cliente' });
       }
     } catch {
-      updateToast(toastId, "error", "Error de conexión");
+      toast.updateToast(toastId, "error", "Error de conexión");
       setErrors({ submit: 'Error de conexion' });
     } finally {
       setLoading(false);

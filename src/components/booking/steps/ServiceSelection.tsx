@@ -27,12 +27,7 @@ export function ServiceSelection({
   return (
     <div className="flex items-start justify-center h-screen px-4 py-24">
       <div className="w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-4xl md:text-5xl font-medium text-gray-900 mb-4 tracking-tight">
-            ¿Qué servicio necesitas?
-          </h1>
-        
-        </div>
+       
 
         <div className="w-full mx-auto">
           <div className="space-y-3">

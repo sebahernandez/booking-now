@@ -5,10 +5,10 @@ import { NotificationType } from "@prisma/client";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ tenantId: string }> }
+  context: { params: { tenantId: string } }
 ) {
   try {
-    const { tenantId } = await params;
+    const { tenantId } = context.params;
     const body = await request.json();
 
     const {
@@ -82,8 +82,6 @@ export async function POST(
     }
 
     // Parsear la fecha y hora con manejo mejorado para producción
-    console.log('Processing booking with raw data:', { date, time, serviceId, tenantId });
-    
     const [year, month, day] = date.split("-").map(Number);
     const [timeRange] = time.split(" - ");
     const [hours, minutes] = timeRange.split(":").map(Number);
@@ -92,19 +90,6 @@ export async function POST(
     const startDateTime = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0, 0));
     const endDateTime = new Date(startDateTime.getTime() + (service.duration * 60 * 1000));
     
-    console.log('Parsed datetime:', {
-      startDateTime: startDateTime.toISOString(),
-      endDateTime: endDateTime.toISOString(),
-      duration: service.duration
-    });
-
-    // Verificar disponibilidad antes de crear
-    console.log('Checking availability for:', {
-      serviceId,
-      startDateTime: startDateTime.toISOString(),
-      endDateTime: endDateTime.toISOString()
-    });
-
     // Verificar conflictos de horario
     const conflictingBooking = await prisma.booking.findFirst({
       where: {
@@ -147,7 +132,6 @@ export async function POST(
     }
 
     // Crear la reserva
-    console.log('Creating booking...');
     const booking = await prisma.booking.create({
       data: {
         clientId: client.id,

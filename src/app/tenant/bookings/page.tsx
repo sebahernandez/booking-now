@@ -81,12 +81,12 @@ export default function TenantBookingsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { showError, showLoading, updateToast } = useToast();
+  const toast = useToast();
 
   const fetchBookings = useCallback(async (showToast = false) => {
     let toastId;
     if (showToast) {
-      toastId = showLoading("Actualizando reservas...");
+      toastId = toast.showLoading("Actualizando reservas...");
     }
 
     try {
@@ -95,28 +95,28 @@ export default function TenantBookingsPage() {
         const data = await response.json();
         setBookings(data);
         if (showToast && toastId) {
-          updateToast(toastId, "success", `${data.length} reservas cargadas`);
+          toast.updateToast(toastId, "success", `${data.length} reservas cargadas`);
         }
       } else {
         if (showToast && toastId) {
-          updateToast(toastId, "error", "Error al cargar reservas");
+          toast.updateToast(toastId, "error", "Error al cargar reservas");
         }
-        showError("Error al cargar las reservas");
+        toast.showError("Error al cargar las reservas");
       }
     } catch (error) {
       console.error("Error fetching bookings:", error);
       if (showToast && toastId) {
-        updateToast(toastId, "error", "Error de conexión");
+        toast.updateToast(toastId, "error", "Error de conexión");
       }
-      showError("Error de conexión al cargar reservas");
+      toast.showError("Error de conexión al cargar reservas");
     } finally {
       setLoading(false);
     }
-  }, [showLoading, updateToast, showError]);
+  }, [toast]);
 
   useEffect(() => {
     fetchBookings();
-  }, [fetchBookings]);
+  }, []);
 
   // Calendar logic
   const getCalendarDays = () => {
@@ -181,7 +181,7 @@ export default function TenantBookingsPage() {
       NO_SHOW: "marcada como no asistió"
     };
 
-    const toastId = showLoading(`Actualizando reserva...`);
+    const toastId = toast.showLoading(`Actualizando reserva...`);
 
     try {
       const response = await fetch(`/api/tenant/bookings/${bookingId}`, {
@@ -193,16 +193,16 @@ export default function TenantBookingsPage() {
       });
 
       if (response.ok) {
-        updateToast(toastId, "success", `Reserva ${statusLabels[newStatus as keyof typeof statusLabels]} exitosamente`);
+        toast.updateToast(toastId, "success", `Reserva ${statusLabels[newStatus as keyof typeof statusLabels]} exitosamente`);
         fetchBookings();
         closeBookingModal();
       } else {
         const error = await response.json();
-        updateToast(toastId, "error", error.error || "Error al actualizar la reserva");
+        toast.updateToast(toastId, "error", error.error || "Error al actualizar la reserva");
       }
     } catch (error) {
       console.error("Error updating booking:", error);
-      updateToast(toastId, "error", "Error de conexión al actualizar reserva");
+      toast.updateToast(toastId, "error", "Error de conexión al actualizar reserva");
     }
   };
 

@@ -7,7 +7,7 @@ import { BookingStatus } from "@prisma/client";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,7 +19,7 @@ export async function GET(
       );
     }
 
-    const { id: serviceId } = await params;
+    const { id: serviceId } = context.params;
     const searchParams = request.nextUrl.searchParams;
     const date = searchParams.get("date");
     const professionalId = searchParams.get("professionalId");
@@ -63,13 +63,19 @@ export async function GET(
       return NextResponse.json([]);
     }
 
-    // Get existing bookings for this date and service
+    // Get existing bookings for this date and service using UTC
+    const startOfDay = new Date(targetDate);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(targetDate);
+    endOfDay.setUTCHours(23, 59, 59, 999);
+    
     const existingBookings = await prisma.booking.findMany({
       where: {
         serviceId: serviceId,
         startDateTime: {
-          gte: new Date(targetDate.setHours(0, 0, 0, 0)),
-          lt: new Date(targetDate.setHours(23, 59, 59, 999)),
+          gte: startOfDay,
+          lt: endOfDay,
         },
         status: {
           in: [BookingStatus.PENDING, BookingStatus.CONFIRMED],
@@ -137,12 +143,12 @@ function generateTimeSlots(
       .toString()
       .padStart(2, "0")}`;
 
-    // Check if this time slot conflicts with existing bookings
+    // Check if this time slot conflicts with existing bookings using UTC
     const slotStartTime = new Date(targetDate);
-    slotStartTime.setHours(hour, minute, 0, 0);
+    slotStartTime.setUTCHours(hour, minute, 0, 0);
 
     const slotEndTime = new Date(slotStartTime);
-    slotEndTime.setMinutes(slotEndTime.getMinutes() + serviceDuration);
+    slotEndTime.setUTCMinutes(slotEndTime.getUTCMinutes() + serviceDuration);
 
     const hasConflict = existingBookings.some((booking) => {
       const bookingStart = new Date(booking.startDateTime);

@@ -75,7 +75,7 @@ export default function TenantBookingPage() {
   const [pageLoading, setPageLoading] = useState(true);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-  const { showError, showLoading, updateToast } = useToast();
+  const toast = useToast();
 
   const [formData, setFormData] = useState({
     clientName: "",
@@ -141,13 +141,13 @@ export default function TenantBookingPage() {
         const data = await response.json();
         setServices(data);
       } else {
-        showError("Error al cargar servicios disponibles");
+        toast.showError("Error al cargar servicios disponibles");
       }
     } catch (error) {
       console.error("Error fetching services:", error);
-      showError("Error de conexión al cargar servicios");
+      toast.showError("Error de conexión al cargar servicios");
     }
-  }, [showError]);
+  }, [toast]);
 
   const fetchProfessionals = useCallback(async () => {
     try {
@@ -156,13 +156,13 @@ export default function TenantBookingPage() {
         const data = await response.json();
         setProfessionals(data);
       } else {
-        showError("Error al cargar profesionales disponibles");
+        toast.showError("Error al cargar profesionales disponibles");
       }
     } catch (error) {
       console.error("Error fetching professionals:", error);
-      showError("Error de conexión al cargar profesionales");
+      toast.showError("Error de conexión al cargar profesionales");
     }
-  }, [showError]);
+  }, [toast]);
 
   useEffect(() => {
     const initializePage = async () => {
@@ -171,7 +171,7 @@ export default function TenantBookingPage() {
       setPageLoading(false);
     };
     initializePage();
-  }, [fetchServices, fetchProfessionals]);
+  }, []);
 
   useEffect(() => {
     if (formData.date && formData.serviceId) {
@@ -190,23 +190,24 @@ export default function TenantBookingPage() {
     setError("");
     setSuccess("");
 
-    const toastId = showLoading("Creando reserva...");
+    const toastId = toast.showLoading("Creando reserva...");
 
     try {
       const selectedService = services.find((s) => s.id === formData.serviceId);
       if (!selectedService || !formData.date) {
-        updateToast(toastId, "error", "Faltan datos requeridos para crear la reserva");
+        toast.updateToast(toastId, "error", "Faltan datos requeridos para crear la reserva");
         throw new Error("Faltan datos requeridos");
       }
 
-      // Combine date and time
+      // Combine date and time using UTC to avoid timezone issues
       const [hours, minutes] = formData.time.split(":");
       const startDateTime = new Date(formData.date);
-      startDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      // Use setUTCHours to ensure consistent timezone handling
+      startDateTime.setUTCHours(parseInt(hours), parseInt(minutes), 0, 0);
 
       const endDateTime = new Date(startDateTime);
-      endDateTime.setMinutes(
-        endDateTime.getMinutes() + selectedService.duration
+      endDateTime.setUTCMinutes(
+        endDateTime.getUTCMinutes() + selectedService.duration
       );
 
       const bookingData = {
@@ -232,11 +233,11 @@ export default function TenantBookingPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        updateToast(toastId, "error", errorData.error || "Error al crear la reserva");
+        toast.updateToast(toastId, "error", errorData.error || "Error al crear la reserva");
         throw new Error(errorData.error || "Error al crear la reserva");
       }
 
-      updateToast(toastId, "success", "¡Reserva creada exitosamente!");
+      toast.updateToast(toastId, "success", "¡Reserva creada exitosamente!");
       setSuccess("¡Reserva creada exitosamente!");
 
       // Reset form

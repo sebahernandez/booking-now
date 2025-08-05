@@ -62,7 +62,7 @@ export function TenantProfessionalModal({
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { showError, showLoading, updateToast } = useToast();
+  const toast = useToast();
 
   useEffect(() => {
     if (professional) {
@@ -114,13 +114,13 @@ export function TenantProfessionalModal({
     e.preventDefault();
     
     if (!validateForm()) {
-      showError("Por favor corrige los errores en el formulario");
+      toast.showError("Por favor corrige los errores en el formulario");
       return;
     }
 
     setLoading(true);
     const isEdit = !!professional;
-    const toastId = showLoading(isEdit ? "Actualizando profesional..." : "Creando profesional...");
+    const toastId = toast.showLoading(isEdit ? "Actualizando profesional..." : "Creando profesional...");
 
     try {
       const payload = {
@@ -148,15 +148,15 @@ export function TenantProfessionalModal({
       });
 
       if (response.ok) {
-        updateToast(toastId, "success", isEdit ? "Profesional actualizado exitosamente" : "Profesional creado exitosamente");
+        toast.updateToast(toastId, "success", isEdit ? "Profesional actualizado exitosamente" : "Profesional creado exitosamente");
         onSave();
       } else {
         const errorData = await response.json();
-        updateToast(toastId, "error", errorData.error || "Error al guardar el profesional");
+        toast.updateToast(toastId, "error", errorData.error || "Error al guardar el profesional");
         setErrors({ submit: errorData.error || 'Error al guardar el profesional' });
       }
     } catch {
-      updateToast(toastId, "error", "Error de conexión");
+      toast.updateToast(toastId, "error", "Error de conexión");
       setErrors({ submit: 'Error de conexión' });
     } finally {
       setLoading(false);

@@ -9,7 +9,7 @@ async function checkSchema() {
       WHERE table_name = 'notifications'
       ORDER BY ordinal_position;
     `;
-    console.log('Columnas de la tabla notifications:', result);
+    // Schema check completed
   } catch (error) {
     console.error('Error:', error);
   } finally {

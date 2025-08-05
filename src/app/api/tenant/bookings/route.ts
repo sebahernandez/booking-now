@@ -78,15 +78,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Logging para debug en producción
-    console.log('Creating booking with data:', {
-      startDateTime,
-      endDateTime,
-      serviceId,
-      professionalId,
-      clientName
-    });
-
     // Check service availability for the requested time slot (consistent with availability API)
     const requestedDate = new Date(startDateTime);
     const dayOfWeek = requestedDate.getUTCDay(); // Use UTC day to match availability API
@@ -281,7 +272,6 @@ export async function POST(request: NextRequest) {
       // No fallar la reserva si falla el email
     }
 
-    console.log('Booking created successfully:', booking.id);
     return NextResponse.json(booking, { status: 201 });
   } catch (error) {
     const err = error as Error & { code?: string };

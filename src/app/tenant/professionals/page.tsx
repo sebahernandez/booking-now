@@ -83,12 +83,12 @@ export default function TenantProfessionalsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
-  const { showError, showLoading, updateToast } = useToast();
+  const toast = useToast();
 
   const fetchProfessionals = useCallback(async (showToast = false) => {
     let toastId;
     if (showToast) {
-      toastId = showLoading("Actualizando profesionales...");
+      toastId = toast.showLoading("Actualizando profesionales...");
     }
 
     try {
@@ -97,24 +97,24 @@ export default function TenantProfessionalsPage() {
         const data = await response.json();
         setProfessionals(data);
         if (showToast && toastId) {
-          updateToast(toastId, "success", `${data.length} profesionales cargados`);
+          toast.updateToast(toastId, "success", `${data.length} profesionales cargados`);
         }
       } else {
         if (showToast && toastId) {
-          updateToast(toastId, "error", "Error al cargar profesionales");
+          toast.updateToast(toastId, "error", "Error al cargar profesionales");
         }
-        showError("Error al cargar profesionales");
+        toast.showError("Error al cargar profesionales");
       }
     } catch (error) {
       console.error("Error fetching professionals:", error);
       if (showToast && toastId) {
-        updateToast(toastId, "error", "Error de conexión");
+        toast.updateToast(toastId, "error", "Error de conexión");
       }
-      showError("Error de conexión al cargar profesionales");
+      toast.showError("Error de conexión al cargar profesionales");
     } finally {
       setLoading(false);
     }
-  }, [showLoading, updateToast, showError]);
+  }, [toast]);
 
   const fetchServices = useCallback(async () => {
     try {
@@ -123,18 +123,18 @@ export default function TenantProfessionalsPage() {
         const data = await response.json();
         setServices(data);
       } else {
-        showError("Error al cargar servicios disponibles");
+        toast.showError("Error al cargar servicios disponibles");
       }
     } catch (error) {
       console.error("Error fetching services:", error);
-      showError("Error de conexión al cargar servicios");
+      toast.showError("Error de conexión al cargar servicios");
     }
-  }, [showError]);
+  }, [toast]);
 
   useEffect(() => {
     fetchProfessionals();
     fetchServices();
-  }, [fetchProfessionals, fetchServices]);
+  }, []);
 
   const handleOpenModal = (professional?: Professional) => {
     setSelectedProfessional(professional || null);

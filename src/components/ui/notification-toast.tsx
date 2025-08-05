@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { X, Bell, Calendar, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
@@ -27,7 +27,7 @@ interface ToastNotification extends Notification {
 
 export function NotificationToast({ tenantId }: NotificationToastProps) {
   const [toastNotifications, setToastNotifications] = useState<ToastNotification[]>([]);
-  const [shownNotifications, setShownNotifications] = useState<Set<string>>(new Set());
+  const shownNotificationsRef = useRef<Set<string>>(new Set());
 
   const hideToast = (notificationId: string) => {
     setToastNotifications(prev => 
@@ -64,13 +64,9 @@ export function NotificationToast({ tenantId }: NotificationToastProps) {
         setToastNotifications(prev => [...prev, toastNotification]);
         
         // Marcar como mostrada
-        setShownNotifications(prev => {
-          const newSet = new Set(prev);
-          newSet.add(notification.id);
-          // Guardar en localStorage
-          localStorage.setItem(`shownNotifications_${tenantId}`, JSON.stringify([...newSet]));
-          return newSet;
-        });
+        shownNotificationsRef.current.add(notification.id);
+        // Guardar en localStorage
+        localStorage.setItem(`shownNotifications_${tenantId}`, JSON.stringify([...shownNotificationsRef.current]));
 
         // Auto-ocultar después de 8 segundos
         const timeoutId = setTimeout(() => {
@@ -99,7 +95,7 @@ export function NotificationToast({ tenantId }: NotificationToastProps) {
         
         // Filtrar solo las notificaciones nuevas que no hemos mostrado
         const newNotifications = notifications.filter(notification => 
-          !shownNotifications.has(notification.id) && 
+          !shownNotificationsRef.current.has(notification.id) && 
           !notification.read &&
           // Solo mostrar notificaciones de los últimos 5 minutos
           new Date().getTime() - new Date(notification.createdAt).getTime() < 5 * 60 * 1000
@@ -112,7 +108,7 @@ export function NotificationToast({ tenantId }: NotificationToastProps) {
     } catch (error) {
       console.error("Error fetching notifications for toast:", error);
     }
-  }, [tenantId, shownNotifications, showToastNotifications]);
+  }, [tenantId, showToastNotifications]);
 
   useEffect(() => {
     if (!tenantId) return;
@@ -120,7 +116,7 @@ export function NotificationToast({ tenantId }: NotificationToastProps) {
     // Cargar notificaciones ya mostradas desde localStorage
     const stored = localStorage.getItem(`shownNotifications_${tenantId}`);
     if (stored) {
-      setShownNotifications(new Set(JSON.parse(stored)));
+      shownNotificationsRef.current = new Set<string>(JSON.parse(stored) as string[]);
     }
 
     // Escuchar eventos de nuevas notificaciones

@@ -41,7 +41,7 @@ export function TenantServiceModal({
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { showError, showLoading, updateToast } = useToast();
+  const toast = useToast();
 
   useEffect(() => {
     if (service) {
@@ -87,13 +87,13 @@ export function TenantServiceModal({
     e.preventDefault();
     
     if (!validateForm()) {
-      showError("Por favor corrige los errores en el formulario");
+      toast.showError("Por favor corrige los errores en el formulario");
       return;
     }
 
     setLoading(true);
     const isEdit = !!service;
-    const toastId = showLoading(isEdit ? "Actualizando servicio..." : "Creando servicio...");
+    const toastId = toast.showLoading(isEdit ? "Actualizando servicio..." : "Creando servicio...");
 
     try {
       const payload = {
@@ -119,15 +119,15 @@ export function TenantServiceModal({
       });
 
       if (response.ok) {
-        updateToast(toastId, "success", isEdit ? "Servicio actualizado exitosamente" : "Servicio creado exitosamente");
+        toast.updateToast(toastId, "success", isEdit ? "Servicio actualizado exitosamente" : "Servicio creado exitosamente");
         onSave();
       } else {
         const errorData = await response.json();
-        updateToast(toastId, "error", errorData.error || "Error al guardar el servicio");
+        toast.updateToast(toastId, "error", errorData.error || "Error al guardar el servicio");
         setErrors({ submit: errorData.error || 'Error al guardar el servicio' });
       }
     } catch {
-      updateToast(toastId, "error", "Error de conexión");
+      toast.updateToast(toastId, "error", "Error de conexión");
       setErrors({ submit: 'Error de conexion' });
     } finally {
       setLoading(false);

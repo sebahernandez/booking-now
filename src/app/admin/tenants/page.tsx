@@ -33,12 +33,12 @@ export default function TenantsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
-  const { showLoading, updateToast } = useToast();
+  const toast = useToast();
 
   const fetchTenants = useCallback(async (showToast = false) => {
     let toastId;
     if (showToast) {
-      toastId = showLoading("Actualizando lista de clientes...");
+      toastId = toast.showLoading("Actualizando lista de clientes...");
     }
     
     try {
@@ -47,26 +47,26 @@ export default function TenantsPage() {
         const data = await response.json();
         setTenants(data);
         if (showToast && toastId) {
-          updateToast(toastId, "success", `${data.length} clientes cargados exitosamente`);
+          toast.updateToast(toastId, "success", `${data.length} clientes cargados exitosamente`);
         }
       } else {
         if (showToast && toastId) {
-          updateToast(toastId, "error", "Error al cargar los clientes");
+          toast.updateToast(toastId, "error", "Error al cargar los clientes");
         }
       }
     } catch (error) {
       console.error("Error fetching tenants:", error);
       if (showToast && toastId) {
-        updateToast(toastId, "error", "Error de conexión al cargar clientes");
+        toast.updateToast(toastId, "error", "Error de conexión al cargar clientes");
       }
     } finally {
       setLoading(false);
     }
-  }, [showLoading, updateToast, setTenants, setLoading]);
+  }, [toast]);
 
   useEffect(() => {
     fetchTenants();
-  }, [fetchTenants]);
+  }, []);
 
   const handleOpenModal = (tenant?: Tenant) => {
     setSelectedTenant(tenant || null);

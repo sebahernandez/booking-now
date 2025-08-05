@@ -48,7 +48,7 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [showError, showInfo, setStats, setLoading]);
+  }, [showError, showInfo]);
 
   useEffect(() => {
     fetchDashboardStats();
