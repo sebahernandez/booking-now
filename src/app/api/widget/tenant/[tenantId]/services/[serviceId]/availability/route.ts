@@ -2,11 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   format,
-  addDays,
-  startOfDay,
   isSameDay,
   isBefore,
-  parse,
 } from "date-fns";
 
 interface TimeSlot {
@@ -52,9 +49,10 @@ export async function GET(
       });
     }
 
-    // Parse the date for time slot generation
-    const selectedDate = parse(dateParam, "yyyy-MM-dd", new Date());
-    const dayOfWeek = selectedDate.getDay();
+    // Parse the date for time slot generation (consistent with booking creation)
+    const [year, month, day] = dateParam.split("-").map(Number);
+    const selectedDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+    const dayOfWeek = selectedDate.getUTCDay();
 
     // Verificar que el servicio pertenece al tenant
     const service = await prisma.service.findFirst({
@@ -105,13 +103,16 @@ export async function GET(
       });
     }
 
-    // Get existing bookings for this date and service
+    // Get existing bookings for this date and service (UTC consistent)
+    const startOfDayUTC = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+    const endOfDayUTC = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+    
     const existingBookings = await prisma.booking.findMany({
       where: {
         serviceId: serviceId,
         startDateTime: {
-          gte: startOfDay(selectedDate),
-          lt: addDays(startOfDay(selectedDate), 1),
+          gte: startOfDayUTC,
+          lte: endOfDayUTC,
         },
         status: {
           in: ["PENDING", "CONFIRMED"],
@@ -180,10 +181,10 @@ export async function GET(
           const hour = Math.floor(totalMinutes / 60);
           const minute = totalMinutes % 60;
 
-          const slotTime = new Date(selectedDate);
-          slotTime.setHours(hour, minute, 0, 0);
+          // Create slot time in UTC to match booking creation logic
+          const slotTime = new Date(Date.UTC(year, month - 1, day, hour, minute, 0, 0));
 
-          // Check if slot is in the past (only for today)
+          // Check if slot is in the past (using UTC)
           const now = new Date();
           const isToday = isSameDay(selectedDate, now);
           const isPast = isToday && isBefore(slotTime, now);

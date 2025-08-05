@@ -18,8 +18,10 @@ export async function GET(
     // Support both modes: specific time slot check or full day booked slots
     if (date && serviceId) {
       // Mode 1: Get all booked slots for a specific date and service
-      const startOfDay = new Date(`${date}T00:00:00.000Z`);
-      const endOfDay = new Date(`${date}T23:59:59.999Z`);
+      // Parse date consistently with booking creation (UTC)
+      const [year, month, day] = date.split("-").map(Number);
+      const startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+      const endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
 
       const bookedSlots = await prisma.booking.findMany({
         where: {
