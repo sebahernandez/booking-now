@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 
 export async function PUT(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,7 +18,7 @@ export async function PUT(
       );
     }
 
-    const { id } = context.params;
+    const { id } = await context.params;
     const body = await request.json();
     const { name, email, phone, password, isActive } = body;
 
@@ -86,7 +86,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -98,7 +98,7 @@ export async function DELETE(
       );
     }
 
-    const { id } = context.params;
+    const { id } = await context.params;
 
     // Verificar si el tenant existe
     const existingTenant = await prisma.tenant.findUnique({

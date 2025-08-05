@@ -3,10 +3,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
-  context: { params: { tenantId: string } }
+  context: { params: Promise<{ tenantId: string }> }
 ) {
   try {
-    const { tenantId } = context.params;
+    const { tenantId } = await context.params;
 
     // Buscar el tenant con sus servicios y profesionales
     const tenant = await prisma.tenant.findUnique({

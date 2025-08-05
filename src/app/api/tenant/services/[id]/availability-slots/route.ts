@@ -7,7 +7,7 @@ import { BookingStatus } from "@prisma/client";
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,7 +19,7 @@ export async function GET(
       );
     }
 
-    const { id: serviceId } = context.params;
+    const { id: serviceId } = await context.params;
     const searchParams = request.nextUrl.searchParams;
     const date = searchParams.get("date");
     const professionalId = searchParams.get("professionalId");

@@ -5,10 +5,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   request: NextRequest,
-  context: { params: { notificationId: string } }
+  context: { params: Promise<{ notificationId: string }> }
 ) {
   try {
-    const { notificationId } = context.params;
+    const { notificationId } = await context.params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.isTenant) {
@@ -64,10 +64,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { notificationId: string } }
+  context: { params: Promise<{ notificationId: string }> }
 ) {
   try {
-    const { notificationId } = context.params;
+    const { notificationId } = await context.params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.isTenant) {

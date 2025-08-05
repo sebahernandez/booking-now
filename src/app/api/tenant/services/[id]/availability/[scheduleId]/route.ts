@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
   request: NextRequest,
-  context: { params: { id: string; scheduleId: string } }
+  context: { params: Promise<{ id: string; scheduleId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,7 +17,7 @@ export async function DELETE(
       );
     }
 
-    const { id, scheduleId } = context.params;
+    const { id, scheduleId } = await context.params;
 
     // Verificar que el servicio pertenece al tenant
     const service = await prisma.service.findFirst({

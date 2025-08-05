@@ -3,10 +3,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: professionalId } = context.params;
+    const { id: professionalId } = await context.params;
 
     // Fetch real availability from database
     const availabilitySlots = await prisma.availabilitySlot.findMany({
@@ -90,10 +90,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: professionalId } = context.params;
+    const { id: professionalId } = await context.params;
     const availabilityData = await request.json();
 
     // Validate that the professional exists

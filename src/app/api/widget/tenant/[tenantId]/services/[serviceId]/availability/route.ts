@@ -19,10 +19,10 @@ interface TimeSlot {
 
 export async function GET(
   request: NextRequest,
-  context: { params: { tenantId: string; serviceId: string } }
+  context: { params: Promise<{ tenantId: string; serviceId: string }> }
 ) {
   try {
-    const { tenantId, serviceId } = context.params;
+    const { tenantId, serviceId } = await context.params;
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get("date");
 

@@ -5,10 +5,10 @@ import { NotificationType } from "@prisma/client";
 
 export async function POST(
   request: NextRequest,
-  context: { params: { tenantId: string } }
+  context: { params: Promise<{ tenantId: string }> }
 ) {
   try {
-    const { tenantId } = context.params;
+    const { tenantId } = await context.params;
     const body = await request.json();
 
     const {
