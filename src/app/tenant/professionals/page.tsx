@@ -44,6 +44,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { TenantProfessionalModal } from "@/components/tenant/professional-modal";
 import { useToast } from "@/hooks/useToast";
+import { ProfessionalsLoadingSkeleton } from "@/components/ui/loading-skeleton";
 
 interface Professional {
   id: string;
@@ -184,7 +185,7 @@ export default function TenantProfessionalsPage() {
   };
 
   if (loading) {
-    return <div>Cargando profesionales...</div>;
+    return <ProfessionalsLoadingSkeleton />;
   }
 
   return (

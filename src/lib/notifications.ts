@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { NotificationType } from "@prisma/client";
 
 export async function createNotification({
   tenantId,
@@ -9,16 +10,21 @@ export async function createNotification({
 }: {
   tenantId: string;
   bookingId?: string;
-  type: "NEW_BOOKING" | "BOOKING_CANCELLED" | "BOOKING_UPDATED";
+  type: NotificationType;
   title: string;
   message: string;
 }) {
   try {
-    // Usar una consulta SQL raw temporal hasta que se resuelva el problema de Prisma
-    await prisma.$executeRaw`
-      INSERT INTO notifications (id, "tenantId", "bookingId", type, title, message, read, "createdAt", "updatedAt")
-      VALUES (gen_random_uuid(), ${tenantId}, ${bookingId || null}, ${type}::"NotificationType", ${title}, ${message}, false, now(), now())
-    `;
+    await prisma.notification.create({
+      data: {
+        tenantId,
+        bookingId: bookingId || null,
+        type,
+        title,
+        message,
+        read: false,
+      }
+    });
   } catch (error) {
     console.error("Error creating notification:", error);
     // No lanzar error para no fallar la operación principal
@@ -26,7 +32,7 @@ export async function createNotification({
 }
 
 export function getNotificationMessages(
-  type: "NEW_BOOKING" | "BOOKING_CANCELLED" | "BOOKING_UPDATED",
+  type: NotificationType,
   clientName: string,
   serviceName: string,
   startDateTime: Date

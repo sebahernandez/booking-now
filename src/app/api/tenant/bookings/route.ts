@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createNotification, getNotificationMessages } from "@/lib/notifications";
+import { NotificationType } from "@prisma/client";
+import { sendBookingConfirmationEmail, sendBookingNotificationToTenant } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -189,25 +191,78 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create notification for the tenant
-    try {
-      const { title, message } = getNotificationMessages(
-        "NEW_BOOKING",
-        clientName,
-        service.name,
-        new Date(startDateTime)
-      );
+    // Create notification for the tenant (non-blocking)
+    const { title, message } = getNotificationMessages(
+      NotificationType.NEW_BOOKING,
+      clientName,
+      service.name,
+      new Date(startDateTime)
+    );
 
-      await createNotification({
-        tenantId: session.user.tenantId,
-        bookingId: booking.id,
-        type: 'NEW_BOOKING',
-        title,
-        message,
+    createNotification({
+      tenantId: session.user.tenantId,
+      bookingId: booking.id,
+      type: NotificationType.NEW_BOOKING,
+      title,
+      message,
+    }).catch(error => {
+      console.error("Error creating notification:", error);
+    });
+
+    // Send email confirmation to client
+    try {
+      // Get tenant information for the email
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: session.user.tenantId },
+        select: {
+          name: true,
+          email: true,
+          phone: true,
+        },
       });
-    } catch (notificationError) {
-      console.error("Error creating notification:", notificationError);
-      // No fallar la reserva si falla la notificación
+
+      const emailData = {
+        id: booking.id,
+        clientName: booking.client.name || clientName,
+        clientEmail: booking.client.email,
+        clientPhone: booking.client.phone || clientPhone,
+        date: new Date(startDateTime),
+        startTime: new Date(startDateTime).toLocaleTimeString('es-CO', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        }),
+        endTime: new Date(endDateTime).toLocaleTimeString('es-CO', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        }),
+        service: {
+          name: booking.service.name,
+          duration: booking.service.duration,
+          price: booking.service.price,
+        },
+        professional: {
+          name: booking.professional?.user?.name || 'No asignado',
+          email: booking.professional?.user?.email,
+        },
+        tenant: {
+          name: tenant?.name || 'BookingNow',
+          email: tenant?.email,
+          phone: tenant?.phone,
+        },
+        notes: notes || '',
+      };
+
+      await sendBookingConfirmationEmail(emailData);
+
+      // Optionally send notification to tenant
+      if (tenant?.email) {
+        await sendBookingNotificationToTenant(emailData);
+      }
+    } catch (emailError) {
+      console.error("Error sending email confirmation:", emailError);
+      // No fallar la reserva si falla el email
     }
 
     return NextResponse.json(booking, { status: 201 });

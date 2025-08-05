@@ -4,6 +4,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { BookingWizard } from "@/components/booking/booking-wizard";
 import { useEffect, useState } from "react";
+import { WidgetLoadingSkeleton } from "@/components/ui/loading-skeleton";
 
 interface TenantData {
   id: string;
@@ -56,11 +57,7 @@ export default function BookingWidget() {
   }, [tenantId]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <WidgetLoadingSkeleton />;
   }
 
   if (error || !tenantData) {

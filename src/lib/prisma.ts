@@ -12,7 +12,10 @@ export const prisma =
       db: {
         url: process.env.DATABASE_URL
       }
-    }
+    },
+    transactionOptions: {
+      timeout: 10000, // 10 seconds
+    },
   });
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;

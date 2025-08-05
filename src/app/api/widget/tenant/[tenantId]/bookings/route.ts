@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createNotification, getNotificationMessages } from "@/lib/notifications";
+import { NotificationType } from "@prisma/client";
 
 export async function POST(
   request: NextRequest,
@@ -134,20 +135,22 @@ export async function POST(
       },
     });
 
-    // Crear notificación para el tenant
+    // Crear notificación para el tenant (non-blocking)
     const { title, message } = getNotificationMessages(
-      "NEW_BOOKING",
+      NotificationType.NEW_BOOKING,
       client.name || client.email,
       service.name,
       startDateTime
     );
 
-    await createNotification({
+    createNotification({
       tenantId,
       bookingId: booking.id,
-      type: "NEW_BOOKING",
+      type: NotificationType.NEW_BOOKING,
       title,
       message,
+    }).catch(error => {
+      console.error("Error creating notification:", error);
     });
 
     return NextResponse.json({

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createNotification, getNotificationMessages } from "@/lib/notifications";
+import { NotificationType } from "@prisma/client";
 
 export async function PUT(
   request: NextRequest,
@@ -164,18 +165,20 @@ export async function DELETE(
     // Create cancellation notification before deleting
     try {
       const { title, message } = getNotificationMessages(
-        "BOOKING_CANCELLED",
+        NotificationType.BOOKING_CANCELLED,
         existingBooking.client.name || existingBooking.client.email,
         existingBooking.service.name,
         existingBooking.startDateTime
       );
 
-      await createNotification({
+      createNotification({
         tenantId: session.user.tenantId,
         bookingId: existingBooking.id,
-        type: 'BOOKING_CANCELLED',
+        type: NotificationType.BOOKING_CANCELLED,
         title,
         message,
+      }).catch(error => {
+        console.error("Error creating notification:", error);
       });
     } catch (notificationError) {
       console.error("Error creating cancellation notification:", notificationError);

@@ -30,6 +30,7 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useToast } from "@/hooks/useToast";
+import { BookingPageWithSlotsLoadingSkeleton } from "@/components/ui/booking-page-loading";
 
 interface Service {
   id: string;
@@ -71,6 +72,7 @@ export default function TenantBookingPage() {
     ServiceAvailabilitySchedule[]
   >([]);
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const { showSuccess, showError, showLoading, updateToast } = useToast();
@@ -133,8 +135,12 @@ export default function TenantBookingPage() {
   }, [formData.date, formData.serviceId, formData.professionalId]);
 
   useEffect(() => {
-    fetchServices();
-    fetchProfessionals();
+    const initializePage = async () => {
+      setPageLoading(true);
+      await Promise.all([fetchServices(), fetchProfessionals()]);
+      setPageLoading(false);
+    };
+    initializePage();
   }, []);
 
   useEffect(() => {
@@ -271,6 +277,10 @@ export default function TenantBookingPage() {
     },
     [formData, fetchServiceSchedules]
   );
+
+  if (pageLoading) {
+    return <BookingPageWithSlotsLoadingSkeleton />;
+  }
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">

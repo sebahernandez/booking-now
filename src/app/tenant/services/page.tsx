@@ -41,6 +41,7 @@ import {
 import { TenantServiceModal } from "@/components/tenant/service-modal";
 import { ServiceAvailabilityModal } from "@/components/tenant/service-availability-modal";
 import { useToast } from "@/hooks/useToast";
+import { ServicesLoadingSkeleton } from "@/components/ui/loading-skeleton";
 
 interface ServiceAvailability {
   id: string;
@@ -231,7 +232,7 @@ export default function TenantServicesPage() {
   };
 
   if (loading) {
-    return <div>Cargando servicios...</div>;
+    return <ServicesLoadingSkeleton />;
   }
 
   return (

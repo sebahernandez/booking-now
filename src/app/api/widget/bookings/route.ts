@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendBookingConfirmationEmail, sendBookingNotificationToTenant } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -167,10 +168,57 @@ export async function POST(request: NextRequest) {
             id: true,
             name: true,
             email: true,
+            phone: true,
           },
         },
       },
     });
+
+    // Send email confirmation to client
+    try {
+      const emailData = {
+        id: booking.id,
+        clientName: booking.client.name || customerName,
+        clientEmail: booking.client.email,
+        clientPhone: customerPhone || '',
+        date: startDateTime,
+        startTime: startDateTime.toLocaleTimeString('es-CO', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        }),
+        endTime: endDateTime.toLocaleTimeString('es-CO', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        }),
+        service: {
+          name: booking.service.name,
+          duration: booking.service.duration,
+          price: booking.service.price,
+        },
+        professional: {
+          name: booking.professional?.user?.name || 'No asignado',
+          email: booking.professional?.user?.email,
+        },
+        tenant: {
+          name: booking.tenant.name,
+          email: booking.tenant.email,
+          phone: booking.tenant.phone,
+        },
+        notes: notes || '',
+      };
+
+      await sendBookingConfirmationEmail(emailData);
+
+      // Send notification to tenant if they have an email
+      if (booking.tenant.email) {
+        await sendBookingNotificationToTenant(emailData);
+      }
+    } catch (emailError) {
+      console.error("Error sending email confirmation:", emailError);
+      // No fallar la reserva si falla el email
+    }
 
     return NextResponse.json(booking, { status: 201 });
   } catch (error) {

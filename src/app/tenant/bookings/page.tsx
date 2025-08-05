@@ -37,6 +37,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
   format,
   startOfWeek,
   endOfWeek,
@@ -49,6 +57,7 @@ import {
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
+import { BookingsCalendarLoadingSkeleton, BookingsListLoadingSkeleton } from "@/components/ui/loading-skeleton";
 
 interface Booking {
   id: string;
@@ -342,7 +351,7 @@ export default function TenantBookingsPage() {
       </div>
 
       {loading ? (
-        <CalendarSkeleton />
+        viewMode === "calendar" ? <BookingsCalendarLoadingSkeleton /> : <BookingsListLoadingSkeleton />
       ) : (
         <>{viewMode === "calendar" ? <CalendarView /> : <ListView />}</>
       )}
@@ -352,7 +361,7 @@ export default function TenantBookingsPage() {
     </div>
   );
 
-  // Modal de Detalles de Reserva
+  // Modal de Detalles de Reserva - Versión Simplificada
   function BookingDetailsModal() {
     if (!selectedBooking) return null;
 
@@ -360,244 +369,173 @@ export default function TenantBookingsPage() {
 
     return (
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center justify-between">
-              <span>Detalles de la Reserva</span>
+        <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden bg-white rounded-lg border shadow-lg">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Detalles de la Reserva</DialogTitle>
+          </DialogHeader>
+          
+          {/* Header simplificado */}
+          <div className="border-b bg-gray-50 px-4 py-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-base font-semibold text-gray-900">
+                  Reserva #{selectedBooking.id.slice(-8).toUpperCase()}
+                </h1>
+                <p className="text-xs text-gray-600">
+                  {format(parseISO(selectedBooking.startDateTime), "PPP", { locale: es })}
+                </p>
+              </div>
               <Badge
                 variant="secondary"
-                className={cn("font-medium border", statusBadge.className)}
+                className={cn("text-xs font-medium mx-10", statusBadge.className)}
               >
                 {statusBadge.label}
               </Badge>
-            </DialogTitle>
-            <DialogDescription className="text-gray-600">
-              Información completa de la reserva
-            </DialogDescription>
-          </DialogHeader>
+            </div>
+          </div>
 
-          <div className="space-y-6">
-            {/* Cliente Info */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="flex items-start space-x-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-md">
-                  <span className="text-white text-xl font-semibold">
-                    {selectedBooking.client.name.charAt(0).toUpperCase()}
-                  </span>
+          <div className="p-4 space-y-3">
+            {/* Información del Servicio */}
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold text-gray-900">Detalles del servicio</h2>
+              <div className="bg-gray-50 rounded-lg p-2">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-sm font-medium text-gray-900">{selectedBooking.service.name}</h3>
+                  <span className="text-xs text-gray-600">{selectedBooking.service.duration} min</span>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                    {selectedBooking.client.name}
-                  </h3>
-                  <div className="space-y-1">
-                    <div className="flex items-center text-gray-600">
-                      <User className="w-4 h-4 mr-2" />
-                      <span>{selectedBooking.client.email}</span>
-                    </div>
-                    {selectedBooking.client.phone && (
-                      <div className="flex items-center text-gray-600">
-                        <User className="w-4 h-4 mr-2" />
-                        <span>{selectedBooking.client.phone}</span>
-                      </div>
-                    )}
+                <div className="flex items-center gap-4 text-xs text-gray-600">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    <span>
+                      {format(parseISO(selectedBooking.startDateTime), "HH:mm")} - {format(parseISO(selectedBooking.endDateTime), "HH:mm")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    <span>{selectedBooking.professional?.user.name || "Sin asignar"}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Detalles de la Reserva */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Fecha y Hora */}
-              <div className="space-y-3">
-                <h4 className="font-semibold text-gray-900 flex items-center">
-                  <Calendar className="w-5 h-5 mr-2 text-blue-600" />
-                  Fecha y Hora
-                </h4>
-                <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-                  <div className="space-y-2">
-                    <div>
-                      <p className="text-sm text-blue-600 font-md">Día:</p>
-                      <p className="text-sm font-semibold text-blue-800">
-                        {format(
-                          parseISO(selectedBooking.startDateTime),
-                          "PPPP",
-                          {
-                            locale: es,
-                          }
-                        )}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-blue-600 font-medium">
-                        Horario
-                      </p>
-                      <p className="text-sm font-semibold text-blue-800">
-                        {format(
-                          parseISO(selectedBooking.startDateTime),
-                          "HH:mm"
-                        )}{" "}
-                        -{" "}
-                        {format(parseISO(selectedBooking.endDateTime), "HH:mm")}
-                      </p>
-                    </div>
-                  </div>
+            {/* Información del Cliente */}
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold text-gray-900">Cliente</h2>
+              <div className="bg-gray-50 rounded-lg p-2 space-y-1">
+                <div className="text-sm">
+                  <span className="font-medium text-gray-900">{selectedBooking.client.name}</span>
                 </div>
-              </div>
-
-              {/* Servicio */}
-              <div className="space-y-3">
-                <h4 className="font-semibold text-gray-900 flex items-center">
-                  <Clock className="w-5 h-5 mr-2 text-purple-600" />
-                  Servicio
-                </h4>
-                <div className="bg-purple-50 rounded-lg p-3 border border-purple-100">
-                  <div className="space-y-2">
-                    <div>
-                      <p className="text-sm text-purple-600 font-medium">
-                        Servicio
-                      </p>
-                      <p className="text-sm font-semibold text-purple-800">
-                        {selectedBooking.service.name}
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <div>
-                        <p className="text-sm text-purple-600">Duración</p>
-                        <p className="font-semibold text-purple-800">
-                          {selectedBooking.service.duration} minutos
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-purple-600">Profesional</p>
-                        <p className="font-semibold text-purple-800">
-                          {selectedBooking.professional?.user.name ||
-                            "Sin asignar"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <div className="text-xs text-gray-600">{selectedBooking.client.email}</div>
+                {selectedBooking.client.phone && (
+                  <div className="text-xs text-gray-600">{selectedBooking.client.phone}</div>
+                )}
               </div>
             </div>
 
             {/* Precio */}
-            <div className="bg-emerald-50 rounded-lg p-4 border border-emerald-100">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <DollarSign className="w-6 h-6 text-emerald-600 mr-3" />
-                  <div>
-                    <p className="text-sm text-emerald-600 font-medium">
-                      Precio Total
-                    </p>
-                    <p className="text-xl font-bold text-emerald-800">
-                      {selectedBooking.totalPrice.toLocaleString("es-CL")}
-                    </p>
-                  </div>
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold text-gray-900">Precio</h2>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-700">Total</span>
+                  <span className="text-base font-semibold text-green-700">
+                    ${selectedBooking.totalPrice.toLocaleString("es-CL")}
+                  </span>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-emerald-600 font-medium uppercase">
-                    Estado de Pago
-                  </p>
-                  <p className="text-sm font-semibold text-emerald-700">
-                    {selectedBooking.status === "COMPLETED"
-                      ? "Pagado"
-                      : "Pendiente"}
-                  </p>
+                <div className="text-xs text-green-600 mt-1">
+                  {selectedBooking.status === "COMPLETED" ? "✓ Pagado" : "⏳ Pendiente de pago"}
                 </div>
               </div>
             </div>
 
             {/* Notas */}
             {selectedBooking.notes && (
-              <div className="space-y-3">
-                <h4 className="font-semibold text-gray-900 flex items-center">
-                  <MapPin className="w-5 h-5 mr-2 text-gray-600" />
-                  Notas Adicionales
-                </h4>
-                <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                  <p className="text-gray-700 leading-relaxed">
-                    {selectedBooking.notes}
-                  </p>
+              <div className="space-y-2">
+                <h2 className="text-sm font-semibold text-gray-900">Notas</h2>
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
+                  <p className="text-xs text-amber-800">{selectedBooking.notes}</p>
                 </div>
               </div>
             )}
 
             {/* Acciones */}
-            <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
-              {selectedBooking.status === "PENDING" && (
-                <>
-                  <Button
-                    className="bg-emerald-600 hover:bg-emerald-700 flex items-center"
-                    onClick={() => {
-                      handleUpdateBookingStatus(
-                        selectedBooking.id,
-                        "CONFIRMED"
-                      );
-                      closeBookingModal();
-                    }}
-                  >
-                    <Check className="w-4 h-4 mr-2" />
-                    Confirmar Reserva
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-red-200 text-red-700 hover:bg-red-50 flex items-center"
-                    onClick={() => {
-                      handleUpdateBookingStatus(
-                        selectedBooking.id,
-                        "CANCELLED"
-                      );
-                      closeBookingModal();
-                    }}
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Cancelar Reserva
-                  </Button>
-                </>
-              )}
-              {selectedBooking.status === "CONFIRMED" && (
-                <>
-                  <Button
-                    className="bg-blue-600 hover:bg-blue-700 flex items-center"
-                    onClick={() => {
-                      handleUpdateBookingStatus(
-                        selectedBooking.id,
-                        "COMPLETED"
-                      );
-                      closeBookingModal();
-                    }}
-                  >
-                    <Check className="w-4 h-4 mr-2" />
-                    Marcar como Completada
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-red-200 text-red-700 hover:bg-red-50 flex items-center"
-                    onClick={() => {
-                      handleUpdateBookingStatus(
-                        selectedBooking.id,
-                        "CANCELLED"
-                      );
-                      closeBookingModal();
-                    }}
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Cancelar Reserva
-                  </Button>
-                </>
-              )}
-              {(selectedBooking.status === "COMPLETED" ||
-                selectedBooking.status === "CANCELLED" ||
-                selectedBooking.status === "NO_SHOW") && (
-                <div className="flex items-center text-gray-500 font-medium">
-                  <Check className="w-4 h-4 mr-2" />
-                  Reserva finalizada
-                </div>
-              )}
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold text-gray-900">Acciones</h2>
+              <div className="flex flex-wrap gap-2">
+                {selectedBooking.status === "PENDING" && (
+                  <>
+                    <Button
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1"
+                      onClick={() => {
+                        handleUpdateBookingStatus(selectedBooking.id, "CONFIRMED");
+                        closeBookingModal();
+                      }}
+                    >
+                      <Check className="w-3 h-3 mr-1" />
+                      Confirmar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-200 text-red-700 hover:bg-red-50 text-xs px-3 py-1"
+                      onClick={() => {
+                        handleUpdateBookingStatus(selectedBooking.id, "CANCELLED");
+                        closeBookingModal();
+                      }}
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      Cancelar
+                    </Button>
+                  </>
+                )}
+                
+                {selectedBooking.status === "CONFIRMED" && (
+                  <>
+                    <Button
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1"
+                      onClick={() => {
+                        handleUpdateBookingStatus(selectedBooking.id, "COMPLETED");
+                        closeBookingModal();
+                      }}
+                    >
+                      <Check className="w-3 h-3 mr-1" />
+                      Completar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-red-200 text-red-700 hover:bg-red-50 text-xs px-3 py-1"
+                      onClick={() => {
+                        handleUpdateBookingStatus(selectedBooking.id, "CANCELLED");
+                        closeBookingModal();
+                      }}
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      Cancelar
+                    </Button>
+                  </>
+                )}
+                
+                {(selectedBooking.status === "COMPLETED" || selectedBooking.status === "CANCELLED" || selectedBooking.status === "NO_SHOW") && (
+                  <div className="flex items-center text-gray-500 font-medium py-1 px-2 bg-gray-100 rounded text-xs">
+                    <Check className="w-3 h-3 mr-1" />
+                    Reserva finalizada
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="border-t px-4 py-2 bg-gray-50">
+            <div className="flex justify-end">
               <Button
                 variant="outline"
+                size="sm"
                 onClick={closeBookingModal}
-                className="ms-auto"
+                className="text-xs px-3 py-1"
               >
                 Cerrar
               </Button>
