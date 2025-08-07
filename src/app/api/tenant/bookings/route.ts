@@ -263,9 +263,11 @@ export async function POST(request: NextRequest) {
 
       await sendBookingConfirmationEmail(emailData);
 
-      // Optionally send notification to tenant
+      // Optionally send notification to tenant (non-blocking)
       if (tenant?.email) {
-        await sendBookingNotificationToTenant(emailData);
+        sendBookingNotificationToTenant(emailData).catch(error => {
+          console.error("Error sending tenant notification (non-blocking):", error.message);
+        });
       }
     } catch (emailError) {
       console.error("Error sending email confirmation:", emailError);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createNotification, getNotificationMessages } from "@/lib/notifications";
 import { NotificationType } from "@prisma/client";
+import { sendBookingConfirmationEmail, sendBookingNotificationToTenant } from "@/lib/email";
 
 export async function POST(
   request: NextRequest,
@@ -170,6 +171,74 @@ export async function POST(
         },
       },
     });
+
+    // Obtener información del tenant para el email
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: {
+        name: true,
+        email: true,
+        phone: true,
+      },
+    });
+
+    // Enviar email de confirmación al cliente
+    try {
+      const emailData = {
+        id: booking.id,
+        clientName: booking.client.name || customerName,
+        clientEmail: booking.client.email,
+        clientPhone: customerPhone || '',
+        date: startDateTime,
+        startTime: startDateTime.toLocaleTimeString('es-CO', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        }),
+        endTime: endDateTime.toLocaleTimeString('es-CO', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        }),
+        service: {
+          name: booking.service.name,
+          duration: booking.service.duration,
+          price: booking.service.price,
+        },
+        professional: {
+          name: booking.professional?.user?.name || 'No asignado',
+          email: booking.professional?.user?.email,
+        },
+        tenant: {
+          name: tenant?.name || 'BookingNow',
+          email: tenant?.email,
+          phone: tenant?.phone,
+        },
+        notes: notes || '',
+      };
+
+      console.log(`📧 [WIZARD] Enviando confirmación de reserva #${booking.id} a ${booking.client.email}`);
+      await sendBookingConfirmationEmail(emailData);
+
+      // Enviar notificación al tenant (non-blocking)
+      if (tenant?.email) {
+        sendBookingNotificationToTenant(emailData).catch(error => {
+          console.error("Error sending tenant notification (non-blocking):", error.message);
+        });
+      }
+    } catch (emailError) {
+      console.error("Error sending email confirmation from wizard:", emailError);
+      
+      // Log informativo para desarrollo
+      if (process.env.NODE_ENV === 'development') {
+        console.log("🔧 [WIZARD] INFORMACIÓN DE DESARROLLO:");
+        console.log(`   Cliente: ${customerName} (${customerEmail})`);
+        console.log(`   Reserva: #${booking.id}`);
+        console.log("   Para recibir emails reales, verifica un dominio en resend.com");
+      }
+      
+      // No fallar la reserva si falla el email
+    }
 
     // Crear notificación para el tenant (non-blocking)
     const { title, message } = getNotificationMessages(

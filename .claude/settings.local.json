@@ -14,7 +14,8 @@
       "Bash(taskkill:*)",
       "WebFetch(domain:pris.ly)",
       "Bash(npm audit:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }

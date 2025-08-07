@@ -34,15 +34,10 @@ interface BookingData {
 
 export async function sendBookingConfirmationEmail(booking: BookingData) {
   try {
-    const htmlContent = getBookingConfirmationHTML(booking);
+    console.log(`📧 [WORKAROUND] Enviando confirmación de reserva #${booking.id} con emails separados`);
     
-    const { data, error } = await resend.emails.send({
-      from: 'BookingNow <noreply@resend.dev>',
-      to: [booking.clientEmail],
-      subject: `Confirmación de Reserva #${booking.id} - ${booking.service.name}`,
-      html: htmlContent,
-      // Fallback text version
-      text: `
+    const htmlContent = getBookingConfirmationHTML(booking);
+    const textContent = `
         Hola ${booking.clientName},
 
         Tu reserva ha sido confirmada exitosamente.
@@ -62,40 +57,72 @@ export async function sendBookingConfirmationEmail(booking: BookingData) {
         ${booking.tenant.email ? `- Email: ${booking.tenant.email}` : ''}
         ${booking.tenant.phone ? `- Teléfono: ${booking.tenant.phone}` : ''}
 
-        Información Importante:
-        - Por favor llega 10 minutos antes de tu cita
-        - Si necesitas reprogramar o cancelar, contáctanos con al menos 24 horas de anticipación
-        - Guarda este correo como comprobante de tu reserva
-
         ¡Gracias por confiar en nosotros!
-
         BookingNow
-        © 2024 BookingNow. Todos los derechos reservados.
-      `
-    });
+      `;
 
-    if (error) {
-      console.error('Error sending email:', error);
-      throw new Error(`Failed to send email: ${error.message}`);
+    // Email 1: A info@datapro.cl
+    const businessEmailConfig = {
+      from: 'BookingNow <onboarding@resend.dev>',
+      to: ['info@datapro.cl'],
+      subject: `Nueva Reserva #${booking.id} - ${booking.service.name} (${booking.clientName})`,
+      html: htmlContent,
+      text: textContent
+    };
+
+    console.log(`📧 Enviando email 1/2 a negocio: info@datapro.cl`);
+    const businessResult = await resend.emails.send(businessEmailConfig);
+
+    if (businessResult.error) {
+      console.error('❌ Error sending business email:', businessResult.error);
+      throw new Error(`Failed to send business email: ${businessResult.error.message}`);
     }
 
-    return { success: true, data };
+    console.log(`✅ Email 1/2 enviado a negocio: ${businessResult.data?.id}`);
+
+    // Email 2: Al cliente
+    const clientEmailConfig = {
+      from: 'BookingNow <onboarding@resend.dev>',
+      to: [booking.clientEmail],
+      subject: `Confirmación de Reserva #${booking.id} - ${booking.service.name}`,
+      html: htmlContent,
+      text: textContent
+    };
+
+    console.log(`📧 Enviando email 2/2 al cliente: ${booking.clientEmail}`);
+    const clientResult = await resend.emails.send(clientEmailConfig);
+
+    if (clientResult.error) {
+      console.error('❌ Error sending client email:', clientResult.error);
+      console.log('⚠️  Email al negocio fue enviado exitosamente, pero falló el email al cliente');
+      // No lanzar error aquí, ya que al menos el negocio recibió la notificación
+    } else {
+      console.log(`✅ Email 2/2 enviado al cliente: ${clientResult.data?.id}`);
+    }
+
+    return { 
+      success: true, 
+      data: {
+        business: businessResult.data,
+        client: clientResult.data
+      }
+    };
   } catch (error) {
-    console.error('Email service error:', error);
+    console.error('❌ Email service error:', error);
     throw error;
   }
 }
 
 // Optional: Send email to tenant/business owner
 export async function sendBookingNotificationToTenant(booking: BookingData) {
-  if (!booking.tenant.email) {
-    return { success: false, reason: 'No tenant email' };
-  }
-
   try {
-    const { data, error } = await resend.emails.send({
-      from: 'BookingNow <noreply@resend.dev>',
-      to: [booking.tenant.email],
+    console.log(`📧 Enviando notificación de reserva #${booking.id} al tenant`);
+    
+    // Usar la misma configuración: info@datapro.cl como destinatario principal
+    const tenantEmailConfig = {
+      from: 'BookingNow <onboarding@resend.dev>',
+      to: ['info@datapro.cl'], // Destinatario principal (cuenta verificada)
+      cc: booking.tenant.email ? [booking.tenant.email] : [], // Copia al tenant si tiene email
       subject: `Nueva Reserva Recibida #${booking.id} - ${booking.service.name}`,
       html: `
         <!DOCTYPE html>
@@ -153,16 +180,31 @@ export async function sendBookingNotificationToTenant(booking: BookingData) {
         - Precio: $${booking.service.price.toLocaleString('es-CO')}
         ${booking.notes ? `- Notas: ${booking.notes}` : ''}
       `
+    };
+
+    console.log(`📧 Configuración de email tenant:`, {
+      from: tenantEmailConfig.from,
+      to: tenantEmailConfig.to,
+      cc: tenantEmailConfig.cc,
+      subject: tenantEmailConfig.subject
     });
 
+    const { data, error } = await resend.emails.send(tenantEmailConfig);
+
     if (error) {
-      console.error('Error sending tenant notification email:', error);
+      console.error('❌ Error sending tenant notification email:', error);
       throw new Error(`Failed to send tenant notification: ${error.message}`);
     }
 
+    console.log(`✅ Email de tenant enviado exitosamente:`, {
+      emailId: data?.id,
+      to: tenantEmailConfig.to,
+      cc: tenantEmailConfig.cc
+    });
+
     return { success: true, data };
   } catch (error) {
-    console.error('Tenant email service error:', error);
+    console.error('❌ Tenant email service error:', error);
     throw error;
   }
 }

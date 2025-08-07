@@ -212,12 +212,23 @@ export async function POST(request: NextRequest) {
 
       await sendBookingConfirmationEmail(emailData);
 
-      // Send notification to tenant if they have an email
+      // Send notification to tenant if they have an email (non-blocking)
       if (booking.tenant.email) {
-        await sendBookingNotificationToTenant(emailData);
+        sendBookingNotificationToTenant(emailData).catch(error => {
+          console.error("Error sending tenant notification (non-blocking):", error.message);
+        });
       }
     } catch (emailError) {
       console.error("Error sending email confirmation:", emailError);
+      
+      // Log informativo para desarrollo
+      if (process.env.NODE_ENV === 'development') {
+        console.log("🔧 INFORMACIÓN DE DESARROLLO:");
+        console.log(`   Cliente: ${booking.client?.name} (${customerEmail})`);
+        console.log(`   Reserva: #${booking.id}`);
+        console.log("   Para recibir emails reales, verifica un dominio en resend.com");
+      }
+      
       // No fallar la reserva si falla el email
     }
 
