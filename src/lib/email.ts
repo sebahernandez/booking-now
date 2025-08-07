@@ -121,7 +121,7 @@ export async function sendBookingNotificationToTenant(booking: BookingData) {
     // Usar la misma configuración: info@datapro.cl como destinatario principal
     const tenantEmailConfig = {
       from: 'BookingNow <onboarding@resend.dev>',
-      to: ['info@datapro.cl'], // Destinatario principal (cuenta verificada)
+      to: ['info@datapro.cl',booking.tenant.email], // Destinatario principal (cuenta verificada)
       cc: booking.tenant.email ? [booking.tenant.email] : [], // Copia al tenant si tiene email
       subject: `Nueva Reserva Recibida #${booking.id} - ${booking.service.name}`,
       html: `
