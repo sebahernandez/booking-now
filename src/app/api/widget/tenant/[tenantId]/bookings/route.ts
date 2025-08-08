@@ -218,14 +218,8 @@ export async function POST(
       };
 
       console.log(`📧 [WIZARD] Enviando confirmación de reserva #${booking.id} a ${booking.client.email}`);
+      // La función sendBookingConfirmationEmail ya maneja el envío secuencial al cliente y tenant
       await sendBookingConfirmationEmail(emailData);
-
-      // Enviar notificación al tenant (non-blocking)
-      if (tenant?.email) {
-        sendBookingNotificationToTenant(emailData).catch(error => {
-          console.error("Error sending tenant notification (non-blocking):", error.message);
-        });
-      }
     } catch (emailError) {
       console.error("Error sending email confirmation from wizard:", emailError);
       

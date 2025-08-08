@@ -210,14 +210,8 @@ export async function POST(request: NextRequest) {
         notes: notes || '',
       };
 
+      // La función sendBookingConfirmationEmail ya maneja el envío secuencial al cliente y tenant
       await sendBookingConfirmationEmail(emailData);
-
-      // Send notification to tenant if they have an email (non-blocking)
-      if (booking.tenant.email) {
-        sendBookingNotificationToTenant(emailData).catch(error => {
-          console.error("Error sending tenant notification (non-blocking):", error.message);
-        });
-      }
     } catch (emailError) {
       console.error("Error sending email confirmation:", emailError);
       
