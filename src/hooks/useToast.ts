@@ -1,5 +1,5 @@
 import { toast, ToastOptions, Id } from 'react-toastify';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 export interface ToastConfig extends ToastOptions {
   autoClose?: number;
@@ -84,7 +84,7 @@ export const useToast = () => {
     }
   }, []);
 
-  return {
+  return useMemo(() => ({
     showSuccess,
     showError,
     showWarning,
@@ -92,7 +92,7 @@ export const useToast = () => {
     showLoading,
     updateToast,
     dismiss,
-  };
+  }), [showSuccess, showError, showWarning, showInfo, showLoading, updateToast, dismiss]);
 };
 
 // Funciones standalone para usar sin hook

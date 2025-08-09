@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
-import { es } from 'date-fns/locale';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { CalendarIcon, Clock, User, MapPin } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+import { format, parse, startOfWeek, getDay } from "date-fns";
+import { es } from "date-fns/locale";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon, Clock, User, MapPin } from "lucide-react";
 
 const locales = {
   es: es,
@@ -32,7 +32,7 @@ interface Booking {
   clientEmail?: string;
   serviceName: string;
   professionalName: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
   notes?: string;
 }
 
@@ -47,36 +47,58 @@ export function BookingsCalendar() {
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch('/api/bookings');
+      const response = await fetch("/api/bookings");
       if (response.ok) {
         const data = await response.json();
-        const formattedBookings = data.map((booking: {
-          id: string;
-          service: { name: string; duration: number };
-          clientName: string;
-          clientPhone?: string;
-          clientEmail?: string;
-          professional?: { user?: { name?: string } };
-          status: string;
-          notes?: string;
-          dateTime: string;
-        }) => ({
-          id: booking.id,
-          title: `${booking.service.name} - ${booking.clientName}`,
-          start: new Date(booking.dateTime),
-          end: new Date(new Date(booking.dateTime).getTime() + booking.service.duration * 60000),
-          clientName: booking.clientName,
-          clientPhone: booking.clientPhone,
-          clientEmail: booking.clientEmail,
-          serviceName: booking.service.name,
-          professionalName: booking.professional?.user?.name || 'Sin asignar',
-          status: booking.status,
-          notes: booking.notes,
-        }));
+
+        // Normalizamos: si tiene length numérico lo usamos tal cual, si no, lo ponemos como array vacío
+        const safeData =
+          data &&
+          typeof data === "object" &&
+          "length" in data &&
+          typeof data.length === "number"
+            ? data
+            : [];
+
+        const formattedBookings = safeData.map(
+          (booking: {
+            id: string;
+            service: { name: string; duration: number };
+            client: { name: string; email: string; phone?: string };
+            professional?: { user?: { name?: string } };
+            status: string;
+            notes?: string;
+            startDateTime: string;
+          }) => ({
+            id: booking.id,
+            title: `${booking.service.name} - ${booking.client.name}`,
+            start: new Date(booking.startDateTime),
+            end: new Date(
+              new Date(booking.startDateTime).getTime() +
+                booking.service.duration * 60000
+            ),
+            clientName: booking.client.name,
+            clientPhone: booking.client.phone,
+            clientEmail: booking.client.email,
+            serviceName: booking.service.name,
+            professionalName: booking.professional?.user?.name || "Sin asignar",
+            status: booking.status as
+              | "PENDING"
+              | "CONFIRMED"
+              | "CANCELLED"
+              | "COMPLETED",
+            notes: booking.notes,
+          })
+        );
+
         setBookings(formattedBookings);
+      } else {
+        console.error("Error response:", response.status);
+        setBookings([]);
       }
     } catch (error) {
-      console.error('Error fetching bookings:', error);
+      console.error("Error fetching bookings:", error);
+      setBookings([]);
     } finally {
       setLoading(false);
     }
@@ -88,29 +110,29 @@ export function BookingsCalendar() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'PENDING':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'CONFIRMED':
-        return 'bg-green-100 text-green-800';
-      case 'CANCELLED':
-        return 'bg-red-100 text-red-800';
-      case 'COMPLETED':
-        return 'bg-blue-100 text-blue-800';
+      case "PENDING":
+        return "bg-yellow-100 text-yellow-800";
+      case "CONFIRMED":
+        return "bg-green-100 text-green-800";
+      case "CANCELLED":
+        return "bg-red-100 text-red-800";
+      case "COMPLETED":
+        return "bg-blue-100 text-blue-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'PENDING':
-        return 'Pendiente';
-      case 'CONFIRMED':
-        return 'Confirmada';
-      case 'CANCELLED':
-        return 'Cancelada';
-      case 'COMPLETED':
-        return 'Completada';
+      case "PENDING":
+        return "Pendiente";
+      case "CONFIRMED":
+        return "Confirmada";
+      case "CANCELLED":
+        return "Cancelada";
+      case "COMPLETED":
+        return "Completada";
       default:
         return status;
     }
@@ -184,35 +206,40 @@ export function BookingsCalendar() {
                   events={bookings}
                   startAccessor="start"
                   endAccessor="end"
-                  style={{ height: '100%', minHeight: '400px' }}
+                  style={{ height: "100%", minHeight: "400px" }}
                   onSelectEvent={handleSelectEvent}
                   culture="es"
-                  views={['month', 'week', 'day']}
+                  views={["month", "week", "day"]}
                   defaultView="month"
                   messages={{
-                    month: 'Mes',
-                    week: 'Semana',
-                    day: 'Día',
-                    today: 'Hoy',
-                    previous: 'Anterior',
-                    next: 'Siguiente',
-                    agenda: 'Agenda',
-                    date: 'Fecha',
-                    time: 'Hora',
-                    event: 'Evento',
-                    noEventsInRange: 'No hay reservas en este rango de fechas',
+                    month: "Mes",
+                    week: "Semana",
+                    day: "Día",
+                    today: "Hoy",
+                    previous: "Anterior",
+                    next: "Siguiente",
+                    agenda: "Agenda",
+                    date: "Fecha",
+                    time: "Hora",
+                    event: "Evento",
+                    noEventsInRange: "No hay reservas en este rango de fechas",
                   }}
                   eventPropGetter={(event) => ({
                     style: {
-                      backgroundColor: event.status === 'CONFIRMED' ? '#10b981' : 
-                                     event.status === 'PENDING' ? '#f59e0b' :
-                                     event.status === 'CANCELLED' ? '#ef4444' : '#3b82f6',
-                      borderRadius: '4px',
-                      opacity: event.status === 'CANCELLED' ? 0.6 : 1,
-                      color: 'white',
-                      border: 'none',
-                      fontSize: '11px',
-                      fontWeight: 'normal',
+                      backgroundColor:
+                        event.status === "CONFIRMED"
+                          ? "#10b981"
+                          : event.status === "PENDING"
+                            ? "#f59e0b"
+                            : event.status === "CANCELLED"
+                              ? "#ef4444"
+                              : "#3b82f6",
+                      borderRadius: "4px",
+                      opacity: event.status === "CANCELLED" ? 0.6 : 1,
+                      color: "white",
+                      border: "none",
+                      fontSize: "11px",
+                      fontWeight: "normal",
                     },
                   })}
                   step={30}
@@ -225,10 +252,13 @@ export function BookingsCalendar() {
           </Card>
         </div>
 
-        <div className="space-y-4">{selectedBooking ? (
+        <div className="space-y-4">
+          {selectedBooking ? (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base sm:text-lg">Detalles de la Reserva</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  Detalles de la Reserva
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -241,12 +271,18 @@ export function BookingsCalendar() {
                   <div className="flex items-start sm:items-center">
                     <User className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0 mt-0.5 sm:mt-0" />
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium truncate">{selectedBooking.clientName}</p>
+                      <p className="font-medium truncate">
+                        {selectedBooking.clientName}
+                      </p>
                       {selectedBooking.clientPhone && (
-                        <p className="text-sm text-gray-600 truncate">{selectedBooking.clientPhone}</p>
+                        <p className="text-sm text-gray-600 truncate">
+                          {selectedBooking.clientPhone}
+                        </p>
                       )}
                       {selectedBooking.clientEmail && (
-                        <p className="text-sm text-gray-600 truncate">{selectedBooking.clientEmail}</p>
+                        <p className="text-sm text-gray-600 truncate">
+                          {selectedBooking.clientEmail}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -254,8 +290,12 @@ export function BookingsCalendar() {
                   <div className="flex items-start sm:items-center">
                     <MapPin className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0 mt-0.5 sm:mt-0" />
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium truncate">{selectedBooking.serviceName}</p>
-                      <p className="text-sm text-gray-600 truncate">con {selectedBooking.professionalName}</p>
+                      <p className="font-medium truncate">
+                        {selectedBooking.serviceName}
+                      </p>
+                      <p className="text-sm text-gray-600 truncate">
+                        con {selectedBooking.professionalName}
+                      </p>
                     </div>
                   </div>
 
@@ -263,17 +303,20 @@ export function BookingsCalendar() {
                     <Clock className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0 mt-0.5 sm:mt-0" />
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-sm sm:text-base">
-                        {format(selectedBooking.start, 'PPP', { locale: es })}
+                        {format(selectedBooking.start, "PPP", { locale: es })}
                       </p>
                       <p className="text-sm text-gray-600">
-                        {format(selectedBooking.start, 'HH:mm')} - {format(selectedBooking.end, 'HH:mm')}
+                        {format(selectedBooking.start, "HH:mm")} -{" "}
+                        {format(selectedBooking.end, "HH:mm")}
                       </p>
                     </div>
                   </div>
 
                   {selectedBooking.notes && (
                     <div>
-                      <p className="font-medium text-sm text-gray-700 mb-1">Notas:</p>
+                      <p className="font-medium text-sm text-gray-700 mb-1">
+                        Notas:
+                      </p>
                       <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded break-words">
                         {selectedBooking.notes}
                       </p>
@@ -295,7 +338,9 @@ export function BookingsCalendar() {
             <Card>
               <CardContent className="p-4 sm:p-6 text-center">
                 <CalendarIcon className="w-8 h-8 sm:w-12 sm:h-12 mx-auto text-gray-400 mb-3" />
-                <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">Selecciona una reserva</h3>
+                <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">
+                  Selecciona una reserva
+                </h3>
                 <p className="text-xs sm:text-sm text-gray-500">
                   Haz clic en una reserva del calendario para ver sus detalles
                 </p>
@@ -305,30 +350,48 @@ export function BookingsCalendar() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base sm:text-lg">Resumen del Día</CardTitle>
+              <CardTitle className="text-base sm:text-lg">
+                Resumen del Día
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Total reservas:</span>
-                  <span className="font-medium text-sm sm:text-base">{bookings.length}</span>
+                  <span className="text-xs sm:text-sm text-gray-600">
+                    Total reservas:
+                  </span>
+                  <span className="font-medium text-sm sm:text-base">
+                    {Array.isArray(bookings) ? bookings.length : 0}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Confirmadas:</span>
+                  <span className="text-xs sm:text-sm text-gray-600">
+                    Confirmadas:
+                  </span>
                   <span className="font-medium text-green-600 text-sm sm:text-base">
-                    {bookings.filter(b => b.status === 'CONFIRMED').length}
+                    {Array.isArray(bookings)
+                      ? bookings.filter((b) => b.status === "CONFIRMED").length
+                      : 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Pendientes:</span>
+                  <span className="text-xs sm:text-sm text-gray-600">
+                    Pendientes:
+                  </span>
                   <span className="font-medium text-yellow-600 text-sm sm:text-base">
-                    {bookings.filter(b => b.status === 'PENDING').length}
+                    {Array.isArray(bookings)
+                      ? bookings.filter((b) => b.status === "PENDING").length
+                      : 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs sm:text-sm text-gray-600">Completadas:</span>
+                  <span className="text-xs sm:text-sm text-gray-600">
+                    Completadas:
+                  </span>
                   <span className="font-medium text-blue-600 text-sm sm:text-base">
-                    {bookings.filter(b => b.status === 'COMPLETED').length}
+                    {Array.isArray(bookings)
+                      ? bookings.filter((b) => b.status === "COMPLETED").length
+                      : 0}
                   </span>
                 </div>
               </div>

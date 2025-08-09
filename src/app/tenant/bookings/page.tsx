@@ -47,7 +47,10 @@ import {
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
-import { BookingsCalendarLoadingSkeleton, BookingsListLoadingSkeleton } from "@/components/ui/loading-skeleton";
+import {
+  BookingsCalendarLoadingSkeleton,
+  BookingsListLoadingSkeleton,
+} from "@/components/ui/loading-skeleton";
 
 interface Booking {
   id: string;
@@ -74,6 +77,11 @@ interface Booking {
 
 export default function TenantBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  
+  // Debug log for bookings state changes
+  useEffect(() => {
+    console.log("📅 Bookings state changed:", bookings.length, "bookings", bookings);
+  }, [bookings]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -83,40 +91,59 @@ export default function TenantBookingsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const toast = useToast();
 
-  const fetchBookings = useCallback(async (showToast = false) => {
-    let toastId;
-    if (showToast) {
-      toastId = toast.showLoading("Actualizando reservas...");
-    }
-
-    try {
-      const response = await fetch("/api/tenant/bookings");
-      if (response.ok) {
-        const data = await response.json();
-        setBookings(data);
-        if (showToast && toastId) {
-          toast.updateToast(toastId, "success", `${data.length} reservas cargadas`);
+  const fetchBookings = useCallback(
+    async (showToast = false) => {
+      try {
+        const response = await fetch("/api/tenant/bookings");
+        if (response.ok) {
+          const data = await response.json();
+          console.log("📅 API Response:", data);
+          
+          // La API devuelve { bookings: [...], total, page, pageSize, totalPages }
+          if (data && Array.isArray(data.bookings)) {
+            console.log("📅 Setting bookings:", data.bookings.length, "bookings");
+            console.log("📅 First booking:", data.bookings[0]);
+            setBookings(data.bookings);
+            if (showToast) {
+              toast.showSuccess(`${data.bookings.length} reservas cargadas`);
+            }
+          } else if (Array.isArray(data)) {
+            // Fallback para compatibilidad si la API devuelve directamente un array
+            console.log("📅 Fallback: Setting bookings array:", data.length, "bookings");
+            setBookings(data);
+            if (showToast) {
+              toast.showSuccess(`${data.length} reservas cargadas`);
+            }
+          } else {
+            console.error("Data format not recognized:", data);
+            setBookings([]);
+            if (showToast) {
+              toast.showError("Formato de datos inválido");
+            }
+          }
+        } else {
+          console.error("API response not OK:", response.status);
+          setBookings([]);
+          if (showToast) {
+            toast.showError("Error al cargar las reservas");
+          }
         }
-      } else {
-        if (showToast && toastId) {
-          toast.updateToast(toastId, "error", "Error al cargar reservas");
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+        setBookings([]);
+        if (showToast) {
+          toast.showError("Error de conexión al cargar reservas");
         }
-        toast.showError("Error al cargar las reservas");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching bookings:", error);
-      if (showToast && toastId) {
-        toast.updateToast(toastId, "error", "Error de conexión");
-      }
-      toast.showError("Error de conexión al cargar reservas");
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
+    },
+    [toast] // Restauramos la dependencia de toast ya que ahora está estabilizada
+  );
 
   useEffect(() => {
     fetchBookings();
-  }, []);
+  }, [fetchBookings]);
 
   // Calendar logic
   const getCalendarDays = () => {
@@ -126,12 +153,26 @@ export default function TenantBookingsPage() {
   };
 
   const getBookingsForDate = (date: Date) => {
-    return bookings.filter((booking) =>
-      isSameDay(parseISO(booking.startDateTime), date)
-    );
+    if (!Array.isArray(bookings)) {
+      console.log("📅 No bookings array available");
+      return [];
+    }
+    
+    const filtered = bookings.filter((booking) => {
+      const bookingDate = parseISO(booking.startDateTime);
+      const isSame = isSameDay(bookingDate, date);
+      return isSame;
+    });
+    
+    if (filtered.length > 0) {
+      console.log(`📅 Found ${filtered.length} bookings for date ${format(date, 'yyyy-MM-dd')}:`, filtered);
+    }
+    
+    return filtered;
   };
 
   const getFilteredBookings = () => {
+    if (!Array.isArray(bookings)) return [];
     let filtered = bookings;
 
     if (statusFilter !== "all") {
@@ -141,10 +182,14 @@ export default function TenantBookingsPage() {
     if (searchTerm) {
       filtered = filtered.filter(
         (booking) =>
-          booking.client.name
-            .toLowerCase()
+          booking.client?.name
+            ?.toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          booking.service.name.toLowerCase().includes(searchTerm.toLowerCase())
+          false ||
+          booking.service?.name
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          false
       );
     }
 
@@ -176,12 +221,10 @@ export default function TenantBookingsPage() {
   const updateBookingStatus = async (bookingId: string, newStatus: string) => {
     const statusLabels = {
       CONFIRMED: "confirmada",
-      COMPLETED: "completada", 
+      COMPLETED: "completada",
       CANCELLED: "cancelada",
-      NO_SHOW: "marcada como no asistió"
+      NO_SHOW: "marcada como no asistió",
     };
-
-    const toastId = toast.showLoading(`Actualizando reserva...`);
 
     try {
       const response = await fetch(`/api/tenant/bookings/${bookingId}`, {
@@ -193,16 +236,18 @@ export default function TenantBookingsPage() {
       });
 
       if (response.ok) {
-        toast.updateToast(toastId, "success", `Reserva ${statusLabels[newStatus as keyof typeof statusLabels]} exitosamente`);
+        toast.showSuccess(
+          `Reserva ${statusLabels[newStatus as keyof typeof statusLabels]} exitosamente`
+        );
         fetchBookings();
         closeBookingModal();
       } else {
         const error = await response.json();
-        toast.updateToast(toastId, "error", error.error || "Error al actualizar la reserva");
+        toast.showError(error.error || "Error al actualizar la reserva");
       }
     } catch (error) {
       console.error("Error updating booking:", error);
-      toast.updateToast(toastId, "error", "Error de conexión al actualizar reserva");
+      toast.showError("Error de conexión al actualizar reserva");
     }
   };
 
@@ -340,7 +385,11 @@ export default function TenantBookingsPage() {
       </div>
 
       {loading ? (
-        viewMode === "calendar" ? <BookingsCalendarLoadingSkeleton /> : <BookingsListLoadingSkeleton />
+        viewMode === "calendar" ? (
+          <BookingsCalendarLoadingSkeleton />
+        ) : (
+          <BookingsListLoadingSkeleton />
+        )
       ) : (
         <>{viewMode === "calendar" ? <CalendarView /> : <ListView />}</>
       )}
@@ -362,7 +411,7 @@ export default function TenantBookingsPage() {
           <DialogHeader className="sr-only">
             <DialogTitle>Detalles de la Reserva</DialogTitle>
           </DialogHeader>
-          
+
           {/* Header simplificado */}
           <div className="border-b bg-gray-50 px-4 py-2">
             <div className="flex items-center justify-between">
@@ -371,12 +420,17 @@ export default function TenantBookingsPage() {
                   Reserva #{selectedBooking.id.slice(-8).toUpperCase()}
                 </h1>
                 <p className="text-xs text-gray-600">
-                  {format(parseISO(selectedBooking.startDateTime), "PPP", { locale: es })}
+                  {format(parseISO(selectedBooking.startDateTime), "PPP", {
+                    locale: es,
+                  })}
                 </p>
               </div>
               <Badge
                 variant="secondary"
-                className={cn("text-xs font-medium mx-10", statusBadge.className)}
+                className={cn(
+                  "text-xs font-medium mx-10",
+                  statusBadge.className
+                )}
               >
                 {statusBadge.label}
               </Badge>
@@ -386,22 +440,31 @@ export default function TenantBookingsPage() {
           <div className="p-4 space-y-3">
             {/* Información del Servicio */}
             <div className="space-y-2">
-              <h2 className="text-sm font-semibold text-gray-900">Detalles del servicio</h2>
+              <h2 className="text-sm font-semibold text-gray-900">
+                Detalles del servicio
+              </h2>
               <div className="bg-gray-50 rounded-lg p-2">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-sm font-medium text-gray-900">{selectedBooking.service.name}</h3>
-                  <span className="text-xs text-gray-600">{selectedBooking.service.duration} min</span>
+                  <h3 className="text-sm font-medium text-gray-900">
+                    {selectedBooking.service?.name || "Servicio desconocido"}
+                  </h3>
+                  <span className="text-xs text-gray-600">
+                    {selectedBooking.service?.duration || 0} min
+                  </span>
                 </div>
                 <div className="flex items-center gap-4 text-xs text-gray-600">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     <span>
-                      {format(parseISO(selectedBooking.startDateTime), "HH:mm")} - {format(parseISO(selectedBooking.endDateTime), "HH:mm")}
+                      {format(parseISO(selectedBooking.startDateTime), "HH:mm")}{" "}
+                      - {format(parseISO(selectedBooking.endDateTime), "HH:mm")}
                     </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <User className="w-3 h-3" />
-                    <span>{selectedBooking.professional?.user.name || "Sin asignar"}</span>
+                    <span>
+                      {selectedBooking.professional?.user.name || "Sin asignar"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -412,11 +475,17 @@ export default function TenantBookingsPage() {
               <h2 className="text-sm font-semibold text-gray-900">Cliente</h2>
               <div className="bg-gray-50 rounded-lg p-2 space-y-1">
                 <div className="text-sm">
-                  <span className="font-medium text-gray-900">{selectedBooking.client.name}</span>
+                  <span className="font-medium text-gray-900">
+                    {selectedBooking.client?.name || "Cliente desconocido"}
+                  </span>
                 </div>
-                <div className="text-xs text-gray-600">{selectedBooking.client.email}</div>
-                {selectedBooking.client.phone && (
-                  <div className="text-xs text-gray-600">{selectedBooking.client.phone}</div>
+                <div className="text-xs text-gray-600">
+                  {selectedBooking.client?.email || "Email no disponible"}
+                </div>
+                {selectedBooking.client?.phone && (
+                  <div className="text-xs text-gray-600">
+                    {selectedBooking.client.phone}
+                  </div>
                 )}
               </div>
             </div>
@@ -432,7 +501,9 @@ export default function TenantBookingsPage() {
                   </span>
                 </div>
                 <div className="text-xs text-green-600 mt-1">
-                  {selectedBooking.status === "COMPLETED" ? "✓ Pagado" : "⏳ Pendiente de pago"}
+                  {selectedBooking.status === "COMPLETED"
+                    ? "✓ Pagado"
+                    : "⏳ Pendiente de pago"}
                 </div>
               </div>
             </div>
@@ -442,7 +513,9 @@ export default function TenantBookingsPage() {
               <div className="space-y-2">
                 <h2 className="text-sm font-semibold text-gray-900">Notas</h2>
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
-                  <p className="text-xs text-amber-800">{selectedBooking.notes}</p>
+                  <p className="text-xs text-amber-800">
+                    {selectedBooking.notes}
+                  </p>
                 </div>
               </div>
             )}
@@ -457,7 +530,10 @@ export default function TenantBookingsPage() {
                       size="sm"
                       className="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1"
                       onClick={() => {
-                        handleUpdateBookingStatus(selectedBooking.id, "CONFIRMED");
+                        handleUpdateBookingStatus(
+                          selectedBooking.id,
+                          "CONFIRMED"
+                        );
                         closeBookingModal();
                       }}
                     >
@@ -469,7 +545,10 @@ export default function TenantBookingsPage() {
                       size="sm"
                       className="border-red-200 text-red-700 hover:bg-red-50 text-xs px-3 py-1"
                       onClick={() => {
-                        handleUpdateBookingStatus(selectedBooking.id, "CANCELLED");
+                        handleUpdateBookingStatus(
+                          selectedBooking.id,
+                          "CANCELLED"
+                        );
                         closeBookingModal();
                       }}
                     >
@@ -478,14 +557,17 @@ export default function TenantBookingsPage() {
                     </Button>
                   </>
                 )}
-                
+
                 {selectedBooking.status === "CONFIRMED" && (
                   <>
                     <Button
                       size="sm"
                       className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1"
                       onClick={() => {
-                        handleUpdateBookingStatus(selectedBooking.id, "COMPLETED");
+                        handleUpdateBookingStatus(
+                          selectedBooking.id,
+                          "COMPLETED"
+                        );
                         closeBookingModal();
                       }}
                     >
@@ -497,7 +579,10 @@ export default function TenantBookingsPage() {
                       size="sm"
                       className="border-red-200 text-red-700 hover:bg-red-50 text-xs px-3 py-1"
                       onClick={() => {
-                        handleUpdateBookingStatus(selectedBooking.id, "CANCELLED");
+                        handleUpdateBookingStatus(
+                          selectedBooking.id,
+                          "CANCELLED"
+                        );
                         closeBookingModal();
                       }}
                     >
@@ -506,8 +591,10 @@ export default function TenantBookingsPage() {
                     </Button>
                   </>
                 )}
-                
-                {(selectedBooking.status === "COMPLETED" || selectedBooking.status === "CANCELLED" || selectedBooking.status === "NO_SHOW") && (
+
+                {(selectedBooking.status === "COMPLETED" ||
+                  selectedBooking.status === "CANCELLED" ||
+                  selectedBooking.status === "NO_SHOW") && (
                   <div className="flex items-center text-gray-500 font-medium py-1 px-2 bg-gray-100 rounded text-xs">
                     <Check className="w-3 h-3 mr-1" />
                     Reserva finalizada
@@ -633,8 +720,8 @@ export default function TenantBookingsPage() {
                               booking.status as keyof typeof statusColors
                             ] || statusColors.PENDING
                           )}
-                          title={`${booking.client.name} - ${
-                            booking.service.name
+                          title={`${booking.client?.name || "Cliente desconocido"} - ${
+                            booking.service?.name || "Servicio desconocido"
                           } - ${format(
                             parseISO(booking.startDateTime),
                             "HH:mm"
@@ -646,10 +733,10 @@ export default function TenantBookingsPage() {
                         >
                           <div className="font-medium truncate">
                             {format(parseISO(booking.startDateTime), "HH:mm")}{" "}
-                            {booking.client.name}
+                            {booking.client?.name || "Cliente desconocido"}
                           </div>
                           <div className="truncate opacity-75">
-                            {booking.service.name}
+                            {booking.service?.name || "Servicio desconocido"}
                           </div>
                         </div>
                       );
@@ -690,7 +777,7 @@ export default function TenantBookingsPage() {
                       {/* Client Avatar */}
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
                         <span className="text-white text-sm font-semibold">
-                          {booking.client.name.charAt(0).toUpperCase()}
+                          {booking.client?.name?.charAt(0).toUpperCase() || "?"}
                         </span>
                       </div>
 
@@ -699,11 +786,11 @@ export default function TenantBookingsPage() {
                         <div className="flex items-center justify-between">
                           <div>
                             <h3 className="font-semibold text-gray-900 text-lg">
-                              {booking.client.name}
+                              {booking.client?.name || "Cliente desconocido"}
                             </h3>
                             <p className="text-gray-600 text-sm">
-                              {booking.client.email}
-                              {booking.client.phone &&
+                              {booking.client?.email || "Email no disponible"}
+                              {booking.client?.phone &&
                                 ` • ${booking.client.phone}`}
                             </p>
                           </div>
@@ -745,12 +832,13 @@ export default function TenantBookingsPage() {
                             <User className="w-4 h-4 text-gray-400" />
                             <div>
                               <p className="text-sm font-medium text-gray-900">
-                                {booking.service.name}
+                                {booking.service?.name ||
+                                  "Servicio desconocido"}
                               </p>
                               <p className="text-xs text-gray-500">
                                 {booking.professional?.user.name ||
                                   "Sin asignar"}{" "}
-                                • {booking.service.duration}min
+                                • {booking.service?.duration || 0}min
                               </p>
                             </div>
                           </div>
@@ -868,91 +956,4 @@ export default function TenantBookingsPage() {
       </div>
     );
   }
-
-
-  return (
-    <div className="space-y-6">
-      {/* Main content here */}
-      
-      {/* Booking Details Modal */}
-      <Dialog open={isModalOpen} onOpenChange={closeBookingModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Detalles de la Reserva</DialogTitle>
-            <DialogDescription>
-              Gestiona el estado y detalles de esta reserva
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedBooking && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <p><strong>Cliente:</strong> {selectedBooking?.client.name}</p>
-                <p><strong>Email:</strong> {selectedBooking?.client.email}</p>
-                {selectedBooking?.client.phone && (
-                  <p><strong>Teléfono:</strong> {selectedBooking?.client.phone}</p>
-                )}
-                <p><strong>Servicio:</strong> {selectedBooking?.service.name}</p>
-                {selectedBooking && (
-                  <>
-                    <p><strong>Fecha:</strong> {format(parseISO(selectedBooking!.startDateTime), "dd/MM/yyyy", { locale: es })}</p>
-                    <p><strong>Hora:</strong> {format(parseISO(selectedBooking!.startDateTime), "HH:mm")} - {format(parseISO(selectedBooking!.endDateTime), "HH:mm")}</p>
-                  </>
-                )}
-                {selectedBooking && (
-                  <>
-                    <p><strong>Estado:</strong> {getStatusBadge(selectedBooking!.status).label}</p>
-                    <p><strong>Precio:</strong> ${selectedBooking!.totalPrice.toLocaleString()}</p>
-                  </>
-                )}
-                {selectedBooking?.notes && (
-                  <p><strong>Notas:</strong> {selectedBooking?.notes}</p>
-                )}
-              </div>
-              
-              {selectedBooking?.status === "PENDING" && (
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => updateBookingStatus(selectedBooking!.id, "CONFIRMED")}
-                    className="flex-1"
-                  >
-                    <Check className="w-4 h-4 mr-2" />
-                    Confirmar
-                  </Button>
-                  <Button 
-                    variant="destructive"
-                    onClick={() => updateBookingStatus(selectedBooking!.id, "CANCELLED")}
-                    className="flex-1"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Cancelar
-                  </Button>
-                </div>
-              )}
-              
-              {selectedBooking?.status === "CONFIRMED" && (
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => updateBookingStatus(selectedBooking!.id, "COMPLETED")}
-                    className="flex-1"
-                  >
-                    <Check className="w-4 h-4 mr-2" />
-                    Completar
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={() => updateBookingStatus(selectedBooking!.id, "NO_SHOW")}
-                    className="flex-1"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    No asistió
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
 }

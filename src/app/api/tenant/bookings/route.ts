@@ -321,6 +321,8 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
+    const limit = searchParams.get("limit");
+    const page = searchParams.get("page");
 
     const whereClause: Record<string, unknown> = {
       tenantId: session.user.tenantId,
@@ -337,43 +339,89 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    const bookings = await prisma.booking.findMany({
-      where: whereClause,
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            phone: true,
+    const pageSize = limit ? parseInt(limit) : 100;
+    const currentPage = page ? parseInt(page) : 1;
+    const skip = (currentPage - 1) * pageSize;
+
+    const [bookings, total] = await Promise.all([
+      prisma.booking.findMany({
+        where: whereClause,
+        include: {
+          client: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
           },
-        },
-        professional: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
+          professional: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
               },
             },
           },
-        },
-        service: {
-          select: {
-            id: true,
-            name: true,
-            duration: true,
-            price: true,
+          service: {
+            select: {
+              id: true,
+              name: true,
+              duration: true,
+              price: true,
+            },
           },
         },
-      },
-      orderBy: {
-        startDateTime: "desc",
-      },
-    });
+        orderBy: {
+          startDateTime: "desc",
+        },
+        skip,
+        take: pageSize,
+      }),
+      prisma.booking.count({
+        where: whereClause,
+      }),
+    ]);
 
-    return NextResponse.json(bookings);
+    // Format bookings to maintain compatibility with both table and calendar components
+    const formattedBookings = bookings.map((booking) => ({
+      id: booking.id,
+      startDateTime: booking.startDateTime.toISOString(),
+      endDateTime: booking.endDateTime.toISOString(),
+      status: booking.status,
+      totalPrice: booking.totalPrice || 0,
+      notes: booking.notes,
+      client: {
+        name: booking.client?.name || booking.client?.email || "Cliente",
+        email: booking.client?.email || "",
+        phone: booking.client?.phone,
+      },
+      service: {
+        name: booking.service?.name || "Servicio",
+        duration: booking.service?.duration || 0,
+      },
+      professional: booking.professional ? {
+        user: {
+          name: booking.professional.user?.name || "Sin asignar",
+        },
+      } : undefined,
+      // Legacy properties for table component compatibility
+      clientName: booking.client?.name || booking.client?.email || "Cliente",
+      clientEmail: booking.client?.email,
+      serviceName: booking.service?.name || "Servicio",
+      professionalName: booking.professional?.user?.name || "Sin asignar",
+    }));
+
+    return NextResponse.json({
+      bookings: formattedBookings,
+      total,
+      page: currentPage,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    });
   } catch (error) {
     console.error("Error fetching tenant bookings:", error);
     return NextResponse.json(

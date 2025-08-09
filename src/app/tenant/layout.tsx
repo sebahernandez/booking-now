@@ -27,6 +27,7 @@ import {
   Code,
   Bell,
   Clock,
+  UserCircle,
 } from "lucide-react";
 
 interface Notification {
@@ -217,6 +218,7 @@ export default function TenantLayout({
     { href: "/tenant/bookings", label: "Reservas", icon: Calendar },
     { href: "/tenant/book", label: "Agendar Cita", icon: BookOpen },
     { href: "/tenant/widget", label: "Widget", icon: Code },
+    { href: "/tenant/profile", label: "Mi Perfil", icon: UserCircle },
   ];
 
   return (
@@ -319,7 +321,7 @@ export default function TenantLayout({
       {/* Mobile Navigation */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
         <div className="flex justify-around">
-          {[navItems[0], navItems[2], navItems[3], navItems[5]].map((item) => {
+          {[navItems[0], navItems[2], navItems[3], navItems[6]].map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
 
