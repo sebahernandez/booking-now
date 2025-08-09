@@ -26,12 +26,19 @@
 - Administración de profesionales y sus horarios
 - Vista de calendario con todas las reservas
 - Configuración de disponibilidad por servicio
+- Sistema de notificaciones en tiempo real
 - Estadísticas y reportes
 
 ### 🌐 **Widget Embebible**
 - Widget JavaScript para integrar en cualquier sitio web
 - Personalizable y responsive
 - API REST para integraciones personalizadas
+
+### 📧 **Sistema de Notificaciones**
+- Notificaciones por email automáticas
+- Confirmaciones de reserva para clientes y administradores
+- Sistema de notificaciones en tiempo real
+- Integración con Resend para envío de emails
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -49,6 +56,7 @@
 - **Prisma ORM** - Gestión de base de datos
 - **NextAuth.js** - Autenticación y autorización
 - **bcryptjs** - Encriptación de contraseñas
+- **Resend** - Servicio de envío de emails
 
 ### **Base de Datos**
 - **PostgreSQL** - Base de datos principal (desarrollo y producción)
@@ -171,7 +179,6 @@ npm run db:seed      # Poblar base de datos
 npm run create-admin           # Crear usuario administrador
 npm run clean-duplicates       # Limpiar registros duplicados
 npm run seed-availability      # Poblar disponibilidad de servicios
-npm run create-test-booking    # Crear reserva de prueba
 ```
 
 ## 🎯 Uso del Sistema
@@ -187,6 +194,7 @@ npm run create-test-booking    # Crear reserva de prueba
 3. Gestionar profesionales
 4. Ver y administrar reservas
 5. Configurar horarios de disponibilidad
+6. Gestionar notificaciones
 
 ### **Para Clientes**
 1. Acceder al widget de reservas
@@ -222,6 +230,10 @@ GET /api/availability?serviceId=[SERVICE_ID]&date=[DATE]
 
 # Crear reserva
 POST /api/bookings
+
+# Gestionar notificaciones
+GET /api/tenant/notifications
+POST /api/tenant/notifications/mark-all-read
 ```
 
 ## 🔒 Seguridad
@@ -268,6 +280,7 @@ POST /api/bookings
 DATABASE_URL=postgresql://...
 NEXTAUTH_SECRET=your-secret-key
 NEXTAUTH_URL=https://your-domain.com
+RESEND_API_KEY=your-resend-api-key
 ```
 
 ## 🤝 Contribución
@@ -286,8 +299,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 Para soporte técnico o consultas:
 - Crear un issue en GitHub
-- Revisar la documentación en `/docs`
-- Consultar los archivos de guía en el repositorio
+- Revisar la documentación del código
 
 ---
 
