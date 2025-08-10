@@ -81,34 +81,34 @@ export function BookingWizard({
   };
 
   return (
-    <div className="w-full mx-auto bg-gray-50 h-screen flex flex-col">
+    <div className="w-full mx-auto bg-background h-screen flex flex-col">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200 flex-shrink-0">
+      <div className="bg-background/80 backdrop-blur-lg border-b border-border flex-shrink-0">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">
               Reserva tu cita
             </h1>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <span className="px-2 py-1 bg-gray-100 rounded-full text-xs">
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <span className="px-2 py-1 bg-muted rounded-full text-xs">
                 {success ? "Completado" : `Paso ${currentStep} de 6`}
               </span>
             </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
+          <div className="mt-2 w-full bg-muted rounded-full h-1">
             <div
-              className="bg-blue-600 h-1 rounded-full transition-all duration-500 ease-out"
+              className="bg-primary h-1 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${success ? 100 : (currentStep / 6) * 100}%` }}
             />
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center shadow-sm">
-              <AlertCircle className="w-4 h-4 text-red-600 mr-2" />
-              <span className="text-red-700 text-sm">{error}</span>
+            <div className="mt-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center shadow-sm">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 mr-2" />
+              <span className="text-red-700 dark:text-red-300 text-sm">{error}</span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -140,7 +140,7 @@ export function BookingWizard({
           {currentStep === 2 && (
             <div className="flex flex-col h-full">
               <div className="text-center mb-4 flex-shrink-0">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-1">
                   ¿Qué día te gustaría agendar?
                 </h2>
               </div>
@@ -166,10 +166,10 @@ export function BookingWizard({
           {currentStep === 3 && (
             <div className="flex flex-col h-full">
               <div className="text-center mb-4 flex-shrink-0">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-1">
                   ¿A qué hora prefieres tu cita?
                 </h2>
-                <p className="text-gray-600 text-sm">
+                <p className="text-muted-foreground text-sm">
                   Horarios disponibles para {selectedDate && new Date(selectedDate).toLocaleDateString()}
                 </p>
               </div>
@@ -210,10 +210,10 @@ export function BookingWizard({
           {currentStep === 5 && (
             <div className="flex flex-col h-full">
               <div className="text-center mb-3 flex-shrink-0">
-                <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-1">
+                <h2 className="text-lg md:text-xl font-bold text-foreground mb-1">
                   Resumen de tu cita
                 </h2>
-                <p className="text-gray-600 text-xs">
+                <p className="text-muted-foreground text-xs">
                   Revisa los detalles antes de continuar
                 </p>
               </div>
@@ -230,7 +230,7 @@ export function BookingWizard({
           {currentStep === 6 && (
             <div className="flex flex-col h-full">
               <div className="text-center mb-3 flex-shrink-0">
-                <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-1">
+                <h2 className="text-lg md:text-xl font-bold text-foreground mb-1">
                   Información de contacto
                 </h2>
               </div>
@@ -253,7 +253,7 @@ export function BookingWizard({
 
       {/* Navigation Buttons - Fixed Footer */}
       {!success && (
-        <div className="bg-white border-t border-gray-200 flex-shrink-0">
+        <div className="bg-background border-t border-border flex-shrink-0">
           <div className="container mx-auto px-4 py-3">
             <div className="flex justify-between">
               <Button
@@ -269,7 +269,7 @@ export function BookingWizard({
                 <Button
                   onClick={nextStep}
                   disabled={!validateStep(currentStep)}
-                  className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white"
+                  className="px-4 py-2 text-sm bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   Siguiente
                 </Button>

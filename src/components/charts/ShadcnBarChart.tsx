@@ -43,7 +43,7 @@ export default function ShadcnBarChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+        <CardTitle>
           {title}
         </CardTitle>
         {description && (

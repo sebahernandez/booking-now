@@ -88,6 +88,7 @@ export default function UserProfile() {
       showSuccess("Perfil actualizado correctamente");
       setIsEditing(false);
     } catch (error) {
+      console.log(error);
       showError("Error al actualizar el perfil");
     } finally {
       setLoading(false);
@@ -134,21 +135,16 @@ export default function UserProfile() {
         newPassword: "",
         confirmPassword: "",
       });
-    } catch (error: any) {
-      showError(error.message);
+    } catch (error) {
+      console.log(error);
+      showError(
+        error instanceof Error
+          ? error.message
+          : "Error al cambiar la contraseña"
+      );
     } finally {
       setPasswordLoading(false);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
   };
 
   if (!session?.user) return null;
@@ -157,7 +153,9 @@ export default function UserProfile() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Mi Perfil</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Mi Perfil
+          </h1>
           <p className="text-gray-600 dark:text-gray-300">
             Administra tu información personal y configuración de cuenta
           </p>
@@ -187,7 +185,11 @@ export default function UserProfile() {
                   setIsEditing(!isEditing);
                 }}
               >
-                {isEditing ? <X className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
+                {isEditing ? (
+                  <X className="w-4 h-4" />
+                ) : (
+                  <Edit className="w-4 h-4" />
+                )}
                 {isEditing ? "Cancelar" : "Editar"}
               </Button>
             </div>
@@ -203,22 +205,27 @@ export default function UserProfile() {
                     setProfileData({ ...profileData, name: e.target.value })
                   }
                   placeholder="Tu nombre completo"
+                  className="bg-white !dark:bg-black border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
                 />
               ) : (
-                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md">
-                  <User className="w-4 h-4 text-gray-500" />
-                  <span>{session.user.name || "Sin nombre"}</span>
+                <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
+                  <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <span className="text-gray-900 dark:text-white">
+                    {session.user.name || "Sin nombre"}
+                  </span>
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Correo Electrónico</Label>
-              <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md">
-                <Mail className="w-4 h-4 text-gray-500" />
-                <span>{session.user.email}</span>
+              <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
+                <Mail className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                <span className="text-gray-900 dark:text-white">
+                  {session.user.email}
+                </span>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 El correo electrónico no se puede modificar
               </p>
             </div>
@@ -233,11 +240,14 @@ export default function UserProfile() {
                     setProfileData({ ...profileData, phone: e.target.value })
                   }
                   placeholder="+1234567890"
+                  className="bg-white !dark:bg-black border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
                 />
               ) : (
-                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md">
-                  <Phone className="w-4 h-4 text-gray-500" />
-                  <span>{profileData.phone || "No especificado"}</span>
+                <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
+                  <Phone className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <span className="text-gray-900 dark:text-white">
+                    {profileData.phone || "No especificado"}
+                  </span>
                 </div>
               )}
             </div>
@@ -273,7 +283,9 @@ export default function UserProfile() {
             <div className="space-y-2">
               <Label>Tipo de Cuenta</Label>
               <div className="flex items-center gap-2">
-                <Badge variant={session.user.isTenant ? "default" : "secondary"}>
+                <Badge
+                  variant={session.user.isTenant ? "default" : "secondary"}
+                >
                   {session.user.isTenant ? "Tenant" : "Usuario"}
                 </Badge>
                 <Badge variant="outline">{session.user.role}</Badge>
@@ -282,8 +294,8 @@ export default function UserProfile() {
 
             <div className="space-y-2">
               <Label>ID de Cuenta</Label>
-              <div className="p-2 bg-gray-50 rounded-md">
-                <span className="text-sm font-mono text-gray-600">
+              <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
+                <span className="text-sm font-mono text-gray-600 dark:text-gray-300">
                   {session.user.id}
                 </span>
               </div>
@@ -293,12 +305,17 @@ export default function UserProfile() {
 
             <div className="space-y-2">
               <Label>Contraseña</Label>
-              <div className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+              <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
                 <div className="flex items-center gap-2">
-                  <Key className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm">••••••••</span>
+                  <Key className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <span className="text-sm text-gray-900 dark:text-white">
+                    ••••••••
+                  </span>
                 </div>
-                <Dialog open={isPasswordModalOpen} onOpenChange={setIsPasswordModalOpen}>
+                <Dialog
+                  open={isPasswordModalOpen}
+                  onOpenChange={setIsPasswordModalOpen}
+                >
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm">
                       Cambiar
@@ -308,12 +325,15 @@ export default function UserProfile() {
                     <DialogHeader>
                       <DialogTitle>Cambiar Contraseña</DialogTitle>
                       <DialogDescription>
-                        Ingresa tu contraseña actual y la nueva contraseña para tu cuenta.
+                        Ingresa tu contraseña actual y la nueva contraseña para
+                        tu cuenta.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div className="space-y-2">
-                        <Label htmlFor="current-password">Contraseña Actual</Label>
+                        <Label htmlFor="current-password">
+                          Contraseña Actual
+                        </Label>
                         <Input
                           id="current-password"
                           type="password"
@@ -325,6 +345,7 @@ export default function UserProfile() {
                             })
                           }
                           placeholder="Ingresa tu contraseña actual"
+                          className="bg-white !dark:bg-black border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
                         />
                       </div>
                       <div className="space-y-2">
@@ -340,10 +361,13 @@ export default function UserProfile() {
                             })
                           }
                           placeholder="Ingresa tu nueva contraseña"
+                          className="bg-white !dark:bg-black border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="confirm-password">Confirmar Nueva Contraseña</Label>
+                        <Label htmlFor="confirm-password">
+                          Confirmar Nueva Contraseña
+                        </Label>
                         <Input
                           id="confirm-password"
                           type="password"
@@ -355,6 +379,7 @@ export default function UserProfile() {
                             })
                           }
                           placeholder="Confirma tu nueva contraseña"
+                          className="bg-white !dark:bg-black border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400"
                         />
                       </div>
                     </div>
@@ -372,7 +397,10 @@ export default function UserProfile() {
                       >
                         Cancelar
                       </Button>
-                      <Button onClick={handlePasswordChange} disabled={passwordLoading}>
+                      <Button
+                        onClick={handlePasswordChange}
+                        disabled={passwordLoading}
+                      >
                         {passwordLoading ? (
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         ) : null}
@@ -398,19 +426,26 @@ export default function UserProfile() {
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label>Estado</Label>
-                <Badge variant="default" className="bg-green-100 text-green-800">
+                <Badge
+                  variant="default"
+                  className="bg-green-100 text-green-800"
+                >
                   Activa
                 </Badge>
               </div>
               <div className="space-y-2">
                 <Label>Cuenta creada</Label>
-                <p className="text-sm text-gray-600">
-                  {session.user.tenantId ? "Cuenta de Tenant" : "Cuenta de Usuario"}
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  {session.user.tenantId
+                    ? "Cuenta de Tenant"
+                    : "Cuenta de Usuario"}
                 </p>
               </div>
               <div className="space-y-2">
                 <Label>Último acceso</Label>
-                <p className="text-sm text-gray-600">Sesión actual</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Sesión actual
+                </p>
               </div>
             </div>
           </CardContent>

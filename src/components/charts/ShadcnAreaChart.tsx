@@ -43,9 +43,7 @@ export default function ShadcnAreaChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-          {title}
-        </CardTitle>
+        <CardTitle>{title}</CardTitle>
         {description && (
           <CardDescription>{description}</CardDescription>
         )}

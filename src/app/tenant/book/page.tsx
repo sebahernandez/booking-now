@@ -286,8 +286,10 @@ export default function TenantBookingPage() {
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Agendar Nueva Cita</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-foreground tracking-tight">
+          Agendar Nueva Cita
+        </h1>
+        <p className="text-muted-foreground mt-2">
           Crea una nueva reserva para tus clientes
         </p>
       </div>
@@ -296,10 +298,10 @@ export default function TenantBookingPage() {
 
         {/* Columna Izquierda - Información del Cliente y Servicio */}
         <div className="lg:col-span-2">
-          <Card className="h-fit">
+          <Card className="h-fit border shadow-sm">
         <CardHeader>
-          <CardTitle>Información de la Reserva</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-foreground">Información de la Reserva</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Completa todos los campos para crear una nueva cita
           </CardDescription>
         </CardHeader>
@@ -312,8 +314,8 @@ export default function TenantBookingPage() {
                 )}
 
                 {success && (
-                  <Alert className="border-green-200 bg-green-50">
-                    <AlertDescription className="text-green-800">
+                  <Alert className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
+                    <AlertDescription className="text-green-800 dark:text-green-300">
                       {success}
                     </AlertDescription>
                   </Alert>
@@ -321,8 +323,8 @@ export default function TenantBookingPage() {
 
                 {/* Información del Cliente */}
                 <div className="space-y-4">
-                  <div className="border-b pb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Información del Cliente</h3>
+                  <div className="border-b border-border pb-4">
+                    <h3 className="text-lg font-semibold text-foreground mb-4">Información del Cliente</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="clientName">Nombre del Cliente *</Label>
@@ -369,7 +371,7 @@ export default function TenantBookingPage() {
 
                   {/* Selección de Servicio y Profesional */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Servicio y Profesional</h3>
+                    <h3 className="text-lg font-semibold text-foreground">Servicio y Profesional</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="service">Servicio *</Label>
@@ -385,7 +387,7 @@ export default function TenantBookingPage() {
                               <SelectItem key={service.id} value={service.id}>
                                 <div className="flex items-center justify-between w-full">
                                   <span>{service.name}</span>
-                                  <span className="text-sm text-gray-500 ml-2">
+                                  <span className="text-sm text-muted-foreground ml-2">
                                     ${service.price.toLocaleString("es-CL")} -{" "}
                                     {service.duration} min
                                   </span>
@@ -431,7 +433,7 @@ export default function TenantBookingPage() {
                     !formData.time ||
                     !formData.serviceId
                   }
-                  className="w-full h-12 text-base font-semibold"
+                  className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
                   size="lg"
                 >
                   {loading ? "Creando reserva..." : "Crear Reserva"}
@@ -443,10 +445,10 @@ export default function TenantBookingPage() {
 
         {/* Columna Derecha - Selección de Fecha y Hora */}
         <div className="lg:col-span-1">
-          <Card className="sticky top-6">
+          <Card className="sticky top-6 border shadow-sm">
             <CardHeader>
-              <CardTitle>Fecha y Hora</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-foreground">Fecha y Hora</CardTitle>
+              <CardDescription className="text-muted-foreground">
                 Selecciona la fecha y horario para la cita
               </CardDescription>
             </CardHeader>
@@ -455,17 +457,17 @@ export default function TenantBookingPage() {
               <div className="space-y-3">
                 <Label className="text-base font-semibold">Fecha *</Label>
                 {!formData.serviceId ? (
-                  <div className="p-6 border-2 border-dashed border-gray-300 rounded-lg text-center bg-gray-50">
-                    <CalendarIcon className="h-8 w-8 mx-auto mb-3 text-gray-400" />
-                    <p className="text-sm text-gray-500">
+                  <div className="p-6 border-2 border-dashed border-border rounded-lg text-center bg-muted/50">
+                    <CalendarIcon className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
                       Selecciona un servicio primero para ver las fechas
                       disponibles
                     </p>
                   </div>
                 ) : serviceSchedules.length === 0 ? (
-                  <div className="p-6 border-2 border-dashed border-orange-300 rounded-lg text-center bg-orange-50">
-                    <CalendarIcon className="h-8 w-8 mx-auto mb-3 text-orange-400" />
-                    <p className="text-sm text-orange-600">
+                  <div className="p-6 border-2 border-dashed border-orange-300 dark:border-orange-700 rounded-lg text-center bg-orange-50 dark:bg-orange-900/20">
+                    <CalendarIcon className="h-8 w-8 mx-auto mb-3 text-orange-400 dark:text-orange-500" />
+                    <p className="text-sm text-orange-600 dark:text-orange-400">
                       Este servicio no tiene horarios configurados
                     </p>
                   </div>
@@ -520,7 +522,7 @@ export default function TenantBookingPage() {
                 <div className="space-y-4">
                   <Label className="text-base font-semibold">Horarios Disponibles *</Label>
                   {!formData.date ? (
-                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                    <div className="text-center py-8 text-muted-foreground bg-muted/50 rounded-lg">
                       <CalendarIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
                       <p className="text-sm">
                         Selecciona una fecha para ver los horarios disponibles
@@ -543,11 +545,11 @@ export default function TenantBookingPage() {
                             }
                             className={`text-sm relative h-10 ${
                               !slot.isAvailable
-                                ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400"
-                                : ""
+                                ? "opacity-50 cursor-not-allowed"
+                                : "hover:bg-accent hover:text-accent-foreground"
                             } ${
                               formData.time === slot.time
-                                ? "bg-blue-600 text-white border-blue-600"
+                                ? "bg-primary text-primary-foreground border-primary"
                                 : ""
                             }`}
                             title={
@@ -558,24 +560,24 @@ export default function TenantBookingPage() {
                           >
                             {slot.time}
                             {!slot.isAvailable && (
-                              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                              <span className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full"></span>
                             )}
                           </Button>
                         ))}
                       </div>
-                      <div className="flex items-center justify-center space-x-4 text-xs text-gray-500 pt-2 border-t">
+                      <div className="flex items-center justify-center space-x-4 text-xs text-muted-foreground pt-2 border-t border-border">
                         <div className="flex items-center space-x-1">
-                          <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                          <div className="w-3 h-3 bg-primary rounded"></div>
                           <span>Disponible</span>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <div className="w-3 h-3 bg-gray-300 rounded"></div>
+                          <div className="w-3 h-3 bg-muted rounded"></div>
                           <span>Ocupado</span>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                    <div className="text-center py-8 text-muted-foreground bg-muted/50 rounded-lg">
                       <CalendarIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
                       <p className="text-sm">
                         No hay horarios disponibles para esta fecha

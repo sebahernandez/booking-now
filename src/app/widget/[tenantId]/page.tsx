@@ -62,13 +62,13 @@ export default function BookingWidget() {
 
   if (error || !tenantData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-100 dark:from-red-950/20 dark:to-pink-950/20">
         <div className="text-center p-8">
-          <div className="text-red-600 text-xl mb-4">⚠️</div>
-          <h2 className="text-xl font-semibold text-red-800 mb-2">
+          <div className="text-red-600 dark:text-red-400 text-xl mb-4">⚠️</div>
+          <h2 className="text-xl font-semibold text-red-800 dark:text-red-300 mb-2">
             Widget no disponible
           </h2>
-          <p className="text-red-600">
+          <p className="text-red-600 dark:text-red-400">
             {error || "No se pudo cargar el widget de reservas"}
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function BookingWidget() {
   }
 
   return (
-    <div className="h-screen bg-white overflow-hidden">
+    <div className="h-screen bg-background overflow-hidden">
       {/* Solo el Widget de Reservas */}
       <BookingWizard
         tenantId={tenantId}

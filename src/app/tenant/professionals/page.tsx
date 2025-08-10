@@ -189,10 +189,10 @@ export default function TenantProfessionalsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Mis Profesionales
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             Administra el equipo de profesionales que brindan tus servicios
           </p>
         </div>
@@ -265,11 +265,11 @@ export default function TenantProfessionalsPage() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium text-gray-900">
+                          <div className="font-medium text-gray-900 dark:text-white">
                             {professional.user.name}
                           </div>
                           {professional.bio && (
-                            <div className="text-sm text-gray-500 truncate max-w-[200px]">
+                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
                               {professional.bio}
                             </div>
                           )}
@@ -279,12 +279,12 @@ export default function TenantProfessionalsPage() {
                     
                     <TableCell>
                       <div className="space-y-1">
-                        <div className="flex items-center text-sm text-gray-600">
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                           <Mail className="w-3 h-3 mr-1" />
                           <span className="truncate max-w-[150px]">{professional.user.email}</span>
                         </div>
                         {professional.user.phone && (
-                          <div className="flex items-center text-sm text-gray-600">
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                             <Phone className="w-3 h-3 mr-1" />
                             <span>{professional.user.phone}</span>
                           </div>
@@ -321,7 +321,7 @@ export default function TenantProfessionalsPage() {
                           }).format(professional.hourlyRate)}
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-500">No configurada</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">No configurada</span>
                       )}
                     </TableCell>
                     
@@ -341,11 +341,11 @@ export default function TenantProfessionalsPage() {
                     <TableCell>
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">
                           {professional._count?.bookings || 0}
                         </span>
                         <Star className="w-3 h-3 text-yellow-500 ml-2" />
-                        <span className="text-sm text-gray-600">4.8</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-300">4.8</span>
                       </div>
                     </TableCell>
                     
@@ -379,11 +379,11 @@ export default function TenantProfessionalsPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 truncate">
+                        <h3 className="font-medium text-gray-900 dark:text-white truncate">
                           {professional.user.name}
                         </h3>
                         {professional.bio && (
-                          <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                             {professional.bio}
                           </p>
                         )}
@@ -403,12 +403,12 @@ export default function TenantProfessionalsPage() {
 
                   {/* Información de contacto */}
                   <div className="space-y-2">
-                    <div className="flex items-center text-sm text-gray-600">
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                       <Mail className="w-4 h-4 mr-2 flex-shrink-0" />
                       <span className="truncate">{professional.user.email}</span>
                     </div>
                     {professional.user.phone && (
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                         <Phone className="w-4 h-4 mr-2 flex-shrink-0" />
                         <span>{professional.user.phone}</span>
                       </div>
@@ -417,7 +417,7 @@ export default function TenantProfessionalsPage() {
 
                   {/* Servicios */}
                   <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">Servicios:</p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Servicios:</p>
                     <div className="flex flex-wrap gap-1">
                       {professional.services.slice(0, 3).map((service) => (
                         <Badge
@@ -439,7 +439,7 @@ export default function TenantProfessionalsPage() {
                   {/* Información adicional */}
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-500 mb-1">Tarifa/Hora:</p>
+                      <p className="text-gray-500 dark:text-gray-400 mb-1">Tarifa/Hora:</p>
                       {professional.hourlyRate && professional.hourlyRate > 0 ? (
                         <p className="font-medium text-green-600">
                           {new Intl.NumberFormat("es-CL", {
@@ -449,18 +449,18 @@ export default function TenantProfessionalsPage() {
                           }).format(professional.hourlyRate)}
                         </p>
                       ) : (
-                        <p className="text-gray-500">No configurada</p>
+                        <p className="text-gray-500 dark:text-gray-400">No configurada</p>
                       )}
                     </div>
                     <div>
-                      <p className="text-gray-500 mb-1">Reservas:</p>
+                      <p className="text-gray-500 dark:text-gray-400 mb-1">Reservas:</p>
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 dark:text-gray-300">
                           {professional._count?.bookings || 0}
                         </span>
                         <Star className="w-3 h-3 text-yellow-500 ml-2" />
-                        <span className="text-gray-600">4.8</span>
+                        <span className="text-gray-600 dark:text-gray-300">4.8</span>
                       </div>
                     </div>
                   </div>
@@ -485,7 +485,7 @@ export default function TenantProfessionalsPage() {
           {/* Paginación */}
           {filteredProfessionals.length > itemsPerPage && (
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 pt-4 border-t space-y-3 sm:space-y-0">
-              <div className="text-sm text-gray-600 text-center sm:text-left">
+              <div className="text-sm text-gray-600 dark:text-gray-300 text-center sm:text-left">
                 Mostrando {startIndex + 1} a {Math.min(endIndex, filteredProfessionals.length)} de {filteredProfessionals.length} resultados
               </div>
               
@@ -550,10 +550,10 @@ export default function TenantProfessionalsPage() {
             <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mb-6 shadow-sm">
               <Users className="w-10 h-10 text-blue-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
               Tu equipo está vacío
             </h3>
-            <p className="text-gray-500 text-center mb-6 max-w-md leading-relaxed">
+            <p className="text-gray-500 dark:text-gray-400 text-center mb-6 max-w-md leading-relaxed">
               Comienza agregando profesionales a tu equipo. Ellos podrán brindar
               los servicios que ofreces y gestionar sus propias reservas.
             </p>
@@ -575,10 +575,10 @@ export default function TenantProfessionalsPage() {
             <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-6 shadow-sm">
               <Search className="w-10 h-10 text-gray-500" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
               No se encontraron resultados
             </h3>
-            <p className="text-gray-500 text-center mb-6 max-w-md leading-relaxed">
+            <p className="text-gray-500 dark:text-gray-400 text-center mb-6 max-w-md leading-relaxed">
               No hay profesionales que coincidan con tu búsqueda &quot;{searchTerm}&quot;. 
               Intenta con otros términos o limpia el filtro.
             </p>

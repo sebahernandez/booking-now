@@ -166,25 +166,25 @@ export default function TenantDashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold text-gray-900 dark:text-white tracking-tight">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
           Mi Dashboard
         </h1>
-        <p className="text-gray-600 dark:text-gray-300 text-lg">
+        <p className="text-muted-foreground">
           Bienvenido a tu panel de control
         </p>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Link href="/tenant/book">
-          <Card className="hover:shadow-md transition-all duration-200 cursor-pointer group border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/50 dark:to-indigo-950/50 hover:from-blue-100/60 hover:to-indigo-100/60 dark:hover:from-blue-900/60 dark:hover:to-indigo-900/60">
-            <CardContent className="p-6">
+          <Card className="transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer">
+            <CardContent className="flex items-center p-6">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-blue-100/80 dark:bg-blue-900/50 rounded-xl group-hover:bg-blue-200/80 dark:group-hover:bg-blue-800/50 transition-colors">
-                  <CalendarPlus className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <div className="rounded-full bg-primary/10 p-3">
+                  <CalendarPlus className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold group-hover:text-blue-900 dark:group-hover:text-blue-300 transition-colors">
+                  <h3 className="font-semibold">
                     Agendar Nueva Cita
                   </h3>
                   <p className="text-sm text-muted-foreground">
@@ -197,14 +197,14 @@ export default function TenantDashboard() {
         </Link>
 
         <Link href="/tenant/bookings">
-          <Card className="hover:shadow-md transition-all duration-200 cursor-pointer group border-green-200 dark:border-green-800 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-950/50 dark:to-emerald-950/50 hover:from-green-100/60 hover:to-emerald-100/60 dark:hover:from-green-900/60 dark:hover:to-emerald-900/60">
-            <CardContent className="p-6">
+          <Card className="transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer">
+            <CardContent className="flex items-center p-6">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-green-100/80 dark:bg-green-900/50 rounded-xl group-hover:bg-green-200/80 dark:group-hover:bg-green-800/50 transition-colors">
-                  <Eye className="h-6 w-6 text-green-600 dark:text-green-400" />
+                <div className="rounded-full bg-primary/10 p-3">
+                  <Eye className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold group-hover:text-green-900 dark:group-hover:text-green-300 transition-colors">
+                  <h3 className="font-semibold">
                     Ver Reservas
                   </h3>
                   <p className="text-sm text-muted-foreground">
@@ -217,14 +217,14 @@ export default function TenantDashboard() {
         </Link>
 
         <Link href="/tenant/services">
-          <Card className="hover:shadow-md transition-all duration-200 cursor-pointer group border-purple-200 dark:border-purple-800 bg-gradient-to-br from-purple-50/50 to-violet-50/50 dark:from-purple-950/50 dark:to-violet-950/50 hover:from-purple-100/60 hover:to-violet-100/60 dark:hover:from-purple-900/60 dark:hover:to-violet-900/60">
-            <CardContent className="p-6">
+          <Card className="transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer">
+            <CardContent className="flex items-center p-6">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-purple-100/80 dark:bg-purple-900/50 rounded-xl group-hover:bg-purple-200/80 dark:group-hover:bg-purple-800/50 transition-colors">
-                  <Plus className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <div className="rounded-full bg-primary/10 p-3">
+                  <Plus className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold group-hover:text-purple-900 dark:group-hover:text-purple-300 transition-colors">
+                  <h3 className="font-semibold">
                     Gestionar Servicios
                   </h3>
                   <p className="text-sm text-muted-foreground">
@@ -238,31 +238,22 @@ export default function TenantDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {statsCards.map((card, index) => {
           const Icon = card.icon;
           return (
-            <Card
-              key={index}
-              className="border-0 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer group"
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={cn("p-3 rounded-xl", card.bgColor)}>
-                    <Icon className={cn("h-5 w-5", card.color)} />
-                  </div>
-                  <TrendingUp className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
-                </div>
-
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                    {card.title}
-                  </h3>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {card.value}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{card.description}</p>
-                </div>
+            <Card key={index}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {card.title}
+                </CardTitle>
+                <Icon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{card.value}</div>
+                <p className="text-xs text-muted-foreground">
+                  {card.description}
+                </p>
               </CardContent>
             </Card>
           );
@@ -310,47 +301,39 @@ export default function TenantDashboard() {
           color="hsl(0 84% 60%)"
         />
         
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader>
-            <div className="flex items-center space-x-2">
-              <Clock className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-                Métricas de Rendimiento
-              </CardTitle>
-            </div>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Métricas de Rendimiento
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Reservas Confirmadas Este Mes</span>
-                    <span className="text-lg font-semibold text-green-600 dark:text-green-400">
-                      {advancedStats?.performance?.thisMonthBookings || 0}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Ingresos Este Mes</span>
-                    <span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
-                      ${(advancedStats?.performance?.thisMonthRevenue || 0).toLocaleString("es-CL")}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Total Ingresos Confirmados</span>
-                    <span className="text-lg font-semibold text-purple-600 dark:text-purple-400">
-                      ${(advancedStats?.performance?.totalConfirmedRevenue || 0).toLocaleString("es-CL")}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="rounded-lg border bg-card p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Reservas Confirmadas Este Mes</span>
+                  <span className="text-2xl font-bold">
+                    {advancedStats?.performance?.thisMonthBookings || 0}
+                  </span>
+                </div>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Ingresos Este Mes</span>
+                  <span className="text-2xl font-bold">
+                    ${(advancedStats?.performance?.thisMonthRevenue || 0).toLocaleString("es-CL")}
+                  </span>
+                </div>
+              </div>
+              <div className="rounded-lg border bg-card p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Total Ingresos Confirmados</span>
+                  <span className="text-2xl font-bold">
+                    ${(advancedStats?.performance?.totalConfirmedRevenue || 0).toLocaleString("es-CL")}
+                  </span>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

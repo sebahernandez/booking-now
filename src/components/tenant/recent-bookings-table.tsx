@@ -456,14 +456,14 @@ export default function RecentBookingsTable({
                     <TableCell colSpan={7} className="text-center py-8">
                       <div className="flex flex-col items-center justify-center">
                         <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-medium mb-2">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                           {searchTerm ||
                           statusFilter !== "ALL" ||
                           dateFilter !== "ALL"
                             ? "No se encontraron reservas"
                             : "No hay reservas aún"}
                         </h3>
-                        <p className="text-muted-foreground text-center max-w-sm">
+                        <p className="text-muted-foreground dark:text-gray-400 text-center max-w-sm">
                           {searchTerm ||
                           statusFilter !== "ALL" ||
                           dateFilter !== "ALL"
@@ -477,7 +477,7 @@ export default function RecentBookingsTable({
                   paginatedBookings.map((booking) => {
                     const statusBadge = getStatusBadge(booking.status);
                     return (
-                      <TableRow key={booking.id} className="hover:bg-gray-50">
+                      <TableRow key={booking.id}>
                         <TableCell>
                           <div className="flex items-center space-x-3">
                             <div className="w-8 h-8 bg-gradient-to-br from-rose-400 to-rose-600 rounded-full flex items-center justify-center">
@@ -490,20 +490,20 @@ export default function RecentBookingsTable({
                                 {booking.clientName}
                               </p>
                               {booking.clientEmail && (
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
                                   {booking.clientEmail}
                                 </p>
                               )}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="font-medium">
+                        <TableCell className="font-medium text-gray-900 dark:text-white">
                           {booking.serviceName}
                         </TableCell>
-                        <TableCell className="text-gray-600">
+                        <TableCell className="text-gray-600 dark:text-gray-300">
                           {booking.professionalName}
                         </TableCell>
-                        <TableCell className="text-gray-600">
+                        <TableCell className="text-gray-600 dark:text-gray-300">
                           {formatDateTime(booking.startDateTime)}
                         </TableCell>
                         <TableCell>
@@ -519,11 +519,11 @@ export default function RecentBookingsTable({
                         </TableCell>
                         <TableCell className="text-right">
                           {booking.totalPrice ? (
-                            <span className="font-medium">
+                            <span className="font-medium text-gray-900 dark:text-white">
                               ${booking.totalPrice.toLocaleString("es-CL")}
                             </span>
                           ) : (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
                           )}
                         </TableCell>
                         <TableCell className="text-center">
@@ -549,7 +549,7 @@ export default function RecentBookingsTable({
         {/* Pagination */}
         {!loading && totalPages > 1 && (
           <div className="flex items-center justify-between pt-4">
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground dark:text-gray-400">
               Mostrando {(currentPage - 1) * pageSize + 1} a{" "}
               {Math.min(currentPage * pageSize, filteredBookings.length)} de{" "}
               {filteredBookings.length} resultados

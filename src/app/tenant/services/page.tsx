@@ -238,8 +238,8 @@ export default function TenantServicesPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Mis Servicios</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Mis Servicios</h1>
+          <p className="text-gray-600 dark:text-gray-300">
             Gestiona los servicios que ofreces a tus clientes
           </p>
         </div>
@@ -306,11 +306,11 @@ export default function TenantServicesPage() {
                   <TableRow key={service.id}>
                     <TableCell>
                       <div>
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-gray-900 dark:text-white">
                           {service.name}
                         </div>
                         {service.description && (
-                          <div className="text-sm text-gray-500 truncate max-w-[300px]">
+                          <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[300px]">
                             {service.description}
                           </div>
                         )}
@@ -318,7 +318,7 @@ export default function TenantServicesPage() {
                     </TableCell>
                     
                     <TableCell>
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                         <Clock className="w-4 h-4 mr-1" />
                         {service.duration} min
                       </div>
@@ -349,14 +349,14 @@ export default function TenantServicesPage() {
                     </TableCell>
                     
                     <TableCell>
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                         <Calendar className="w-4 h-4 mr-1" />
                         {service._count?.bookings || 0} reservas
                       </div>
                     </TableCell>
                     
                     <TableCell>
-                      <div className="text-sm text-gray-600 max-w-[200px] truncate">
+                      <div className="text-sm text-gray-600 dark:text-gray-300 max-w-[200px] truncate">
                         {getScheduleSummary(service.availabilitySchedule)}
                       </div>
                     </TableCell>
@@ -405,11 +405,11 @@ export default function TenantServicesPage() {
                   {/* Header con nombre y estado */}
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 truncate">
+                      <h3 className="font-medium text-gray-900 dark:text-white truncate">
                         {service.name}
                       </h3>
                       {service.description && (
-                        <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                           {service.description}
                         </p>
                       )}
@@ -428,7 +428,7 @@ export default function TenantServicesPage() {
 
                   {/* Información del servicio */}
                   <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center text-gray-600">
+                    <div className="flex items-center text-gray-600 dark:text-gray-300">
                       <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
                       <span>{service.duration} min</span>
                     </div>
@@ -442,11 +442,11 @@ export default function TenantServicesPage() {
                         })}
                       </span>
                     </div>
-                    <div className="flex items-center text-gray-600">
+                    <div className="flex items-center text-gray-600 dark:text-gray-300">
                       <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
                       <span>{service._count?.bookings || 0} reservas</span>
                     </div>
-                    <div className="flex items-center text-gray-600">
+                    <div className="flex items-center text-gray-600 dark:text-gray-300">
                       <span className="truncate">
                         {getScheduleSummary(service.availabilitySchedule)}
                       </span>
@@ -489,7 +489,7 @@ export default function TenantServicesPage() {
           {/* Paginación */}
           {filteredServices.length > itemsPerPage && (
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-4 pt-4 border-t space-y-3 sm:space-y-0">
-              <div className="text-sm text-gray-600 text-center sm:text-left">
+              <div className="text-sm text-gray-600 dark:text-gray-300 text-center sm:text-left">
                 Mostrando {startIndex + 1} a {Math.min(endIndex, filteredServices.length)} de {filteredServices.length} resultados
               </div>
               
@@ -554,10 +554,10 @@ export default function TenantServicesPage() {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
               <Plus className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               No tienes servicios aún
             </h3>
-            <p className="text-gray-500 text-center mb-4">
+            <p className="text-gray-500 dark:text-gray-400 text-center mb-4">
               Comienza agregando tu primer servicio para que los clientes puedan
               reservar
             </p>

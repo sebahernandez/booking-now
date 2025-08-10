@@ -11,11 +11,11 @@ interface ContactFormProps {
 
 export function ContactForm({ bookingData, onUpdateData }: ContactFormProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-4">
+    <div className="bg-background rounded-xl shadow-sm border border-border p-4 space-y-4">
       <div>
         <Label
           htmlFor="clientName"
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-foreground"
         >
           Nombre completo *
         </Label>
@@ -33,7 +33,7 @@ export function ContactForm({ bookingData, onUpdateData }: ContactFormProps) {
       <div>
         <Label
           htmlFor="clientEmail"
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-foreground"
         >
           Email *
         </Label>
@@ -51,7 +51,7 @@ export function ContactForm({ bookingData, onUpdateData }: ContactFormProps) {
       <div>
         <Label
           htmlFor="clientPhone"
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-foreground"
         >
           Teléfono
         </Label>
@@ -79,21 +79,21 @@ export function ContactForm({ bookingData, onUpdateData }: ContactFormProps) {
         />
       </div>
 
-      <div className="pt-3 border-t border-gray-200">
+      <div className="pt-3 border-t border-border">
         <div className="flex items-start space-x-2">
           <input
             id="acceptedTerms"
             type="checkbox"
             checked={bookingData.acceptedTerms || false}
             onChange={(e) => onUpdateData({ acceptedTerms: e.target.checked })}
-            className="mt-0.5 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            className="mt-0.5 h-4 w-4 text-primary border-border rounded focus:ring-primary"
             required
           />
           <Label
             htmlFor="acceptedTerms"
-            className="text-xs text-gray-700 cursor-pointer leading-tight"
+            className="text-xs text-foreground cursor-pointer leading-tight"
           >
-            <span className="text-blue-600 hover:text-blue-700 underline">
+            <span className="text-primary hover:text-primary/80 underline">
               Acepto los términos y condiciones del servicio y autorizo el uso
               de mis datos para la reserva *
             </span>

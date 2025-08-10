@@ -82,10 +82,10 @@ export default function TenantWidgetPage() {
   return (
     <div className="space-y-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
           Widget de Reservas
         </h1>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-muted-foreground">
           Integra el sistema de reservas en tu sitio web con un simple código
         </p>
       </div>
@@ -95,8 +95,8 @@ export default function TenantWidgetPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-xl">Vista Previa</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-xl text-foreground">Vista Previa</CardTitle>
+              <CardDescription className="text-muted-foreground">
                 Así se verá tu widget de reservas
               </CardDescription>
             </div>
@@ -107,8 +107,8 @@ export default function TenantWidgetPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="bg-gray-100 p-6 rounded-lg">
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-muted/50 p-6 rounded-lg">
+            <div className="bg-background rounded-lg shadow-lg overflow-hidden border">
               <iframe
                 src={`${baseUrl}/widget/${session?.user?.tenantId}`}
                 width={widgetSettings.width}
@@ -125,8 +125,8 @@ export default function TenantWidgetPage() {
       {/* Configuración del Widget */}
       <Card>
         <CardHeader>
-          <CardTitle>Configuración del Widget</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-foreground">Configuración del Widget</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Personaliza las dimensiones de tu widget
           </CardDescription>
         </CardHeader>
@@ -180,14 +180,14 @@ export default function TenantWidgetPage() {
         <TabsContent value="iframe">
           <Card>
             <CardHeader>
-              <CardTitle>Código iframe</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-foreground">Código iframe</CardTitle>
+              <CardDescription className="text-muted-foreground">
                 Copia y pega este código directamente en tu HTML
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="bg-gray-950 text-gray-100 p-4 rounded-lg overflow-auto">
+                <div className="bg-slate-950 dark:bg-slate-900 text-slate-100 dark:text-slate-200 p-4 rounded-lg overflow-auto border">
                   <pre className="text-sm">
                     <code>{generateIframeCode()}</code>
                   </pre>
@@ -207,14 +207,14 @@ export default function TenantWidgetPage() {
         <TabsContent value="javascript">
           <Card>
             <CardHeader>
-              <CardTitle>Código JavaScript</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-foreground">Código JavaScript</CardTitle>
+              <CardDescription className="text-muted-foreground">
                 Para una integración más dinámica en tu sitio web
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="bg-gray-950 text-gray-100 p-4 rounded-lg overflow-auto">
+                <div className="bg-slate-950 dark:bg-slate-900 text-slate-100 dark:text-slate-200 p-4 rounded-lg overflow-auto border">
                   <pre className="text-sm">
                     <code>{generateJavaScriptCode()}</code>
                   </pre>
@@ -235,14 +235,14 @@ export default function TenantWidgetPage() {
       {/* Información Adicional */}
       <Card>
         <CardHeader>
-          <CardTitle>Información Importante</CardTitle>
+          <CardTitle className="text-foreground">Información Importante</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-start space-x-3">
               <Badge variant="secondary">Tip</Badge>
               <div>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-foreground">
                   <strong>Responsivo:</strong> El widget se adapta
                   automáticamente a diferentes tamaños de pantalla.
                 </p>
@@ -251,7 +251,7 @@ export default function TenantWidgetPage() {
             <div className="flex items-start space-x-3">
               <Badge variant="secondary">Tip</Badge>
               <div>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-foreground">
                   <strong>Seguridad:</strong> El widget funciona de forma segura
                   desde cualquier dominio.
                 </p>
@@ -260,7 +260,7 @@ export default function TenantWidgetPage() {
             <div className="flex items-start space-x-3">
               <Badge variant="secondary">Tip</Badge>
               <div>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-foreground">
                   <strong>Personalización:</strong> Los estilos se mantienen
                   consistentes con tu marca.
                 </p>

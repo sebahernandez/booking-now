@@ -271,14 +271,14 @@ export default function TenantBookingsPage() {
       },
       NO_SHOW: {
         label: "No asistió",
-        className: "bg-gray-100 text-gray-700 border-gray-200",
+        className: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700",
       },
     };
 
     return (
       statusConfig[status as keyof typeof statusConfig] || {
         label: status,
-        className: "bg-gray-100 text-gray-700 border-gray-200",
+        className: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700",
       }
     );
   };
@@ -325,10 +325,10 @@ export default function TenantBookingsPage() {
       {/* Header Profesional */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
             Panel de Reservas
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             Gestiona todas las reservas con vista calendario profesional
           </p>
         </div>
@@ -413,13 +413,13 @@ export default function TenantBookingsPage() {
           </DialogHeader>
 
           {/* Header simplificado */}
-          <div className="border-b bg-gray-50 px-4 py-2">
+          <div className="border-b bg-gray-50 dark:bg-gray-800 px-4 py-2">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-base font-semibold text-gray-900">
+                <h1 className="text-base font-semibold text-gray-900 dark:text-white">
                   Reserva #{selectedBooking.id.slice(-8).toUpperCase()}
                 </h1>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   {format(parseISO(selectedBooking.startDateTime), "PPP", {
                     locale: es,
                   })}
@@ -440,19 +440,19 @@ export default function TenantBookingsPage() {
           <div className="p-4 space-y-3">
             {/* Información del Servicio */}
             <div className="space-y-2">
-              <h2 className="text-sm font-semibold text-gray-900">
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
                 Detalles del servicio
               </h2>
               <div className="bg-gray-50 rounded-lg p-2">
                 <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-sm font-medium text-gray-900">
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                     {selectedBooking.service?.name || "Servicio desconocido"}
                   </h3>
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
                     {selectedBooking.service?.duration || 0} min
                   </span>
                 </div>
-                <div className="flex items-center gap-4 text-xs text-gray-600">
+                <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     <span>
@@ -472,18 +472,18 @@ export default function TenantBookingsPage() {
 
             {/* Información del Cliente */}
             <div className="space-y-2">
-              <h2 className="text-sm font-semibold text-gray-900">Cliente</h2>
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Cliente</h2>
               <div className="bg-gray-50 rounded-lg p-2 space-y-1">
                 <div className="text-sm">
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-gray-900 dark:text-white">
                     {selectedBooking.client?.name || "Cliente desconocido"}
                   </span>
                 </div>
-                <div className="text-xs text-gray-600">
+                <div className="text-xs text-gray-600 dark:text-gray-400">
                   {selectedBooking.client?.email || "Email no disponible"}
                 </div>
                 {selectedBooking.client?.phone && (
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
                     {selectedBooking.client.phone}
                   </div>
                 )}
@@ -492,11 +492,11 @@ export default function TenantBookingsPage() {
 
             {/* Precio */}
             <div className="space-y-2">
-              <h2 className="text-sm font-semibold text-gray-900">Precio</h2>
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Precio</h2>
               <div className="bg-green-50 border border-green-200 rounded-lg p-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-700">Total</span>
-                  <span className="text-base font-semibold text-green-700">
+                  <span className="text-xs text-gray-700 dark:text-gray-300">Total</span>
+                  <span className="text-base font-semibold text-green-700 dark:text-green-400">
                     ${selectedBooking.totalPrice.toLocaleString("es-CL")}
                   </span>
                 </div>
@@ -511,7 +511,7 @@ export default function TenantBookingsPage() {
             {/* Notas */}
             {selectedBooking.notes && (
               <div className="space-y-2">
-                <h2 className="text-sm font-semibold text-gray-900">Notas</h2>
+                <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Notas</h2>
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
                   <p className="text-xs text-amber-800">
                     {selectedBooking.notes}
@@ -522,7 +522,7 @@ export default function TenantBookingsPage() {
 
             {/* Acciones */}
             <div className="space-y-2">
-              <h2 className="text-sm font-semibold text-gray-900">Acciones</h2>
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Acciones</h2>
               <div className="flex flex-wrap gap-2">
                 {selectedBooking.status === "PENDING" && (
                   <>
@@ -605,7 +605,7 @@ export default function TenantBookingsPage() {
           </div>
 
           {/* Footer */}
-          <div className="border-t px-4 py-2 bg-gray-50">
+          <div className="border-t px-4 py-2 bg-gray-50 dark:bg-gray-800">
             <div className="flex justify-end">
               <Button
                 variant="outline"
@@ -628,45 +628,48 @@ export default function TenantBookingsPage() {
     const weekDays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
     return (
-      <Card className="shadow-sm border-0">
-        <CardHeader className="pb-4">
+      <Card>
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold capitalize">
               {format(currentDate, "MMMM yyyy", { locale: es })}
             </h2>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
+                className="h-7 w-7"
                 onClick={() => navigateMonth("prev")}
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="h-4 w-4" />
               </Button>
               <Button
                 variant="outline"
                 size="sm"
+                className="h-7 px-3"
                 onClick={() => setCurrentDate(new Date())}
               >
                 Hoy
               </Button>
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
+                className="h-7 w-7"
                 onClick={() => navigateMonth("next")}
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden">
+          <div className="grid grid-cols-7 gap-px bg-border rounded-md overflow-hidden shadow-sm">
             {/* Week Days Header */}
             {weekDays.map((day) => (
               <div
                 key={day}
-                className="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700"
+                className="bg-muted p-2 text-center text-xs font-medium text-muted-foreground"
               >
                 {day}
               </div>
@@ -685,37 +688,43 @@ export default function TenantBookingsPage() {
                 <div
                   key={day.toISOString()}
                   className={cn(
-                    "bg-white min-h-[120px] p-2 cursor-pointer hover:bg-gray-50 transition-colors",
-                    !isCurrentMonth && "bg-gray-50 text-gray-400",
-                    isToday && "bg-blue-50 border-2 border-blue-200"
+                    "bg-background min-h-[120px] p-2 relative transition-colors hover:bg-accent/50 cursor-pointer",
+                    !isCurrentMonth && "bg-muted/30 text-muted-foreground",
+                    isToday && "bg-primary/10 ring-2 ring-primary ring-offset-1"
                   )}
                   onClick={() => {}}
                 >
                   <div
                     className={cn(
-                      "text-sm font-medium mb-1",
-                      isToday && "text-blue-600"
+                      "text-sm mb-1 flex items-center justify-between",
+                      isToday && "font-semibold text-accent-foreground",
+                      !isCurrentMonth && "text-muted-foreground"
                     )}
                   >
-                    {format(day, "d")}
+                    <span>{format(day, "d")}</span>
+                    {dayBookings.length > 0 && (
+                      <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-medium">
+                        {dayBookings.length}
+                      </span>
+                    )}
                   </div>
 
                   <div className="space-y-1">
                     {dayBookings.slice(0, 3).map((booking) => {
                       const statusColors = {
-                        PENDING: "bg-amber-100 text-amber-800 border-amber-200",
+                        PENDING: "bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800",
                         CONFIRMED:
-                          "bg-emerald-100 text-emerald-800 border-emerald-200",
-                        COMPLETED: "bg-blue-100 text-blue-800 border-blue-200",
-                        CANCELLED: "bg-red-100 text-red-800 border-red-200",
-                        NO_SHOW: "bg-gray-100 text-gray-800 border-gray-200",
+                          "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
+                        COMPLETED: "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800",
+                        CANCELLED: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800",
+                        NO_SHOW: "bg-muted text-muted-foreground border-border",
                       };
 
                       return (
                         <div
                           key={booking.id}
                           className={cn(
-                            "text-xs p-1.5 rounded border truncate cursor-pointer hover:opacity-80 transition-opacity",
+                            "text-xs p-1.5 rounded-md border truncate cursor-pointer transition-all hover:scale-105 hover:shadow-sm",
                             statusColors[
                               booking.status as keyof typeof statusColors
                             ] || statusColors.PENDING
@@ -731,19 +740,21 @@ export default function TenantBookingsPage() {
                             openBookingModal(booking);
                           }}
                         >
-                          <div className="font-medium truncate">
-                            {format(parseISO(booking.startDateTime), "HH:mm")}{" "}
-                            {booking.client?.name || "Cliente desconocido"}
+                          <div className="font-medium truncate leading-tight">
+                            {format(parseISO(booking.startDateTime), "HH:mm")}
                           </div>
-                          <div className="truncate opacity-75">
-                            {booking.service?.name || "Servicio desconocido"}
+                          <div className="truncate opacity-90 leading-tight">
+                            {booking.client?.name || "Cliente"}
+                          </div>
+                          <div className="truncate opacity-75 text-[10px] leading-tight">
+                            {booking.service?.name || "Servicio"}
                           </div>
                         </div>
                       );
                     })}
 
                     {dayBookings.length > 3 && (
-                      <div className="text-xs text-gray-500 font-medium">
+                      <div className="text-xs text-muted-foreground font-medium text-center mt-1 py-1 px-2 bg-muted/50 rounded-sm">
                         +{dayBookings.length - 3} más
                       </div>
                     )}
@@ -785,10 +796,10 @@ export default function TenantBookingsPage() {
                       <div className="flex-1 space-y-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="font-semibold text-gray-900 text-lg">
+                            <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
                               {booking.client?.name || "Cliente desconocido"}
                             </h3>
-                            <p className="text-gray-600 text-sm">
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">
                               {booking.client?.email || "Email no disponible"}
                               {booking.client?.phone &&
                                 ` • ${booking.client.phone}`}
@@ -810,7 +821,7 @@ export default function TenantBookingsPage() {
                           <div className="flex items-center space-x-2">
                             <CalendarDays className="w-4 h-4 text-gray-400" />
                             <div>
-                              <p className="text-sm font-medium text-gray-900">
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
                                 {format(
                                   parseISO(booking.startDateTime),
                                   "PPP",
@@ -831,7 +842,7 @@ export default function TenantBookingsPage() {
                           <div className="flex items-center space-x-2">
                             <User className="w-4 h-4 text-gray-400" />
                             <div>
-                              <p className="text-sm font-medium text-gray-900">
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
                                 {booking.service?.name ||
                                   "Servicio desconocido"}
                               </p>
@@ -846,8 +857,8 @@ export default function TenantBookingsPage() {
                           <div className="flex items-center space-x-2">
                             <DollarSign className="w-4 h-4 text-emerald-600" />
                             <div>
-                              <p className="text-sm font-medium text-emerald-600">
-                                {booking.totalPrice.toLocaleString("es-CL")}
+                              <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                                ${booking.totalPrice.toLocaleString("es-CL")}
                               </p>
                               <p className="text-xs text-gray-500">
                                 Precio total
@@ -942,7 +953,7 @@ export default function TenantBookingsPage() {
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                 <Calendar className="w-10 h-10 text-gray-400" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
                 No hay reservas
               </h3>
               <p className="text-gray-500 text-center max-w-md">

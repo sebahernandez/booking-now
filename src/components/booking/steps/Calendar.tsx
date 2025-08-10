@@ -25,7 +25,7 @@ export function Calendar({
   isDateSelectable,
 }: CalendarProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-2.5 w-full h-fit max-h-[65vh] flex flex-col">
+    <div className="bg-background rounded-xl shadow-sm border border-border p-2.5 w-full h-fit max-h-[65vh] flex flex-col">
       <div className="flex items-center justify-between mb-2.5 flex-shrink-0">
        
         <div className="flex items-center space-x-1">
@@ -37,7 +37,7 @@ export function Calendar({
           >
             <ChevronLeft className="w-3 h-3" />
           </Button>
-          <span className="font-medium text-gray-700 min-w-[85px] text-center text-xs">
+          <span className="font-medium text-foreground min-w-[85px] text-center text-xs">
             {formatters.monthYear(currentMonth)}
           </span>
           <Button
@@ -57,7 +57,7 @@ export function Calendar({
           {["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].map((day) => (
             <div
               key={day}
-              className="p-0.5 text-center text-xs font-medium text-gray-500"
+              className="p-0.5 text-center text-xs font-medium text-muted-foreground"
             >
               {day}
             </div>
@@ -82,23 +82,23 @@ export function Calendar({
                   h-7 sm:h-8 md:h-10 lg:h-11 min-h-[28px]
                   ${
                     !isCurrentMonth
-                      ? "text-gray-200 cursor-not-allowed"
+                      ? "text-muted-foreground/30 cursor-not-allowed"
                       : !available
-                      ? "text-gray-300 cursor-not-allowed bg-gray-50"
+                      ? "text-muted-foreground/50 cursor-not-allowed bg-muted/30"
                       : isSelected
-                      ? "bg-blue-600 text-white shadow-md"
+                      ? "bg-primary text-primary-foreground shadow-md"
                       : isTodayDate
-                      ? "bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100"
-                      : "text-gray-700 hover:bg-green-50 hover:text-green-700 border hover:border-green-200"
+                      ? "bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground border hover:border-accent"
                   }
                 `}
               >
                 {formatters.dayNumber(date)}
                 {isTodayDate && !isSelected && isCurrentMonth && (
-                  <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full"></div>
+                  <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></div>
                 )}
                 {available && !isSelected && !isTodayDate && (
-                  <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-600 rounded-full"></div>
+                  <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-accent rounded-full"></div>
                 )}
               </button>
             );
@@ -106,19 +106,19 @@ export function Calendar({
         </div>
 
         {/* Calendar Legend - Compact */}
-        <div className="mt-1.5 pt-1.5 border-t border-gray-100 flex-shrink-0">
+        <div className="mt-1.5 pt-1.5 border-t border-border flex-shrink-0">
           <div className="flex items-center justify-center gap-1.5 text-xs">
             <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 bg-green-600 rounded-full"></div>
-              <span className="text-gray-600">Disponible</span>
+              <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
+              <span className="text-muted-foreground">Disponible</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
-              <span className="text-gray-600">Hoy</span>
+              <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+              <span className="text-muted-foreground">Hoy</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-1.5 h-1.5 bg-gray-300 rounded-full"></div>
-              <span className="text-gray-600">No disponible</span>
+              <div className="w-1.5 h-1.5 bg-muted rounded-full"></div>
+              <span className="text-muted-foreground">No disponible</span>
             </div>
           </div>
         </div>
