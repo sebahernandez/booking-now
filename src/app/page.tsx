@@ -87,8 +87,8 @@ function LoginForm() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -96,14 +96,14 @@ function LoginForm() {
   // Si ya hay sesión, el useEffect manejará la redirección
   if (session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="max-w-md w-full space-y-8">
         <div>
           <div className="flex items-center justify-center mb-6">
@@ -111,14 +111,14 @@ function LoginForm() {
               <span className="text-white text-xl font-bold">B</span>
             </div>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
             BookingNow
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
             Inicia sesión para acceder al panel de administración
           </p>
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-xs text-blue-700">
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+            <p className="text-xs text-blue-700 dark:text-blue-300">
               <strong>Credenciales de prueba:</strong><br />
               Email: admin@booking-now.com<br />
               Contraseña: admin123
@@ -151,7 +151,7 @@ function LoginForm() {
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-200"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
@@ -163,7 +163,7 @@ function LoginForm() {
             </div>
           </div>
           {error && (
-            <div className="text-red-600 text-sm text-center">
+            <div className="text-red-600 dark:text-red-400 text-sm text-center">
               {error}
             </div>
           )}
@@ -183,8 +183,8 @@ function LoginForm() {
 export default function Home() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     }>
       <LoginForm />

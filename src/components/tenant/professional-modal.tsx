@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { X, User, Mail, Phone, DollarSign, FileText, Briefcase } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 
@@ -345,9 +346,9 @@ export function TenantProfessionalModal({
           </Card>
 
           {errors.submit && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-600 text-sm">{errors.submit}</p>
-            </div>
+            <Alert variant="destructive">
+              <AlertDescription>{errors.submit}</AlertDescription>
+            </Alert>
           )}
 
           <div className="flex justify-end gap-3">

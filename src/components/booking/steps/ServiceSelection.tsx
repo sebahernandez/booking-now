@@ -34,7 +34,7 @@ export function ServiceSelection({
               onValueChange={handleServiceChange}
             >
               <SelectTrigger className="w-full h-14 sm:h-16 px-4 sm:px-6 text-left border-2 border-gray-200 hover:border-gray-300 focus:border-gray-900 bg-white shadow-sm rounded-xl transition-all duration-200">
-                <span className="text-gray-900 text-base sm:text-lg truncate">
+                <span className="text-gray-900 dark:text-white text-base sm:text-lg truncate">
                   {selectedService ? selectedService.name : "Elige tu servicio..."}
                 </span>
               </SelectTrigger>
@@ -47,7 +47,7 @@ export function ServiceSelection({
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full gap-2 sm:gap-0">
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-gray-900 text-sm sm:text-base mb-1 truncate">
+                        <div className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base mb-1 truncate">
                           {service.name}
                         </div>
                         {service.description && (
@@ -60,7 +60,7 @@ export function ServiceSelection({
                             <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
                             <span className="text-xs sm:text-sm whitespace-nowrap">{service.duration} min</span>
                           </div>
-                          <div className="flex items-center text-gray-900">
+                          <div className="flex items-center text-gray-900 dark:text-white">
                             <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
                             <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">
                               {formatters.currency(service.price)}

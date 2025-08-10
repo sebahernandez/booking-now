@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
@@ -300,9 +301,9 @@ export function ServiceAvailabilityModal({
           </Card>
 
           {errors.submit && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-600 text-sm">{errors.submit}</p>
-            </div>
+            <Alert variant="destructive">
+              <AlertDescription>{errors.submit}</AlertDescription>
+            </Alert>
           )}
 
           <div className="flex justify-end gap-3">

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Popover,
   PopoverContent,
@@ -330,9 +331,9 @@ export function TenantServiceModal({
           </Card>
 
           {errors.submit && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-600 text-sm">{errors.submit}</p>
-            </div>
+            <Alert variant="destructive">
+              <AlertDescription>{errors.submit}</AlertDescription>
+            </Alert>
           )}
 
           <div className="flex justify-end gap-3">

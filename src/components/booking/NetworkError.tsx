@@ -1,5 +1,7 @@
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface NetworkErrorProps {
   error: string;
@@ -19,52 +21,54 @@ export function NetworkError({
 
   return (
     <div className="flex flex-col items-center justify-center py-12 px-6">
-      <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md w-full">
-        <div className="flex items-start">
-          <AlertCircle className="w-6 h-6 text-red-600 mr-3 mt-0.5 flex-shrink-0" />
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-red-800 mb-2">
-              {isNetworkError ? "Error de Conexión" : "Error"}
-            </h3>
-            <p className="text-red-700 mb-4 text-sm leading-relaxed">{error}</p>
+      <Card className="max-w-md w-full">
+        <CardContent className="p-6">
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="ml-2">
+              <h3 className="font-semibold mb-2">
+                {isNetworkError ? "Error de Conexión" : "Error"}
+              </h3>
+              <p className="text-sm leading-relaxed">{error}</p>
+            </AlertDescription>
+          </Alert>
 
-            {isNetworkError && (
-              <div className="mb-4 p-3 bg-red-100 rounded-lg">
-                <p className="text-xs text-red-600">
-                  <strong>Sugerencias:</strong>
-                </p>
-                <ul className="text-xs text-red-600 mt-1 space-y-1">
+          {isNetworkError && (
+            <Alert className="mb-4">
+              <AlertDescription>
+                <p className="text-sm font-medium mb-2">Sugerencias:</p>
+                <ul className="text-sm space-y-1">
                   <li>• Verifica tu conexión a internet</li>
                   <li>• Recarga la página</li>
                   <li>• Intenta nuevamente en unos momentos</li>
                 </ul>
-              </div>
-            )}
+              </AlertDescription>
+            </Alert>
+          )}
 
-            {onRetry && (
-              <Button
-                onClick={onRetry}
-                disabled={loading}
-                variant="outline"
-                size="sm"
-                className="border-red-300 text-red-700 hover:bg-red-50"
-              >
-                {loading ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Reintentando...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Reintentar
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
+          {onRetry && (
+            <Button
+              onClick={onRetry}
+              disabled={loading}
+              variant="outline"
+              size="sm"
+              className="w-full"
+            >
+              {loading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Reintentando...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Reintentar
+                </>
+              )}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -10,9 +10,12 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Building2, Users, Globe, TrendingUp, Activity } from "lucide-react";
+import { Building2, Users, Globe, TrendingUp, Activity, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
+import ShadcnPieChart from "@/components/charts/ShadcnPieChart";
+import ShadcnBarChart from "@/components/charts/ShadcnBarChart";
+import ShadcnAreaChart from "@/components/charts/ShadcnAreaChart";
 
 interface DashboardStats {
   totalTenants: number;
@@ -27,20 +30,52 @@ interface DashboardStats {
   }>;
 }
 
+interface DashboardAdvancedStats {
+  monthlyBookings: Array<{
+    month: string;
+    bookings: number;
+    revenue: number;
+  }>;
+  tenantGrowth: Array<{
+    month: string;
+    tenants: number;
+  }>;
+  tenantDistribution: Array<{
+    name: string;
+    users: number;
+  }>;
+  summary: {
+    totalBookingsThisYear: number;
+    totalRevenueThisYear: number;
+  };
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [advancedStats, setAdvancedStats] = useState<DashboardAdvancedStats | null>(null);
   const [loading, setLoading] = useState(true);
   const { showError, showInfo } = useToast();
 
   const fetchDashboardStats = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/dashboard");
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
-        showInfo(`Dashboard actualizado - ${data.totalTenants} clientes registrados`);
+      const [basicResponse, advancedResponse] = await Promise.all([
+        fetch("/api/admin/dashboard"),
+        fetch("/api/admin/dashboard/stats")
+      ]);
+
+      if (basicResponse.ok) {
+        const basicData = await basicResponse.json();
+        setStats(basicData);
+        showInfo(`Dashboard actualizado - ${basicData.totalTenants} clientes registrados`);
       } else {
-        showError("Error al cargar las estadísticas del dashboard");
+        showError("Error al cargar las estadísticas básicas del dashboard");
+      }
+
+      if (advancedResponse.ok) {
+        const advancedData = await advancedResponse.json();
+        setAdvancedStats(advancedData);
+      } else {
+        showError("Error al cargar las estadísticas avanzadas del dashboard");
       }
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
@@ -113,10 +148,10 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
+        <h1 className="text-3xl font-semibold text-gray-900 dark:text-white tracking-tight">
           Dashboard
         </h1>
-        <p className="text-gray-600 text-lg">
+        <p className="text-gray-600 dark:text-gray-300 text-lg">
           Gestión de clientes y usuarios del sistema
         </p>
       </div>
@@ -142,13 +177,13 @@ export default function AdminDashboard() {
                 </div>
                 
                 <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-600">
+                  <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
                     {card.title}
                   </h3>
-                  <p className="text-2xl font-semibold text-gray-900">
+                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
                     {card.value}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {card.description}
                   </p>
                 </div>
@@ -158,16 +193,97 @@ export default function AdminDashboard() {
         })}
       </div>
 
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ShadcnAreaChart
+          data={advancedStats?.tenantGrowth?.map(item => ({
+            name: item.month,
+            value: item.tenants
+          })) || []}
+          title="Crecimiento de Clientes"
+          description="Nuevos clientes registrados por mes"
+          color="hsl(220 70% 50%)"
+        />
+        
+        <ShadcnPieChart
+          data={[
+            { name: "Activos", value: stats?.activeTenants || 0 },
+            { name: "Inactivos", value: (stats?.totalTenants || 0) - (stats?.activeTenants || 0) },
+          ]}
+          title="Estado de Clientes"
+          description="Distribución de clientes activos e inactivos"
+          colors={["hsl(142 70% 45%)", "hsl(0 84% 60%)"]}
+        />
+      </div>
+
+      {/* Additional Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ShadcnBarChart
+          data={advancedStats?.monthlyBookings?.map(item => ({
+            name: item.month,
+            value: item.bookings
+          })) || []}
+          title="Reservas por Mes"
+          description="Total de reservas realizadas cada mes"
+          color="hsl(271 70% 50%)"
+        />
+        
+        <Card className="border-0 shadow-sm">
+          <CardHeader>
+            <div className="flex items-center space-x-2">
+              <Calendar className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+                Resumen Anual
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Reservas Este Año</span>
+                    <span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                      {advancedStats?.summary?.totalBookingsThisYear || 0}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Ingresos Este Año</span>
+                    <span className="text-lg font-semibold text-green-600 dark:text-green-400">
+                      ${(advancedStats?.summary?.totalRevenueThisYear || 0).toLocaleString("es-CL")}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Tasa de Activación</span>
+                    <span className="text-lg font-semibold text-purple-600 dark:text-purple-400">
+                      {stats?.totalTenants ? Math.round((stats.activeTenants / stats.totalTenants) * 100) : 0}%
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Recent Activity */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center space-x-2">
-            <Activity className="h-5 w-5 text-gray-600" />
-            <CardTitle className="text-xl font-semibold text-gray-900">
+            <Activity className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+            <CardTitle className="text-xl font-semibold text-gray-900 dark:text-white">
               Clientes Recientes
             </CardTitle>
           </div>
-          <CardDescription className="text-gray-600">
+          <CardDescription className="text-gray-600 dark:text-gray-300">
             Últimos clientes registrados en el sistema
           </CardDescription>
         </CardHeader>
@@ -192,13 +308,13 @@ export default function AdminDashboard() {
                       </div>
                       
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-gray-900 dark:text-white">
                           {tenant.name}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
                           {tenant.email}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           Registrado: {new Date(tenant.createdAt).toLocaleDateString(
                             "es-ES",
                             {
@@ -226,10 +342,10 @@ export default function AdminDashboard() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <Building2 className="h-8 w-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 No hay clientes registrados
               </h3>
-              <p className="text-gray-500 text-center max-w-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-center max-w-sm">
                 Cuando se registren clientes en el sistema, aparecerán aquí
               </p>
             </div>

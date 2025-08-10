@@ -11,6 +11,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
 import { NotificationToast } from "@/components/ui/notification-toast";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -103,7 +104,7 @@ function NotificationsBell({ tenantId }: { tenantId?: string }) {
         <Button
           variant="ghost"
           size="sm"
-          className="relative p-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-full"
+          className="relative p-2 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
         >
           <Bell className="w-5 h-5" />
           {unreadCount > 0 && (
@@ -122,40 +123,40 @@ function NotificationsBell({ tenantId }: { tenantId?: string }) {
         className="w-80 max-h-96 overflow-y-auto"
         sideOffset={8}
       >
-        <div className="px-4 py-3 border-b">
-          <h3 className="font-semibold text-gray-900">Notificaciones</h3>
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="font-semibold text-gray-900 dark:text-white">Notificaciones</h3>
         </div>
 
         <div className="max-h-80 overflow-y-auto">
           {loading ? (
             <div className="p-4 text-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 mx-auto"></div>
-              <p className="text-sm text-gray-500 mt-2">Cargando...</p>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
+              <p className="text-sm text-gray-500 dark:text-gray-300 mt-2">Cargando...</p>
             </div>
           ) : notifications.length === 0 ? (
             <div className="p-6 text-center">
-              <Bell className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">No tienes notificaciones</p>
+              <Bell className="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
+              <p className="text-sm text-gray-500 dark:text-gray-300">No tienes notificaciones</p>
             </div>
           ) : (
             notifications.map((notification) => (
               <DropdownMenuItem
                 key={notification.id}
-                className={`p-4 cursor-pointer ${!notification.read ? "bg-blue-50" : ""}`}
+                className={`p-4 cursor-pointer ${!notification.read ? "bg-blue-50 dark:bg-blue-900/20" : ""}`}
               >
                 <div className="w-full">
                   <div className="flex items-center justify-between">
-                    <p className={`text-sm font-medium ${!notification.read ? "text-gray-900" : "text-gray-700"}`}>
+                    <p className={`text-sm font-medium ${!notification.read ? "text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"}`}>
                       {notification.title}
                     </p>
                     {!notification.read && (
                       <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                     {notification.message}
                   </p>
-                  <div className="flex items-center mt-2 text-xs text-gray-500">
+                  <div className="flex items-center mt-2 text-xs text-gray-500 dark:text-gray-400">
                     <Clock className="w-3 h-3 mr-1" />
                     <span>{new Date(notification.createdAt).toLocaleString('es-ES')}</span>
                   </div>
@@ -195,12 +196,12 @@ export default function TenantLayout({
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-pulse flex space-x-4">
-          <div className="rounded-full bg-gray-200 h-12 w-12"></div>
+          <div className="rounded-full bg-muted h-12 w-12"></div>
           <div className="flex-1 space-y-2 py-1">
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-4 bg-muted rounded w-3/4"></div>
+            <div className="h-4 bg-muted rounded w-1/2"></div>
           </div>
         </div>
       </div>
@@ -222,9 +223,9 @@ export default function TenantLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Top Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-card border-b border-border sticky top-0 z-50">
         <div className="container-fluid mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
@@ -233,16 +234,17 @@ export default function TenantLayout({
                   <span className="text-white text-sm font-bold">B</span>
                 </div>
                 <div>
-                  <h1 className="text-lg font-semibold text-gray-900">
+                  <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
                     BookingNow
                   </h1>
-                  <p className="text-xs text-gray-500">Panel de Cliente</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300">Panel de Cliente</p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center space-x-4">
               <NotificationsBell tenantId={session.user.tenantId} />
+              <ThemeToggle />
               
               <div className="hidden sm:flex items-center space-x-2">
                 <Avatar className="h-8 w-8">
@@ -253,10 +255,10 @@ export default function TenantLayout({
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {session.user?.name || session.user?.email}
                   </p>
-                  <p className="text-xs text-gray-500">Cliente</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300">Cliente</p>
                 </div>
               </div>
 
@@ -267,7 +269,7 @@ export default function TenantLayout({
                 }}
                 variant="ghost"
                 size="sm"
-                className="text-gray-700 hover:text-gray-900"
+                className="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
               >
                 <LogOut className="w-4 h-4" />
               </Button>
@@ -278,7 +280,7 @@ export default function TenantLayout({
 
       <div className="flex">
         {/* Sidebar Navigation */}
-        <nav className="w-64 bg-white min-h-screen border-r border-gray-200 hidden lg:block">
+        <nav className="w-64 bg-card min-h-screen border-r border-border hidden lg:block">
           <div className="p-6">
             <div className="space-y-2">
               {navItems.map((item) => {
@@ -292,14 +294,14 @@ export default function TenantLayout({
                     className={cn(
                       "flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
                       isActive
-                        ? "bg-rose-50 text-rose-700 border border-rose-100"
-                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-rose-50 text-rose-700 border border-rose-100 dark:bg-rose-900/20 dark:text-rose-300 dark:border-rose-800"
+                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
                     )}
                   >
                     <Icon
                       className={cn(
                         "w-5 h-5",
-                        isActive ? "text-rose-600" : "text-gray-400"
+                        isActive ? "text-rose-600 dark:text-rose-400" : "text-gray-400 dark:text-gray-400"
                       )}
                     />
                     <span>{item.label}</span>
@@ -319,7 +321,7 @@ export default function TenantLayout({
       </div>
 
       {/* Mobile Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-2">
         <div className="flex justify-around">
           {[navItems[0], navItems[2], navItems[3], navItems[6]].map((item) => {
             const Icon = item.icon;
@@ -331,7 +333,7 @@ export default function TenantLayout({
                 href={item.href}
                 className={cn(
                   "flex flex-col items-center space-y-1 px-3 py-2 rounded-lg",
-                  isActive ? "text-rose-600" : "text-gray-400"
+                  isActive ? "text-rose-600 dark:text-rose-400" : "text-gray-400 dark:text-gray-300"
                 )}
               >
                 <Icon className="w-5 h-5" />

@@ -9,6 +9,7 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import {
   Home,
   LogOut,
@@ -42,12 +43,12 @@ export default function AdminLayout({
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-pulse flex space-x-4">
-          <div className="rounded-full bg-gray-200 h-12 w-12"></div>
+          <div className="rounded-full bg-gray-200 dark:bg-gray-700 h-12 w-12"></div>
           <div className="flex-1 space-y-2 py-1">
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
           </div>
         </div>
       </div>
@@ -65,9 +66,9 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Top Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <header className="bg-card border-b border-border sticky top-0 z-50">
         <div className="container-fluid mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
@@ -76,10 +77,10 @@ export default function AdminLayout({
                   <span className="text-white text-sm font-bold">B</span>
                 </div>
                 <div>
-                  <h1 className="text-lg font-semibold text-gray-900">
+                  <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
                     BookingNow
                   </h1>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">
                     Panel de Administración
                   </p>
                 </div>
@@ -87,6 +88,8 @@ export default function AdminLayout({
             </div>
 
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
+              
               <div className="hidden sm:flex items-center space-x-2">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-rose-100 text-rose-700 text-sm">
@@ -96,10 +99,10 @@ export default function AdminLayout({
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {session.user?.name || session.user?.email}
                   </p>
-                  <p className="text-xs text-gray-500">Administrador</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300">Administrador</p>
                 </div>
               </div>
 
@@ -110,7 +113,7 @@ export default function AdminLayout({
                 }}
                 variant="ghost"
                 size="sm"
-                className="text-gray-700 hover:text-gray-900"
+                className="text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
               >
                 <LogOut className="w-4 h-4" />
               </Button>
@@ -121,7 +124,7 @@ export default function AdminLayout({
 
       <div className="flex">
         {/* Sidebar Navigation */}
-        <nav className="w-64 bg-white min-h-screen border-r border-gray-200 hidden lg:block">
+        <nav className="w-64 bg-card min-h-screen border-r border-border hidden lg:block">
           <div className="p-6">
             <div className="space-y-2">
               {navItems.map((item) => {
@@ -135,14 +138,14 @@ export default function AdminLayout({
                     className={cn(
                       "flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
                       isActive
-                        ? "bg-rose-50 text-rose-700 border border-rose-100"
-                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-rose-50 text-rose-700 border border-rose-100 dark:bg-rose-900/20 dark:text-rose-300 dark:border-rose-800"
+                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
                     )}
                   >
                     <Icon
                       className={cn(
                         "w-5 h-5",
-                        isActive ? "text-rose-600" : "text-gray-400"
+                        isActive ? "text-rose-600 dark:text-rose-400" : "text-gray-400 dark:text-gray-400"
                       )}
                     />
                     <span>{item.label}</span>
@@ -162,7 +165,7 @@ export default function AdminLayout({
       </div>
 
       {/* Mobile Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-2">
         <div className="flex justify-around">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -174,7 +177,7 @@ export default function AdminLayout({
                 href={item.href}
                 className={cn(
                   "flex flex-col items-center space-y-1 px-3 py-2 rounded-lg",
-                  isActive ? "text-rose-600" : "text-gray-400"
+                  isActive ? "text-rose-600 dark:text-rose-400" : "text-gray-400 dark:text-gray-300"
                 )}
               >
                 <Icon className="w-5 h-5" />

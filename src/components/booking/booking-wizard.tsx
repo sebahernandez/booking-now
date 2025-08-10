@@ -86,7 +86,7 @@ export function BookingWizard({
       <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200 flex-shrink-0">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
               Reserva tu cita
             </h1>
             <div className="flex items-center space-x-2 text-sm text-gray-500">
@@ -140,7 +140,7 @@ export function BookingWizard({
           {currentStep === 2 && (
             <div className="flex flex-col h-full">
               <div className="text-center mb-4 flex-shrink-0">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-1">
                   ¿Qué día te gustaría agendar?
                 </h2>
               </div>
@@ -166,7 +166,7 @@ export function BookingWizard({
           {currentStep === 3 && (
             <div className="flex flex-col h-full">
               <div className="text-center mb-4 flex-shrink-0">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-1">
                   ¿A qué hora prefieres tu cita?
                 </h2>
                 <p className="text-gray-600 text-sm">
@@ -210,7 +210,7 @@ export function BookingWizard({
           {currentStep === 5 && (
             <div className="flex flex-col h-full">
               <div className="text-center mb-3 flex-shrink-0">
-                <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-1">
+                <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-1">
                   Resumen de tu cita
                 </h2>
                 <p className="text-gray-600 text-xs">
@@ -230,7 +230,7 @@ export function BookingWizard({
           {currentStep === 6 && (
             <div className="flex flex-col h-full">
               <div className="text-center mb-3 flex-shrink-0">
-                <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-1">
+                <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-1">
                   Información de contacto
                 </h2>
               </div>

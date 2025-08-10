@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Clock, Calendar as CalendarIcon } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { AvailableSlot } from "@/types/booking-wizard";
 import { formatters, messages } from "@/utils/booking-utils";
 import { NetworkError } from "../NetworkError";
@@ -28,24 +29,27 @@ export function TimeSelection({
 }: TimeSelectionProps) {
   if (!selectedDate) {
     return (
-      <div className="bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300 p-12 text-center">
-        <CalendarIcon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-        <p className="text-gray-500 mb-2">Selecciona una fecha</p>
-        <p className="text-sm text-gray-400">
-          Los horarios disponibles aparecerán aquí
-        </p>
-      </div>
+      <Card className="border-2 border-dashed">
+        <CardContent className="p-12 text-center">
+          <CalendarIcon className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground mb-2">Selecciona una fecha</p>
+          <p className="text-sm text-muted-foreground">
+            Los horarios disponibles aparecerán aquí
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 h-full flex flex-col">
-      <div className="flex-shrink-0 mb-3">
-        <h3 className="text-sm font-semibold text-gray-900 mb-1">
-          Horarios disponibles
-        </h3>
-        <p className="text-gray-600 text-xs">{formatters.date(selectedDate)}</p>
-      </div>
+    <Card className="h-full">
+      <CardContent className="p-3 h-full flex flex-col">
+        <div className="flex-shrink-0 mb-3">
+          <h3 className="text-sm font-semibold mb-1">
+            Horarios disponibles
+          </h3>
+          <p className="text-muted-foreground text-xs">{formatters.date(selectedDate)}</p>
+        </div>
 
       {loading ? (
         <div className="flex-1 flex flex-col items-center justify-center">
@@ -102,6 +106,7 @@ export function TimeSelection({
           )}
         </div>
       )}
-    </div>
+      </CardContent>
+    </Card>
   );
 }

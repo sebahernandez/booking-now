@@ -1,5 +1,6 @@
 import { CheckCircle } from "lucide-react";
 import { messages } from "@/utils/booking-utils";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface SuccessMessageProps {
   clientEmail?: string;
@@ -16,11 +17,11 @@ export function SuccessMessage({ clientEmail }: SuccessMessageProps) {
         {messages.success.bookingDescription}
       </p>
       {clientEmail && (
-        <div className="w-full mx-auto bg-green-50 border border-green-200 rounded-xl p-6">
-          <p className="text-green-800">
+        <Alert className="max-w-md mx-auto bg-green-50 border-green-200 text-green-800">
+          <AlertDescription>
             {messages.success.emailConfirmation} <strong>{clientEmail}</strong>
-          </p>
-        </div>
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );

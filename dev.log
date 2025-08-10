@@ -14,3 +14,4 @@
  ✓ Compiled /api/tenant/bookings in 1264ms
 NextAuth Warning: DEBUG_ENABLED
  GET /api/tenant/bookings 403 in 1496ms
+[?25h

@@ -1,4 +1,5 @@
 import { Clock } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { BookingData } from "@/types/booking-wizard";
 import { formatters } from "@/utils/booking-utils";
 
@@ -39,7 +40,7 @@ export function BookingSummary({ bookingData }: BookingSummaryProps) {
               <label className="text-xs font-medium text-gray-500 block mb-1">
                 FECHA
               </label>
-              <div className="text-sm font-semibold text-gray-900">
+              <div className="text-sm font-semibold text-gray-900 dark:text-white">
                 {bookingData.selectedDate &&
                   formatters.date(bookingData.selectedDate)}
               </div>
@@ -63,7 +64,7 @@ export function BookingSummary({ bookingData }: BookingSummaryProps) {
                 <label className="text-xs font-medium text-gray-500 block mb-1">
                   PROFESIONAL
                 </label>
-                <div className="text-sm font-semibold text-gray-900 flex items-center">
+                <div className="text-sm font-semibold text-gray-900 dark:text-white flex items-center">
                   <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center mr-1.5">
                     <span className="text-xs font-medium text-gray-600">
                       {bookingData.professional.user.name.charAt(0).toUpperCase()}
@@ -89,15 +90,19 @@ export function BookingSummary({ bookingData }: BookingSummaryProps) {
 
         {/* Total */}
         <div className="border-t border-gray-200 pt-2 mt-3">
-          <div className="flex items-center justify-between bg-gray-50 rounded-lg p-2">
-            <span className="text-sm font-medium text-gray-700">
-              Total a pagar:
-            </span>
-            <span className="text-base font-bold text-gray-900">
-              {bookingData.service &&
-                formatters.currency(bookingData.service.price)}
-            </span>
-          </div>
+          <Card className="bg-muted">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">
+                  Total a pagar:
+                </span>
+                <span className="text-base font-bold">
+                  {bookingData.service &&
+                    formatters.currency(bookingData.service.price)}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
